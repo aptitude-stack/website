@@ -1,4 +1,6 @@
 import type { Metadata } from "next"
+import Image from "next/image"
+import Link from "next/link"
 import { Archivo_Black, Archivo, Space_Mono } from "next/font/google"
 import "./globals.css"
 
@@ -30,43 +32,35 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${archivoBlack.variable} ${archivo.variable} ${spaceMono.variable}`}>
       <body>
-        <header style={{ borderBottom: "1px solid var(--border)", background: "var(--bg-base)", position: "sticky", top: 0, zIndex: 50 }}>
-          <nav style={{
-            maxWidth: "1100px", margin: "0 auto", padding: "0 1.5rem", height: "52px",
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            fontFamily: "var(--font-space-mono), 'Space Mono', ui-monospace, monospace",
-            fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase",
-          }}>
-            <a href="/" style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none", color: "var(--text-primary)" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.svg" alt="" style={{ width: "20px", height: "auto", display: "block" }} />
-              <span style={{ color: "var(--accent)" }}>Aptitude</span>
-            </a>
-            <nav aria-label="Primary" style={{ display: "flex", gap: "clamp(18px, 2.4vw, 36px)" }}>
-              <a href="https://api.aptitude-registry.dev/docs" target="_blank" rel="noopener noreferrer" className="nav-link">
-                API ↗
+        <a className="skip-link" href="#main-content">Skip to main content</a>
+        <header className="site-header">
+          <nav className="site-nav" aria-label="Primary">
+            <Link href="/" className="brand-link" aria-label="Aptitude Registry home">
+              <Image className="brand-mark" src="/logo.svg" alt="" width={30} height={34} />
+              <span className="brand-text" translate="no">
+                <strong>Aptitude</strong>
+                <span>Registry</span>
+              </span>
+            </Link>
+            <div className="nav-actions">
+              <Link href="/" className="nav-link">Catalog</Link>
+              <a href="https://api.aptitude-registry.dev/docs" target="_blank" rel="noopener noreferrer" className="nav-cta">
+                API Docs ↗
               </a>
-            </nav>
+            </div>
           </nav>
         </header>
-        <main style={{
-          maxWidth: "1100px", margin: "0 auto", padding: "clamp(20px, 2.4vw, 32px) clamp(20px, 3.6vw, 56px)",
-          borderLeft: "1px solid var(--border)", borderRight: "1px solid var(--border)",
-          minHeight: "calc(100vh - 52px - 52px)",
-        }}>
+        <main id="main-content" className="site-main">
           {children}
         </main>
-        <footer style={{
-          maxWidth: "1100px", margin: "0 auto", width: "100%",
-          padding: "clamp(14px, 1.6vw, 20px) clamp(20px, 3.6vw, 56px)",
-          borderTop: "1px solid var(--border)",
-          display: "flex", justifyContent: "space-between", gap: "16px",
-          fontFamily: "var(--font-space-mono), 'Space Mono', ui-monospace, monospace",
-          fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.28em", textTransform: "uppercase",
-          color: "var(--text-dim)",
-        }}>
-          <span>Aptitude Registry</span>
-          <span>Governed skill infrastructure</span>
+        <footer className="site-footer">
+          <div className="site-footer__inner">
+            <span translate="no">Aptitude Registry</span>
+            <div className="footer-meta">
+              <span className="footer-pip" aria-hidden="true" />
+              <span>Governed skill infrastructure</span>
+            </div>
+          </div>
         </footer>
       </body>
     </html>

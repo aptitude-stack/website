@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 
 interface SearchBarProps {
   onSearch: (query: string) => void
@@ -11,8 +11,9 @@ interface SearchBarProps {
 export function SearchBar({
   onSearch,
   loading,
-  placeholder = "Search skills — e.g. review FastAPI pull requests",
+  placeholder = "Search skills, e.g. review FastAPI pull requests…",
 }: SearchBarProps) {
+  const inputId = useId()
   const [value, setValue] = useState("")
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -25,46 +26,28 @@ export function SearchBar({
   }, [value, onSearch])
 
   return (
-    <div style={{ position: "relative", display: "flex", alignItems: "center", width: "100%", maxWidth: "600px" }}>
+    <div className="search-shell">
+      <label htmlFor={inputId} className="sr-only">Search skills</label>
       <input
+        id={inputId}
         type="text"
+        name="skill-search"
         role="textbox"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
-        style={{
-          width: "100%",
-          background: "var(--bg-surface)",
-          border: "1px solid var(--border-strong)",
-          borderRadius: "999px",
-          padding: "14px 2.75rem 14px 20px",
-          color: "var(--text-primary)",
-          fontFamily: "var(--font-space-mono), 'Space Mono', ui-monospace, monospace",
-          fontSize: "0.78rem",
-          fontWeight: 700,
-          letterSpacing: "0.08em",
-          outline: "none",
-          transition: "border-color 0.15s",
-        }}
-        onFocus={(e) => { e.currentTarget.style.borderColor = "var(--accent)" }}
-        onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border-strong)" }}
+        autoComplete="off"
+        inputMode="search"
+        spellCheck={false}
+        className="search-input"
       />
       {loading && (
-        <div
+        <span
           data-testid="search-loading"
-          style={{
-            position: "absolute",
-            right: "0.875rem",
-            width: "16px",
-            height: "16px",
-            borderRadius: "50%",
-            border: "2px solid var(--border)",
-            borderTopColor: "var(--accent)",
-            animation: "spin 0.7s linear infinite",
-          }}
+          className="search-spinner"
+          aria-hidden="true"
         />
       )}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

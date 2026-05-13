@@ -7,50 +7,47 @@ interface InstallButtonProps {
   version?: string
 }
 
-const MONO = "var(--font-space-mono), 'Space Mono', ui-monospace, monospace"
+type CopyState = "idle" | "copied" | "error"
 
 export function InstallButton({ slug, version }: InstallButtonProps) {
   const command = version
     ? `uvx aptitude install ${slug} --version ${version}`
     : `uvx aptitude install ${slug}`
-  const [copied, setCopied] = useState(false)
+  const [copyState, setCopyState] = useState<CopyState>("idle")
 
   async function handleCopy() {
-    await navigator.clipboard.writeText(command)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    try {
+      await navigator.clipboard.writeText(command)
+      setCopyState("copied")
+    } catch {
+      setCopyState("error")
+    }
+    setTimeout(() => setCopyState("idle"), 2000)
   }
 
+  const label = copyState === "copied"
+    ? "Copied"
+    : copyState === "error"
+      ? "Failed"
+      : "Copy"
+
   return (
-    <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-strong)", padding: "14px 20px 14px 20px", display: "flex", alignItems: "center", gap: "0.75rem" }}>
-      <code style={{ flex: 1, fontFamily: MONO, fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.04em", color: "var(--accent)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-        {command}
-      </code>
+    <div className="install-command">
+      <code translate="no">{command}</code>
       <button
+        type="button"
         onClick={handleCopy}
         aria-label="Copy install command"
-        style={{
-          flexShrink: 0,
-          background: "transparent",
-          border: `1px solid ${copied ? "var(--accent)" : "var(--border-strong)"}`,
-          borderRadius: "999px",
-          padding: "6px 16px",
-          fontFamily: MONO,
-          fontSize: "0.72rem",
-          fontWeight: 700,
-          letterSpacing: "0.16em",
-          textTransform: "uppercase",
-          color: copied ? "var(--accent)" : "var(--text-dim)",
-          cursor: "pointer",
-          transition: "all 0.15s",
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "8px",
-        }}
+        className="copy-button"
+        data-state={copyState}
       >
-        <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: copied ? "var(--accent)" : "var(--text-dim)", display: "inline-block", flexShrink: 0, transition: "background 0.15s" }} />
-        {copied ? "Copied" : "Copy"}
+        <span className="copy-dot" aria-hidden="true" />
+        {label}
       </button>
+      <span className="sr-only" role="status" aria-live="polite">
+        {copyState === "copied" ? "Install command is on your clipboard." : ""}
+        {copyState === "error" ? "Install command could not be copied." : ""}
+      </span>
     </div>
   )
 }

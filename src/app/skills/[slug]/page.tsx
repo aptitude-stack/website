@@ -35,24 +35,22 @@ export default async function SkillDetailPage({ params, searchParams }: Props) {
     : null
 
   return (
-    <div>
+    <div className="detail-page">
       <SkillHeader meta={meta} />
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: "2rem", alignItems: "start" }}>
-        <div>
+      <div className="detail-grid">
+        <div className="detail-main">
           {markdown ? (
             <SkillContent markdown={markdown} />
           ) : (
-            <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", padding: "2rem", color: "var(--text-dim)", fontFamily: "var(--font-space-mono), 'Space Mono', ui-monospace, monospace", fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", textAlign: "center" }}>
+            <div className="empty-panel">
               SKILL.md not available for this version.
             </div>
           )}
           {versionList.versions.length > 1 && (
-            <div style={{ marginTop: "2.5rem" }}>
-              <VersionList slug={slug} versions={versionList.versions} />
-            </div>
+            <VersionList slug={slug} versions={versionList.versions} />
           )}
         </div>
-        <div style={{ position: "sticky", top: "4.5rem" }}>
+        <div className="detail-aside">
           <SkillMetadata meta={meta} />
         </div>
       </div>

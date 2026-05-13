@@ -1,41 +1,48 @@
+import Link from "next/link"
 import type { SkillVersionSummaryDto } from "@/lib/types"
 
-const MONO = "var(--font-space-mono), 'Space Mono', ui-monospace, monospace"
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+})
 
-const lifecycleColor = {
-  published: "#d8b4fe",
-  deprecated: "#f2c94c",
-  archived: "#7a766d",
-} as Record<string, string>
+function lifecycleClass(status: string) {
+  if (status === "published") return "badge-published"
+  if (status === "deprecated") return "badge-deprecated"
+  return "badge-archived"
+}
 
 export function VersionList({ slug, versions }: { slug: string; versions: SkillVersionSummaryDto[] }) {
   return (
-    <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border)" }}>
-      <div style={{ padding: "clamp(10px, 1.2vw, 14px) clamp(20px, 2.4vw, 28px)", borderBottom: "1px solid var(--border)" }}>
-        <h2 style={{ fontFamily: MONO, fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase", color: "var(--text-dim)", margin: 0 }}>Version History</h2>
+    <section className="version-panel" aria-labelledby="version-history-title">
+      <div className="version-panel__header">
+        <h2 id="version-history-title" className="panel-title">Version History</h2>
       </div>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <tbody>
-          {versions.map((v) => (
-            <tr key={v.version} style={{ borderBottom: "1px solid var(--border)", background: v.is_current_default ? "rgba(168,85,247,0.06)" : "transparent" }}>
-              <td style={{ padding: "clamp(10px, 1.2vw, 14px) clamp(20px, 2.4vw, 28px)" }}>
-                <a href={`/skills/${slug}?version=${v.version}`} style={{ fontFamily: MONO, fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.04em", color: v.is_current_default ? "var(--accent)" : "var(--text-primary)", textDecoration: "none" }}>
-                  {v.version}
-                  {v.is_current_default && <span style={{ fontSize: "0.65rem", marginLeft: "0.5rem", color: "var(--accent)", letterSpacing: "0.16em", textTransform: "uppercase" }}>latest</span>}
-                </a>
-              </td>
-              <td style={{ padding: "clamp(10px, 1.2vw, 14px) 0.75rem" }}>
-                <span style={{ fontSize: "0.7rem", fontFamily: MONO, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: lifecycleColor[v.lifecycle_status] ?? "var(--text-dim)" }}>{v.lifecycle_status}</span>
-              </td>
-              <td style={{ padding: "clamp(10px, 1.2vw, 14px) clamp(20px, 2.4vw, 28px)", textAlign: "right" }}>
-                <span style={{ fontSize: "0.7rem", fontFamily: MONO, fontWeight: 700, letterSpacing: "0.06em", color: "var(--text-dim)" }}>
-                  {new Date(v.published_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+      <div className="version-table-wrap">
+        <table className="version-table">
+          <tbody>
+            {versions.map((version) => (
+              <tr key={version.version} data-current={version.is_current_default}>
+                <td>
+                  <Link href={`/skills/${slug}?version=${version.version}`} className="version-link">
+                    <span translate="no">{version.version}</span>
+                    {version.is_current_default && <span className="latest-label">Latest</span>}
+                  </Link>
+                </td>
+                <td>
+                  <span className={`badge ${lifecycleClass(version.lifecycle_status)}`}>
+                    {version.lifecycle_status}
+                  </span>
+                </td>
+                <td className="version-date">
+                  {dateFormatter.format(new Date(version.published_at))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
   )
 }
