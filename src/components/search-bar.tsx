@@ -22,7 +22,7 @@ export function SearchBar({
     }
     timerRef.current = setTimeout(() => {
       if (value.trim() !== "") {
-        onSearch(value)
+        onSearch(value.trim())
       }
     }, 350)
 

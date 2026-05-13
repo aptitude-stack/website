@@ -18,6 +18,7 @@ describe("SearchBar", () => {
     expect(onSearch).not.toHaveBeenCalled()
     act(() => jest.advanceTimersByTime(350))
     expect(onSearch).toHaveBeenCalledWith("fastapi")
+    expect(onSearch).toHaveBeenCalledTimes(1)
   })
 
   it("does not call onSearch for blank query", async () => {
