@@ -17,31 +17,15 @@ export function SearchBar({
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    if (timerRef.current !== null) {
-      clearTimeout(timerRef.current)
-    }
+    if (timerRef.current !== null) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(() => {
-      if (value.trim() !== "") {
-        onSearch(value.trim())
-      }
+      if (value.trim() !== "") onSearch(value.trim())
     }, 350)
-
-    return () => {
-      if (timerRef.current !== null) {
-        clearTimeout(timerRef.current)
-      }
-    }
+    return () => { if (timerRef.current !== null) clearTimeout(timerRef.current) }
   }, [value, onSearch])
 
   return (
-    <div
-      style={{
-        position: "relative",
-        display: "flex",
-        alignItems: "center",
-        width: "100%",
-      }}
-    >
+    <div style={{ position: "relative", display: "flex", alignItems: "center", width: "100%", maxWidth: "600px" }}>
       <input
         type="text"
         role="textbox"
@@ -51,22 +35,19 @@ export function SearchBar({
         style={{
           width: "100%",
           background: "var(--bg-surface)",
-          border: "1px solid var(--border)",
-          borderRadius: "6px",
-          padding: "0.625rem 2.75rem 0.625rem 1rem",
+          border: "1px solid var(--border-strong)",
+          borderRadius: "999px",
+          padding: "14px 2.75rem 14px 20px",
           color: "var(--text-primary)",
-          fontFamily: "IBM Plex Sans, sans-serif",
-          fontSize: "0.9rem",
-          fontWeight: 300,
+          fontFamily: "var(--font-space-mono), 'Space Mono', ui-monospace, monospace",
+          fontSize: "0.78rem",
+          fontWeight: 700,
+          letterSpacing: "0.08em",
           outline: "none",
           transition: "border-color 0.15s",
         }}
-        onFocus={(e) => {
-          e.currentTarget.style.borderColor = "var(--accent-dim)"
-        }}
-        onBlur={(e) => {
-          e.currentTarget.style.borderColor = "var(--border)"
-        }}
+        onFocus={(e) => { e.currentTarget.style.borderColor = "var(--accent)" }}
+        onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border-strong)" }}
       />
       {loading && (
         <div
@@ -79,16 +60,11 @@ export function SearchBar({
             borderRadius: "50%",
             border: "2px solid var(--border)",
             borderTopColor: "var(--accent)",
-            fontFamily: "IBM Plex Mono, monospace",
             animation: "spin 0.7s linear infinite",
           }}
         />
       )}
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

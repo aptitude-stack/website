@@ -1,27 +1,21 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-base: #0E0F11;
-  --color-surface: #161719;
-  --color-elevated: #1D1E21;
-  --color-border: #252628;
-  --color-border-subtle: #1A1B1D;
-  --color-primary: #F0F0EE;
-  --color-muted: #7C7D80;
-  --color-dim: #383A3D;
+  --color-base: #0a0a0a;
+  --color-surface: #141414;
+  --color-elevated: #1c1c1b;
+  --color-border: #2d2c2a;
+  --color-border-strong: #4a4842;
+  --color-primary: #ece7db;
+  --color-muted: #c9c4b7;
+  --color-dim: #7a766d;
   --color-accent: #a855f7;
-  --color-accent-hover: #bf7afa;
-  --color-accent-dim: #1e0a2e;
-  --color-green: #50C97A;
-  --color-red: #E06060;
+  --color-accent-dim: rgba(168, 85, 247, 0.08);
+  --color-green: #d8b4fe;
+  --color-red: #ff6b5c;
   --color-blue: #5B9EF0;
 
-  --font-display: var(--font-fraunces), Georgia, serif;
-  --font-mono: var(--font-ibm-plex-mono), monospace;
-  --font-sans: var(--font-ibm-plex-sans), system-ui, sans-serif;
-
   --animate-fade-up: fadeUp 0.4s ease forwards;
-
   @keyframes fadeUp {
     0% { opacity: 0; transform: translateY(8px); }
     100% { opacity: 1; transform: translateY(0); }
@@ -29,20 +23,23 @@
 }
 
 :root {
-  --bg-base: #0E0F11;
-  --bg-surface: #161719;
-  --bg-elevated: #1D1E21;
-  --border: #252628;
-  --border-subtle: #1A1B1D;
-  --text-primary: #F0F0EE;
-  --text-muted: #7C7D80;
-  --text-dim: #383A3D;
+  --bg-base: #0a0a0a;
+  --bg-surface: #141414;
+  --bg-elevated: #1c1c1b;
+  --border: #2d2c2a;
+  --border-strong: #4a4842;
+  --border-subtle: #1e1e1d;
+  --text-primary: #ece7db;
+  --text-muted: #c9c4b7;
+  --text-dim: #7a766d;
   --accent: #a855f7;
   --accent-hover: #bf7afa;
-  --accent-dim: #1e0a2e;
-  --green: #50C97A;
-  --red: #E06060;
+  --accent-glow: rgba(168, 85, 247, 0.18);
+  --accent-dim: rgba(168, 85, 247, 0.08);
+  --green: #d8b4fe;
+  --red: #ff6b5c;
   --blue: #5B9EF0;
+  --warn: #f2c94c;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -50,41 +47,49 @@ html { background: var(--bg-base); scroll-behavior: smooth; }
 body {
   background: var(--bg-base);
   color: var(--text-primary);
-  font-family: var(--font-ibm-plex-sans), 'IBM Plex Sans', system-ui, sans-serif;
-  font-weight: 300;
+  font-family: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-feature-settings: "ss01", "ss02";
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   min-height: 100vh;
 }
 ::selection { background: var(--accent-dim); color: var(--accent); }
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.nav-link {
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 120ms ease;
+}
+.nav-link:hover { color: var(--text-primary); }
 
 .prose-skill h1, .prose-skill h2, .prose-skill h3 {
-  font-family: var(--font-fraunces), 'Fraunces', Georgia, serif;
-  font-weight: 500;
+  font-family: 'Archivo Black', 'Archivo', sans-serif;
+  font-weight: 900;
   color: var(--text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
 }
-.prose-skill h1 { font-size: 1.75rem; margin: 0 0 1rem; }
-.prose-skill h2 { font-size: 1.25rem; margin: 2rem 0 0.75rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
-.prose-skill h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--text-muted); }
+.prose-skill h1 { font-size: 1.5rem; margin: 0 0 1rem; }
+.prose-skill h2 { font-size: 1.1rem; margin: 2rem 0 0.75rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+.prose-skill h3 { font-size: 0.95rem; margin: 1.5rem 0 0.5rem; color: var(--text-muted); }
 .prose-skill p { margin: 0 0 1rem; line-height: 1.7; }
 .prose-skill ul, .prose-skill ol { margin: 0 0 1rem 1.25rem; }
 .prose-skill li { margin-bottom: 0.25rem; line-height: 1.6; }
 .prose-skill code {
-  font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', monospace;
-  font-size: 0.85em;
+  font-family: 'Space Mono', ui-monospace, monospace;
+  font-size: 0.82em;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   padding: 0.1em 0.35em;
-  border-radius: 3px;
   color: var(--accent);
 }
 .prose-skill pre {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: 6px;
   padding: 1rem 1.25rem;
   overflow-x: auto;
   margin: 0 0 1.25rem;
@@ -92,9 +97,9 @@ body {
 .prose-skill pre code { background: none; border: none; padding: 0; color: var(--text-primary); font-size: 0.875rem; }
 .prose-skill a { color: var(--accent); text-decoration: none; }
 .prose-skill a:hover { text-decoration: underline; }
-.prose-skill blockquote { border-left: 2px solid var(--accent-dim); padding-left: 1rem; margin: 0 0 1rem; color: var(--text-muted); }
+.prose-skill blockquote { border-left: 2px solid var(--accent); padding-left: 1rem; margin: 0 0 1rem; color: var(--text-muted); }
 .prose-skill hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
-.prose-skill table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.9rem; }
-.prose-skill th { background: var(--bg-elevated); color: var(--text-muted); text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); font-weight: 500; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', monospace; font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase; }
-.prose-skill td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border-subtle); }
+.prose-skill table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.875rem; }
+.prose-skill th { background: var(--bg-elevated); color: var(--text-muted); text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); font-weight: 700; font-family: 'Space Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.prose-skill td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
 .prose-skill tr:hover td { background: var(--bg-surface); }

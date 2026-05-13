@@ -42,7 +42,7 @@ export default async function SkillDetailPage({ params, searchParams }: Props) {
           {markdown ? (
             <SkillContent markdown={markdown} />
           ) : (
-            <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: "8px", padding: "2rem", color: "var(--text-dim)", fontFamily: "IBM Plex Mono, monospace", fontSize: "0.875rem", textAlign: "center" }}>
+            <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", padding: "2rem", color: "var(--text-dim)", fontFamily: "var(--font-space-mono), 'Space Mono', ui-monospace, monospace", fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", textAlign: "center" }}>
               SKILL.md not available for this version.
             </div>
           )}
