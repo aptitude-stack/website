@@ -21,11 +21,17 @@ export interface SkillMetadataDto {
   security_score: number | null
 }
 
+export interface TrustContextDto {
+  trust_tier: string
+  policy_profile: string
+}
+
 export interface ProvenanceDto {
   repo_url: string
   commit_sha: string
   tree_path: string | null
   publisher_identity: string | null
+  trust_context: TrustContextDto | null
 }
 
 // GET /skills/{slug}/{version}
