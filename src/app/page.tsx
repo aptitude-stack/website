@@ -2,7 +2,7 @@ import { fetchSkillCardData } from "@/lib/registry-client"
 import { CatalogView } from "@/components/catalog-view"
 import type { SkillCardData } from "@/lib/types"
 
-const FEATURED_SLUGS = (process.env.NEXT_PUBLIC_FEATURED_SLUGS ?? "")
+const FEATURED_SLUGS = (process.env.FEATURED_SLUGS ?? "")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean)

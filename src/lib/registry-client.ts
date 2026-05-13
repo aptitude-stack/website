@@ -1,3 +1,4 @@
+import "server-only"
 import type { DiscoveryResponseDto, SkillCardData, SkillVersionListDto, SkillVersionMetadataDto } from "@/lib/types"
 
 function getRegistryEnv(): { baseUrl: string; token: string } {

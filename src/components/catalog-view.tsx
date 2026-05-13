@@ -41,7 +41,9 @@ export function CatalogView({ featured }: CatalogViewProps) {
       if (err instanceof Error && err.name === "AbortError") return
       setError("Search unavailable — check your connection.")
     } finally {
-      setLoading(false)
+      if (!controller.signal.aborted) {
+        setLoading(false)
+      }
     }
   }, [])
 
