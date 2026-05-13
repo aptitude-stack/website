@@ -34,8 +34,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <header style={{ borderBottom: "1px solid var(--border)", background: "var(--bg-base)", position: "sticky", top: 0, zIndex: 50 }}>
           <nav style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 1.5rem", height: "52px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <a href="/" style={{ fontFamily: "var(--font-ibm-plex-mono), 'IBM Plex Mono', monospace", fontSize: "0.95rem", color: "var(--accent)", textDecoration: "none", letterSpacing: "0.02em", fontWeight: 500 }}>
-              aptitude
+            <a href="/" style={{ display: "flex", alignItems: "center", gap: "0.6rem", textDecoration: "none" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.svg" alt="" style={{ width: "22px", height: "auto", display: "block" }} />
+              <span style={{ fontFamily: "var(--font-ibm-plex-mono), 'IBM Plex Mono', monospace", fontSize: "0.95rem", color: "var(--accent)", letterSpacing: "0.02em", fontWeight: 500 }}>
+                aptitude
+              </span>
             </a>
             <a href="https://api.aptitude-registry.dev/docs" target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.8rem", color: "var(--text-muted)", textDecoration: "none", fontFamily: "var(--font-ibm-plex-mono), 'IBM Plex Mono', monospace" }}>
               API docs ↗

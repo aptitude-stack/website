@@ -3,7 +3,7 @@ import type { SkillCardData } from "@/lib/types"
 
 const lifecycleStyle = {
   published: { bg: "#0D2016", color: "#50C97A" },
-  deprecated: { bg: "#2A1A08", color: "#E8A427" },
+  deprecated: { bg: "#1e0a2e", color: "#a855f7" },
   archived: { bg: "#1A1B1D", color: "#7C7D80" },
 } as Record<string, { bg: string; color: string }>
 
