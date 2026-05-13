@@ -1,6 +1,7 @@
+import type { ReactNode } from "react"
 import type { SkillVersionMetadataDto } from "@/lib/types"
 
-function MetaRow({ label, children }: { label: string; children: React.ReactNode }) {
+function MetaRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div style={{ display: "flex", gap: "1rem", padding: "0.625rem 0", borderBottom: "1px solid var(--border-subtle)" }}>
       <span style={{ width: "9rem", flexShrink: 0, fontSize: "0.75rem", fontFamily: "IBM Plex Mono, monospace", color: "var(--text-muted)", letterSpacing: "0.04em", textTransform: "uppercase", paddingTop: "0.1rem" }}>

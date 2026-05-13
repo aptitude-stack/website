@@ -15,12 +15,7 @@ export default async function SkillDetailPage({ params, searchParams }: Props) {
   const { slug } = await params
   const { version: versionParam } = await searchParams
 
-  let versionList
-  try {
-    versionList = await fetchSkillVersionList(slug)
-  } catch {
-    notFound()
-  }
+  const versionList = await fetchSkillVersionList(slug).catch(() => notFound() as never)
 
   const current = versionParam
     ? versionList.versions.find((v) => v.version === versionParam)
