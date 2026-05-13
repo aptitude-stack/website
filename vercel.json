@@ -2,10 +2,6 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "env": {
-    "REGISTRY_BASE_URL": "@registry-base-url",
-    "REGISTRY_READ_TOKEN": "@registry-read-token"
-  },
   "headers": [
     {
       "source": "/api/(.*)",
