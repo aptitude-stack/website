@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useRef } from "react"
 import { SearchBar } from "@/components/search-bar"
 import { SkillCard } from "@/components/skill-card"
 import type { SkillCardData } from "@/lib/types"
@@ -15,7 +15,14 @@ export function CatalogView({ featured }: CatalogViewProps) {
   const [searched, setSearched] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const abortRef = useRef<AbortController | null>(null)
+
   const handleSearch = useCallback(async (query: string) => {
+    // Cancel any in-flight request
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+
     setLoading(true)
     setError(null)
     setSearched(true)
@@ -24,11 +31,14 @@ export function CatalogView({ featured }: CatalogViewProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),
+        signal: controller.signal,
       })
       if (!res.ok) throw new Error("Search failed")
       const data: { candidates: SkillCardData[] } = await res.json()
       setResults(data.candidates)
-    } catch {
+    } catch (err) {
+      // Ignore abort errors — they're intentional cancellations
+      if (err instanceof Error && err.name === "AbortError") return
       setError("Search unavailable — check your connection.")
     } finally {
       setLoading(false)
@@ -50,7 +60,7 @@ export function CatalogView({ featured }: CatalogViewProps) {
       </div>
 
       {error && <p style={{ color: "var(--red)", fontSize: "0.875rem", fontFamily: "IBM Plex Mono, monospace", marginBottom: "1.5rem" }}>{error}</p>}
-      {searched && !loading && results.length === 0 && (
+      {searched && !loading && results.length === 0 && !error && (
         <p style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>No skills found. Try a different query.</p>
       )}
       {!searched && (
