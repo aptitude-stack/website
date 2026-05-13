@@ -14,7 +14,7 @@ const trustColor = {
 } as Record<string, string>
 
 export function SkillCard({ card }: { card: SkillCardData }) {
-  const { slug, version, name, description, tags, lifecycle_status, trust_tier, token_estimate, size_bytes } = card
+  const { slug, version, description, tags, lifecycle_status, trust_tier, token_estimate, size_bytes } = card
   const lc = lifecycleStyle[lifecycle_status] ?? lifecycleStyle.archived
 
   return (
