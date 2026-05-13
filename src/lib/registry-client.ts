@@ -1,9 +1,14 @@
 import type { DiscoveryResponseDto, SkillCardData, SkillVersionListDto, SkillVersionMetadataDto } from "@/lib/types"
 
-export async function registryFetch<T>(path: string, init?: RequestInit): Promise<T> {
+function getRegistryEnv(): { baseUrl: string; token: string } {
   const baseUrl = process.env.REGISTRY_BASE_URL
   const token = process.env.REGISTRY_READ_TOKEN
   if (!baseUrl || !token) throw new Error("REGISTRY_BASE_URL and REGISTRY_READ_TOKEN must be set")
+  return { baseUrl, token }
+}
+
+export async function registryFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const { baseUrl, token } = getRegistryEnv()
   const res = await fetch(`${baseUrl}${path}`, {
     ...init,
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", ...init?.headers },
@@ -23,9 +28,7 @@ export async function fetchSkillMetadata(slug: string, version: string): Promise
 }
 
 export async function fetchSkillContent(slug: string, version: string): Promise<ArrayBuffer> {
-  const baseUrl = process.env.REGISTRY_BASE_URL
-  const token = process.env.REGISTRY_READ_TOKEN
-  if (!baseUrl || !token) throw new Error("REGISTRY_BASE_URL and REGISTRY_READ_TOKEN must be set")
+  const { baseUrl, token } = getRegistryEnv()
   const res = await fetch(
     `${baseUrl}/skills/${encodeURIComponent(slug)}/${encodeURIComponent(version)}/content`,
     { headers: { Authorization: `Bearer ${token}` } }

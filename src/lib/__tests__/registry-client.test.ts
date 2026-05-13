@@ -1,5 +1,5 @@
 import fetchMock from "jest-fetch-mock"
-import { registryFetch, fetchSkillCardData, fetchSkillVersionList, fetchSkillMetadata } from "@/lib/registry-client"
+import { registryFetch, fetchSkillCardData, fetchSkillVersionList, fetchSkillMetadata, discoverSlugs } from "@/lib/registry-client"
 import type { SkillVersionListDto, SkillVersionMetadataDto } from "@/lib/types"
 
 beforeEach(() => {
@@ -53,5 +53,26 @@ describe("fetchSkillCardData", () => {
     fetchMock.mockResponseOnce(JSON.stringify({ slug: "empty", versions: [] }))
     const result = await fetchSkillCardData("empty")
     expect(result).toBeNull()
+  })
+})
+
+describe("discoverSlugs", () => {
+  it("posts { name: query } and returns candidates array", async () => {
+    fetchMock.mockResponseOnce(JSON.stringify({ candidates: ["fastapi", "ruff"] }))
+    const result = await discoverSlugs("review fastapi code")
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://registry.example.com/discovery",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ name: "review fastapi code" }),
+      })
+    )
+    expect(result).toEqual(["fastapi", "ruff"])
+  })
+
+  it("returns empty array when no candidates", async () => {
+    fetchMock.mockResponseOnce(JSON.stringify({ candidates: [] }))
+    const result = await discoverSlugs("nonexistent")
+    expect(result).toEqual([])
   })
 })
