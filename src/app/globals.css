@@ -1,26 +1,100 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-base: #0E0F11;
+  --color-surface: #161719;
+  --color-elevated: #1D1E21;
+  --color-border: #252628;
+  --color-border-subtle: #1A1B1D;
+  --color-primary: #F0F0EE;
+  --color-muted: #7C7D80;
+  --color-dim: #383A3D;
+  --color-accent: #E8A427;
+  --color-accent-hover: #F0B340;
+  --color-accent-dim: #261C08;
+  --color-green: #50C97A;
+  --color-red: #E06060;
+  --color-blue: #5B9EF0;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-mono: var(--font-ibm-plex-mono), monospace;
+  --font-sans: var(--font-ibm-plex-sans), system-ui, sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --animate-fade-up: fadeUp 0.4s ease forwards;
+
+  @keyframes fadeUp {
+    0% { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+:root {
+  --bg-base: #0E0F11;
+  --bg-surface: #161719;
+  --bg-elevated: #1D1E21;
+  --border: #252628;
+  --border-subtle: #1A1B1D;
+  --text-primary: #F0F0EE;
+  --text-muted: #7C7D80;
+  --text-dim: #383A3D;
+  --accent: #E8A427;
+  --accent-hover: #F0B340;
+  --accent-dim: #261C08;
+  --green: #50C97A;
+  --red: #E06060;
+  --blue: #5B9EF0;
 }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--bg-base); scroll-behavior: smooth; }
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-ibm-plex-sans), 'IBM Plex Sans', system-ui, sans-serif;
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+::selection { background: var(--accent-dim); color: var(--accent); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.prose-skill h1, .prose-skill h2, .prose-skill h3 {
+  font-family: var(--font-fraunces), 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+.prose-skill h1 { font-size: 1.75rem; margin: 0 0 1rem; }
+.prose-skill h2 { font-size: 1.25rem; margin: 2rem 0 0.75rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+.prose-skill h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--text-muted); }
+.prose-skill p { margin: 0 0 1rem; line-height: 1.7; }
+.prose-skill ul, .prose-skill ol { margin: 0 0 1rem 1.25rem; }
+.prose-skill li { margin-bottom: 0.25rem; line-height: 1.6; }
+.prose-skill code {
+  font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  color: var(--accent);
+}
+.prose-skill pre {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 0 0 1.25rem;
+}
+.prose-skill pre code { background: none; border: none; padding: 0; color: var(--text-primary); font-size: 0.875rem; }
+.prose-skill a { color: var(--accent); text-decoration: none; }
+.prose-skill a:hover { text-decoration: underline; }
+.prose-skill blockquote { border-left: 2px solid var(--accent-dim); padding-left: 1rem; margin: 0 0 1rem; color: var(--text-muted); }
+.prose-skill hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.prose-skill table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.9rem; }
+.prose-skill th { background: var(--bg-elevated); color: var(--text-muted); text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); font-weight: 500; font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', monospace; font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase; }
+.prose-skill td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border-subtle); }
+.prose-skill tr:hover td { background: var(--bg-surface); }
