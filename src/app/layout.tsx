@@ -98,12 +98,12 @@ export default function RootLayout({
                 Catalog
               </Link>
               <a
-                href="https://api.aptitude-registry.dev/docs"
+                href="https://github.com/aptitude-stack"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="nav-cta"
               >
-                API Docs ↗
+                Docs ↗
               </a>
             </div>
           </nav>
