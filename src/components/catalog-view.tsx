@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import { useCallback, useRef, useState } from "react"
 import { SearchBar } from "@/components/search-bar"
 import { SkillCard } from "@/components/skill-card"
@@ -81,52 +80,6 @@ export function CatalogView({ featured }: CatalogViewProps) {
             <SearchBar onSearch={handleSearch} loading={loading} />
           </div>
         </div>
-
-        <aside className="registry-panel" aria-label="Registry Signals">
-          <div className="registry-panel__top">
-            <div>
-              <div className="status-label">Catalog Mode</div>
-              <div className="status-value">Governed</div>
-            </div>
-            <div>
-              <div className="status-label">Resolver Path</div>
-              <div className="status-value">Deterministic</div>
-            </div>
-          </div>
-          <Image className="hero-logo" src="/logo.svg" alt="" width={403} height={451} preload aria-hidden="true" />
-          <div className="registry-panel__bottom">
-            <div className="registry-row">
-              <span className="status-label">Search</span>
-              <span className="registry-value">Semantic discovery over trusted skill metadata</span>
-            </div>
-            <div className="registry-row">
-              <span className="status-label">Install</span>
-              <span className="registry-value" translate="no">uvx aptitude install &lt;skill&gt;</span>
-            </div>
-            <div className="registry-row">
-              <span className="status-label">Artifact</span>
-              <span className="registry-value" translate="no">application/zstd · .tar.zst</span>
-            </div>
-          </div>
-        </aside>
-      </section>
-
-      <section className="catalog-metrics" aria-label="Registry summary">
-        <div className="metric-card">
-          <div className="metric-label">Featured</div>
-          <div className="metric-value">{featuredCount}</div>
-          <p className="metric-note">Curated skills surfaced before a search.</p>
-        </div>
-        <div className="metric-card">
-          <div className="metric-label">Trust Context</div>
-          <div className="metric-value">Policy</div>
-          <p className="metric-note">Lifecycle and trust tier stay visible while browsing.</p>
-        </div>
-        <div className="metric-card">
-          <div className="metric-label">Install Surface</div>
-          <div className="metric-value" translate="no">uvx</div>
-          <p className="metric-note">Commands remain copyable from every detail page.</p>
-        </div>
       </section>
 
       <section className="catalog-results" aria-labelledby="catalog-results-title">
@@ -163,6 +116,21 @@ export function CatalogView({ featured }: CatalogViewProps) {
               <SkillCard card={card} />
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="catalog-metrics" aria-label="Registry summary">
+        <div className="metric-card">
+          <div className="metric-label">Skills</div>
+          <div className="metric-value">12,431</div>
+        </div>
+        <div className="metric-card">
+          <div className="metric-label">Verified</div>
+          <div className="metric-value">89%</div>
+        </div>
+        <div className="metric-card">
+          <div className="metric-label">Avg Resolve</div>
+          <div className="metric-value" translate="no">42ms</div>
         </div>
       </section>
     </div>

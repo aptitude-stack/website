@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Archivo_Black, Archivo, Space_Mono } from "next/font/google";
+import {
+  Archivo,
+  Archivo_Black,
+  IBM_Plex_Mono,
+  Space_Mono,
+} from "next/font/google";
+import { ThemeModeControl } from "@/components/theme-mode-control";
 import "./globals.css";
 
 const archivoBlack = Archivo_Black({
@@ -23,8 +29,23 @@ const spaceMono = Space_Mono({
   weight: ["400", "700"],
 });
 
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  variable: "--font-ibm-plex-mono",
+  weight: ["400", "500", "600"],
+});
+
+const themeBootstrapScript = `
+try {
+  const mode = window.localStorage.getItem("aptitude-theme-mode");
+  if (mode === "light" || mode === "dark") {
+    document.documentElement.dataset.theme = mode;
+  }
+} catch (_) {}
+`;
+
 export const metadata: Metadata = {
-  title: "Aptitude — Skill Registry",
+  title: "Aptitude",
   description: "Governed skill infrastructure for AI systems.",
   icons: {
     icon: [
@@ -45,9 +66,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${archivoBlack.variable} ${archivo.variable} ${spaceMono.variable}`}
+      suppressHydrationWarning
+      className={`${archivoBlack.variable} ${archivo.variable} ${spaceMono.variable} ${ibmPlexMono.variable}`}
     >
       <body>
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
         <a className="skip-link" href="#main-content">
           Skip to main content
         </a>
@@ -95,6 +118,7 @@ export default function RootLayout({
               <span className="footer-pip" aria-hidden="true" />
               <span>Governed skill infrastructure</span>
             </div>
+            <ThemeModeControl />
           </div>
         </footer>
       </body>
