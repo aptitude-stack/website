@@ -113,7 +113,6 @@ export default function RootLayout({
         </main>
         <footer className="site-footer">
           <div className="site-footer__inner">
-            <span translate="no">Aptitude Registry</span>
             <div className="footer-meta">
               <span className="footer-pip" aria-hidden="true" />
               <span>Governed skill infrastructure</span>
