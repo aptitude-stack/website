@@ -1,21 +1,29 @@
 "use client"
 
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { SearchBar } from "@/components/search-bar"
 import { SkillCard } from "@/components/skill-card"
 import type { SkillCardData } from "@/lib/types"
 
 interface CatalogViewProps {
-  featured: SkillCardData[]
+  topSkills: SkillCardData[]
 }
 
 const countFormatter = new Intl.NumberFormat("en-US")
+const DEFAULT_TOP_SKILL_LIMIT = 12
 
-export function CatalogView({ featured }: CatalogViewProps) {
+export function getTopSkillLimitForWidth(width: number): number {
+  if (width >= 1024) return 12
+  if (width >= 768) return 8
+  return 4
+}
+
+export function CatalogView({ topSkills }: CatalogViewProps) {
   const [results, setResults] = useState<SkillCardData[]>([])
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [topSkillLimit, setTopSkillLimit] = useState(DEFAULT_TOP_SKILL_LIMIT)
 
   const abortRef = useRef<AbortController | null>(null)
 
@@ -47,22 +55,45 @@ export function CatalogView({ featured }: CatalogViewProps) {
     }
   }, [])
 
-  const displaySkills = searched ? results : featured
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return
+    const desktop = window.matchMedia("(min-width: 1024px)")
+    const tablet = window.matchMedia("(min-width: 768px)")
+    const updateLimit = () => {
+      if (desktop.matches) {
+        setTopSkillLimit(12)
+      } else if (tablet.matches) {
+        setTopSkillLimit(8)
+      } else {
+        setTopSkillLimit(4)
+      }
+    }
+    updateLimit()
+    desktop.addEventListener("change", updateLimit)
+    tablet.addEventListener("change", updateLimit)
+    return () => {
+      desktop.removeEventListener("change", updateLimit)
+      tablet.removeEventListener("change", updateLimit)
+    }
+  }, [])
+
+  const visibleTopSkills = topSkills.slice(0, topSkillLimit)
+  const displaySkills = searched ? results : visibleTopSkills
   const displayCount = countFormatter.format(displaySkills.length)
-  const featuredCount = countFormatter.format(featured.length)
-  const sectionLabel = searched ? "Search Results" : "Featured Skills"
+  const topSkillCount = countFormatter.format(displaySkills.length)
+  const sectionLabel = searched ? "Search Results" : "Top Installed Skills"
   const sectionNote = loading
     ? "Searching…"
     : searched
       ? `${displayCount} ${displaySkills.length === 1 ? "match" : "matches"}`
-      : `${featuredCount} curated`
+      : `${topSkillCount} shown`
   const liveStatus = error
     ? error
     : loading
       ? "Searching skills…"
       : searched
         ? `${displayCount} ${displaySkills.length === 1 ? "skill" : "skills"} found.`
-        : `${featuredCount} featured ${featured.length === 1 ? "skill" : "skills"} loaded.`
+        : `${topSkillCount} top installed ${displaySkills.length === 1 ? "skill" : "skills"} shown.`
 
   return (
     <div className="catalog-page">
@@ -100,9 +131,9 @@ export function CatalogView({ featured }: CatalogViewProps) {
             No skills found. Try a different query.
           </p>
         )}
-        {!searched && featured.length === 0 && (
+        {!searched && visibleTopSkills.length === 0 && (
           <p className="state-message">
-            No featured skills configured.
+            No top installed skills available.
           </p>
         )}
 

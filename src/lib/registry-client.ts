@@ -1,5 +1,11 @@
 import "server-only"
-import type { DiscoveryResponseDto, SkillCardData, SkillVersionListDto, SkillVersionMetadataDto } from "@/lib/types"
+import type {
+  DiscoveryResponseDto,
+  SkillCardData,
+  SkillVersionListDto,
+  SkillVersionMetadataDto,
+  TopSkillsResponseDto,
+} from "@/lib/types"
 
 function getRegistryEnv(): { baseUrl: string; token: string } {
   const baseUrl = process.env.REGISTRY_BASE_URL
@@ -46,14 +52,11 @@ export async function discoverSlugs(query: string): Promise<string[]> {
   return result.candidates
 }
 
-export async function fetchSkillCardData(slug: string): Promise<SkillCardData | null> {
-  const list = await fetchSkillVersionList(slug)
-  const current = list.versions.find((v) => v.is_current_default) ?? list.versions[0]
-  if (!current) return null
-  const meta = await fetchSkillMetadata(slug, current.version)
+function toSkillCardData(meta: SkillVersionMetadataDto): SkillCardData {
   return {
     slug: meta.slug,
     version: meta.version,
+    install_count: meta.install_count,
     name: meta.metadata.name,
     description: meta.metadata.description,
     tags: meta.metadata.tags,
@@ -63,4 +66,19 @@ export async function fetchSkillCardData(slug: string): Promise<SkillCardData | 
     size_bytes: meta.content.size_bytes,
     published_at: meta.published_at,
   }
+}
+
+export async function fetchTopSkillCards(limit = 12): Promise<SkillCardData[]> {
+  const result = await registryFetch<TopSkillsResponseDto>(
+    `/catalog/top-skills?limit=${encodeURIComponent(limit)}`
+  )
+  return result.skills.map(toSkillCardData)
+}
+
+export async function fetchSkillCardData(slug: string): Promise<SkillCardData | null> {
+  const list = await fetchSkillVersionList(slug)
+  const current = list.versions.find((v) => v.is_current_default) ?? list.versions[0]
+  if (!current) return null
+  const meta = await fetchSkillMetadata(slug, current.version)
+  return toSkillCardData(meta)
 }

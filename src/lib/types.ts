@@ -78,10 +78,16 @@ export interface DiscoveryResponseDto {
   candidates: string[]
 }
 
+// GET /catalog/top-skills
+export interface TopSkillsResponseDto {
+  skills: SkillVersionMetadataDto[]
+}
+
 // Flattened shape used for SkillCard display (built from SkillVersionMetadataDto)
 export interface SkillCardData {
   slug: string
   version: string
+  install_count: number
   name: string
   description: string | null
   tags: string[]

@@ -10,6 +10,7 @@ const fixture: SkillCardData = {
   tags: ["python", "api", "fastapi"],
   lifecycle_status: "published",
   trust_tier: "trusted",
+  install_count: 1284,
   token_estimate: 900,
   size_bytes: 2048,
   published_at: "2024-06-01T00:00:00Z",
@@ -34,6 +35,11 @@ describe("SkillCard", () => {
   it("renders tags", () => {
     render(<SkillCard card={fixture} />)
     expect(screen.getByText("python")).toBeInTheDocument()
+  })
+
+  it("renders formatted install count", () => {
+    render(<SkillCard card={fixture} />)
+    expect(screen.getByText("1,284 installs")).toBeInTheDocument()
   })
 
   it("links to the skill detail page", () => {

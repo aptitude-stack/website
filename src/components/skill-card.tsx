@@ -28,7 +28,7 @@ function trustClass(tier: string) {
 }
 
 export function SkillCard({ card }: { card: SkillCardData }) {
-  const { slug, version, description, tags, lifecycle_status, trust_tier, token_estimate, size_bytes } = card
+  const { slug, version, install_count, description, tags, lifecycle_status, trust_tier, token_estimate, size_bytes } = card
   const visibleTags = tags.filter((tag) => tag !== slug).slice(0, 5)
 
   return (
@@ -62,6 +62,7 @@ export function SkillCard({ card }: { card: SkillCardData }) {
             </div>
           )}
           <div className="skill-card__stats">
+            <span>{numberFormatter.format(install_count)} installs</span>
             {token_estimate !== null && (
               <span>~{numberFormatter.format(token_estimate)} tok</span>
             )}
