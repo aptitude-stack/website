@@ -30,7 +30,8 @@ function Score({ value }: { value: number | null }) {
 
 export function SkillMetadata({ meta }: { meta: SkillVersionMetadataDto }) {
   const { metadata, content, provenance } = meta
-  const repoHost = provenance?.repo_url ? new URL(provenance.repo_url).hostname : null
+  const repoUrl = provenance?.repo_url ? safeHttpUrl(provenance.repo_url) : null
+  const repoHost = repoUrl?.hostname ?? null
 
   return (
     <aside className="metadata-panel" aria-labelledby="metadata-title">
@@ -65,13 +66,23 @@ export function SkillMetadata({ meta }: { meta: SkillVersionMetadataDto }) {
         <span translate="no">{meta.namespace}</span>
       </MetaRow>
 
-      {provenance?.repo_url && repoHost && (
+      {repoUrl && repoHost && (
         <MetaRow label="Source">
-          <a href={provenance.repo_url} target="_blank" rel="noopener noreferrer">
+          <a href={repoUrl.toString()} target="_blank" rel="noopener noreferrer">
             {repoHost} ↗
           </a>
         </MetaRow>
       )}
     </aside>
   )
+}
+
+function safeHttpUrl(value: string): URL | null {
+  try {
+    const url = new URL(value)
+    if (url.protocol !== "https:" && url.protocol !== "http:") return null
+    return url
+  } catch {
+    return null
+  }
 }

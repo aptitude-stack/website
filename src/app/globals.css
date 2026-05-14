@@ -65,10 +65,10 @@
   --warn: #f2c94c;
   --theme-mode-icon: #a9a39a;
   --theme-mode-active-icon: #fff7ed;
-  --font-display: var(--font-archivo-black), 'Archivo Black', sans-serif;
-  --font-body: var(--font-archivo), 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --font-mono: var(--font-space-mono), 'Space Mono', ui-monospace, monospace;
-  --font-instrument: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, monospace;
+  --font-display: Impact, Haettenschweiler, 'Arial Black', sans-serif;
+  --font-body: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  --font-instrument: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
   --page-max: 1240px;
   --page-gutter: clamp(18px, 4vw, 64px);
   --radius-sm: 4px;

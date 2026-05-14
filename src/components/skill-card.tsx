@@ -33,7 +33,7 @@ export function SkillCard({ card }: { card: SkillCardData }) {
 
   return (
     <Link
-      href={`/skills/${slug}`}
+      href={`/skills/${encodeURIComponent(slug)}`}
       className={`skill-card ${lifecycleClass(lifecycle_status)}`}
     >
       <span className="skill-card__dot" aria-hidden="true" />

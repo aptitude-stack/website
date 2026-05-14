@@ -1,39 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Archivo,
-  Archivo_Black,
-  IBM_Plex_Mono,
-  Space_Mono,
-} from "next/font/google";
 import { ThemeModeControl } from "@/components/theme-mode-control";
 import "./globals.css";
-
-const archivoBlack = Archivo_Black({
-  subsets: ["latin"],
-  variable: "--font-archivo-black",
-  weight: "400",
-});
-
-const archivo = Archivo({
-  subsets: ["latin"],
-  variable: "--font-archivo",
-  weight: ["400", "500", "700"],
-  style: ["normal", "italic"],
-});
-
-const spaceMono = Space_Mono({
-  subsets: ["latin"],
-  variable: "--font-space-mono",
-  weight: ["400", "700"],
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  variable: "--font-ibm-plex-mono",
-  weight: ["400", "500", "600"],
-});
 
 const themeBootstrapScript = `
 try {
@@ -67,7 +36,6 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${archivoBlack.variable} ${archivo.variable} ${spaceMono.variable} ${ibmPlexMono.variable}`}
     >
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />

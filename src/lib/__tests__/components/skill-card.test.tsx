@@ -47,4 +47,10 @@ describe("SkillCard", () => {
     const link = screen.getByRole("link")
     expect(link).toHaveAttribute("href", "/skills/fastapi")
   })
+
+  it("encodes slug in the detail link", () => {
+    render(<SkillCard card={{ ...fixture, slug: "python/security scan" }} />)
+    const link = screen.getByRole("link")
+    expect(link).toHaveAttribute("href", "/skills/python%2Fsecurity%20scan")
+  })
 })

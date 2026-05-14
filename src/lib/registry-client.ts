@@ -2,13 +2,16 @@ import "server-only"
 import type {
   DiscoveryResponseDto,
   SkillCardData,
+  SkillVersionSummaryDto,
   SkillVersionListDto,
   SkillVersionMetadataDto,
   TopSkillsResponseDto,
 } from "@/lib/types"
 
+const HTTP_PROTOCOLS = new Set(["http:", "https:"])
+
 function getRegistryEnv(): { baseUrl: string; token: string } {
-  const baseUrl = process.env.REGISTRY_BASE_URL
+  const baseUrl = normalizeBaseUrl(process.env.REGISTRY_BASE_URL)
   const token = process.env.REGISTRY_READ_TOKEN
   if (!baseUrl || !token) throw new Error("REGISTRY_BASE_URL and REGISTRY_READ_TOKEN must be set")
   return { baseUrl, token }
@@ -29,13 +32,15 @@ export async function registryFetch<T>(path: string, init?: RequestInit): Promis
 }
 
 export async function fetchSkillVersionList(slug: string): Promise<SkillVersionListDto> {
-  return registryFetch<SkillVersionListDto>(`/skills/${encodeURIComponent(slug)}`)
+  const result = await registryFetch<unknown>(`/skills/${encodeURIComponent(slug)}`)
+  return assertSkillVersionList(result)
 }
 
 export async function fetchSkillMetadata(slug: string, version: string): Promise<SkillVersionMetadataDto> {
-  return registryFetch<SkillVersionMetadataDto>(
+  const result = await registryFetch<unknown>(
     `/skills/${encodeURIComponent(slug)}/${encodeURIComponent(version)}`
   )
+  return assertSkillVersionMetadata(result)
 }
 
 export async function fetchSkillContent(slug: string, version: string): Promise<ArrayBuffer> {
@@ -49,11 +54,11 @@ export async function fetchSkillContent(slug: string, version: string): Promise<
 }
 
 export async function discoverSlugs(query: string): Promise<string[]> {
-  const result = await registryFetch<DiscoveryResponseDto>("/discovery", {
+  const result = await registryFetch<unknown>("/discovery", {
     method: "POST",
     body: JSON.stringify({ name: query }),
   })
-  return result.candidates
+  return assertDiscoveryResponse(result).candidates
 }
 
 function toSkillCardData(meta: SkillVersionMetadataDto): SkillCardData {
@@ -73,10 +78,10 @@ function toSkillCardData(meta: SkillVersionMetadataDto): SkillCardData {
 }
 
 export async function fetchTopSkillCards(limit = 12): Promise<SkillCardData[]> {
-  const result = await registryFetch<TopSkillsResponseDto>(
+  const result = await registryFetch<unknown>(
     `/catalog/top-skills?limit=${encodeURIComponent(limit)}`
   )
-  return result.skills.map(toSkillCardData)
+  return assertTopSkillsResponse(result).skills.map(toSkillCardData)
 }
 
 export async function fetchSkillCardData(slug: string): Promise<SkillCardData | null> {
@@ -85,4 +90,173 @@ export async function fetchSkillCardData(slug: string): Promise<SkillCardData | 
   if (!current) return null
   const meta = await fetchSkillMetadata(slug, current.version)
   return toSkillCardData(meta)
+}
+
+function normalizeBaseUrl(value: string | undefined): string | undefined {
+  if (!value) return undefined
+  try {
+    const url = new URL(value)
+    if (!HTTP_PROTOCOLS.has(url.protocol)) return undefined
+    return url.origin + url.pathname.replace(/\/+$/, "")
+  } catch {
+    return undefined
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+function isString(value: unknown): value is string {
+  return typeof value === "string"
+}
+
+function isNullableString(value: unknown): value is string | null {
+  return value === null || isString(value)
+}
+
+function isNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value)
+}
+
+function isNullableNumber(value: unknown): value is number | null {
+  return value === null || isNumber(value)
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(isString)
+}
+
+function assertDiscoveryResponse(value: unknown): DiscoveryResponseDto {
+  if (!isRecord(value) || !isStringArray(value.candidates)) {
+    throw new Error("Invalid registry discovery response")
+  }
+  return { candidates: value.candidates }
+}
+
+function assertTopSkillsResponse(value: unknown): TopSkillsResponseDto {
+  if (!isRecord(value) || !Array.isArray(value.skills)) {
+    throw new Error("Invalid registry top skills response")
+  }
+  return { skills: value.skills.map(assertSkillVersionMetadata) }
+}
+
+function assertSkillVersionList(value: unknown): SkillVersionListDto {
+  if (!isRecord(value) || !isString(value.slug) || !Array.isArray(value.versions)) {
+    throw new Error("Invalid registry version list response")
+  }
+  return {
+    slug: value.slug,
+    versions: value.versions.map(assertSkillVersionSummary),
+  }
+}
+
+function assertSkillVersionSummary(value: unknown): SkillVersionSummaryDto {
+  if (
+    !isRecord(value) ||
+    !isString(value.version) ||
+    !isString(value.lifecycle_status) ||
+    !isString(value.trust_tier) ||
+    !isString(value.namespace) ||
+    !isString(value.artifact_origin) ||
+    !isString(value.review_state) ||
+    !isString(value.promotion_channel) ||
+    !isNullableString(value.policy_pack_slug) ||
+    !isString(value.published_at) ||
+    typeof value.is_current_default !== "boolean"
+  ) {
+    throw new Error("Invalid registry version summary")
+  }
+  return {
+    version: value.version,
+    lifecycle_status: value.lifecycle_status,
+    trust_tier: value.trust_tier,
+    namespace: value.namespace,
+    artifact_origin: value.artifact_origin,
+    review_state: value.review_state,
+    promotion_channel: value.promotion_channel,
+    policy_pack_slug: value.policy_pack_slug,
+    published_at: value.published_at,
+    is_current_default: value.is_current_default,
+  }
+}
+
+function assertSkillVersionMetadata(value: unknown): SkillVersionMetadataDto {
+  if (!isRecord(value)) throw new Error("Invalid registry metadata response")
+  const metadata = value.metadata
+  const content = value.content
+  const checksum = value.version_checksum
+  if (
+    !isString(value.slug) ||
+    !isString(value.version) ||
+    !isNumber(value.install_count) ||
+    !isChecksum(checksum) ||
+    !isContent(content) ||
+    !isMetadata(metadata) ||
+    !isString(value.lifecycle_status) ||
+    !isString(value.trust_tier) ||
+    !isString(value.namespace) ||
+    !isString(value.artifact_origin) ||
+    !isString(value.review_state) ||
+    !isString(value.promotion_channel) ||
+    !isNullableString(value.policy_pack_slug) ||
+    !isProvenance(value.provenance) ||
+    !isString(value.published_at)
+  ) {
+    throw new Error("Invalid registry metadata response")
+  }
+  return {
+    slug: value.slug,
+    version: value.version,
+    install_count: value.install_count,
+    version_checksum: checksum,
+    content,
+    metadata,
+    lifecycle_status: value.lifecycle_status,
+    trust_tier: value.trust_tier,
+    namespace: value.namespace,
+    artifact_origin: value.artifact_origin,
+    review_state: value.review_state,
+    promotion_channel: value.promotion_channel,
+    policy_pack_slug: value.policy_pack_slug,
+    provenance: value.provenance,
+    published_at: value.published_at,
+  }
+}
+
+function isChecksum(value: unknown): value is SkillVersionMetadataDto["version_checksum"] {
+  return isRecord(value) && isString(value.algorithm) && isString(value.digest)
+}
+
+function isContent(value: unknown): value is SkillVersionMetadataDto["content"] {
+  return isRecord(value) && isChecksum(value.checksum) && isString(value.media_type) && isNumber(value.size_bytes)
+}
+
+function isMetadata(value: unknown): value is SkillVersionMetadataDto["metadata"] {
+  return (
+    isRecord(value) &&
+    isString(value.name) &&
+    isNullableString(value.description) &&
+    isStringArray(value.tags) &&
+    (value.inputs_schema === null || isRecord(value.inputs_schema)) &&
+    (value.outputs_schema === null || isRecord(value.outputs_schema)) &&
+    isNullableNumber(value.token_estimate) &&
+    isNullableNumber(value.maturity_score) &&
+    isNullableNumber(value.security_score)
+  )
+}
+
+function isProvenance(value: unknown): value is SkillVersionMetadataDto["provenance"] {
+  if (value === null) return true
+  if (!isRecord(value)) return false
+  return (
+    isString(value.repo_url) &&
+    isString(value.commit_sha) &&
+    isNullableString(value.tree_path) &&
+    isNullableString(value.publisher_identity) &&
+    (value.trust_context === null ||
+      (isRecord(value.trust_context) &&
+        isString(value.trust_context.trust_tier) &&
+        isString(value.trust_context.policy_profile)))
+  )
 }

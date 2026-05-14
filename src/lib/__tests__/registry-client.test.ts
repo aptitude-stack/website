@@ -22,6 +22,11 @@ describe("registryFetch", () => {
     fetchMock.mockResponseOnce("Forbidden", { status: 403 })
     await expect(registryFetch("/test")).rejects.toThrow("Registry 403")
   })
+
+  it("rejects invalid registry base URLs", async () => {
+    process.env.REGISTRY_BASE_URL = "javascript:alert(1)"
+    await expect(registryFetch("/test")).rejects.toThrow("REGISTRY_BASE_URL")
+  })
 })
 
 describe("fetchSkillCardData", () => {
@@ -100,5 +105,10 @@ describe("discoverSlugs", () => {
     fetchMock.mockResponseOnce(JSON.stringify({ candidates: [] }))
     const result = await discoverSlugs("nonexistent")
     expect(result).toEqual([])
+  })
+
+  it("rejects malformed discovery responses", async () => {
+    fetchMock.mockResponseOnce(JSON.stringify({ candidates: ["fastapi", 42] }))
+    await expect(discoverSlugs("fastapi")).rejects.toThrow("Invalid registry discovery response")
   })
 })
