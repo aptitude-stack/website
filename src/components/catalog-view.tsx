@@ -11,6 +11,7 @@ interface CatalogViewProps {
 
 const countFormatter = new Intl.NumberFormat("en-US")
 const DEFAULT_TOP_SKILL_LIMIT = 12
+const VERIFIED_TRUST_TIER = "verified"
 
 export function getTopSkillLimitForWidth(width: number): number {
   if (width >= 1024) return 12
@@ -81,6 +82,16 @@ export function CatalogView({ topSkills }: CatalogViewProps) {
   const displaySkills = searched ? results : visibleTopSkills
   const displayCount = countFormatter.format(displaySkills.length)
   const topSkillCount = countFormatter.format(displaySkills.length)
+  const verifiedTopSkillCount = topSkills.filter((skill) => skill.trust_tier === VERIFIED_TRUST_TIER).length
+  const verifiedTopSkillShare = topSkills.length
+    ? Math.round((verifiedTopSkillCount / topSkills.length) * 100)
+    : 0
+  const topSkillInstallCount = topSkills.reduce((total, skill) => total + skill.install_count, 0)
+  const metrics = [
+    { label: "Top Skills", value: countFormatter.format(topSkills.length) },
+    { label: "Verified", value: `${verifiedTopSkillShare}%` },
+    { label: "Installs", value: countFormatter.format(topSkillInstallCount) },
+  ]
   const sectionLabel = searched ? "Search Results" : "Top Installed Skills"
   const sectionNote = loading
     ? "Searching…"
@@ -151,18 +162,12 @@ export function CatalogView({ topSkills }: CatalogViewProps) {
       </section>
 
       <section className="catalog-metrics" aria-label="Registry summary">
-        <div className="metric-card">
-          <div className="metric-label">Skills</div>
-          <div className="metric-value">12,431</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-label">Verified</div>
-          <div className="metric-value">89%</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-label">Avg Resolve</div>
-          <div className="metric-value" translate="no">42ms</div>
-        </div>
+        {metrics.map((metric) => (
+          <div className="metric-card" key={metric.label}>
+            <div className="metric-label">{metric.label}</div>
+            <div className="metric-value" translate="no">{metric.value}</div>
+          </div>
+        ))}
       </section>
     </div>
   )

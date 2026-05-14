@@ -14,6 +14,10 @@ function getRegistryEnv(): { baseUrl: string; token: string } {
   return { baseUrl, token }
 }
 
+export function hasRegistryEnv(): boolean {
+  return Boolean(process.env.REGISTRY_BASE_URL && process.env.REGISTRY_READ_TOKEN)
+}
+
 export async function registryFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const { baseUrl, token } = getRegistryEnv()
   const res = await fetch(`${baseUrl}${path}`, {
