@@ -5,7 +5,6 @@ import {
   LOGIN_PATH,
   SESSION_COOKIE_NAME,
   createSessionToken,
-  getOperatorPassword,
   verifySessionToken,
 } from "@/lib/auth-session";
 
@@ -20,16 +19,11 @@ export async function requireSession() {
   return session;
 }
 
-export async function signInWithPassword(password: FormDataEntryValue | null) {
-  const expectedPassword = getOperatorPassword();
-  if (!expectedPassword || typeof password !== "string" || password !== expectedPassword) {
-    return false;
-  }
-
+export async function signInWithStubSession() {
   const cookieStore = await cookies();
   cookieStore.set({
     name: SESSION_COOKIE_NAME,
-    value: await createSessionToken("operator"),
+    value: await createSessionToken(),
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -38,6 +32,11 @@ export async function signInWithPassword(password: FormDataEntryValue | null) {
   });
 
   return true;
+}
+
+export async function signOut() {
+  const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE_NAME);
 }
 
 export async function redirectIfAuthenticated() {

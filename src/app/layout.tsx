@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ThemeModeControl } from "@/components/theme-mode-control";
+import { getSession, signOut } from "@/lib/auth";
+import { LOGIN_PATH } from "@/lib/auth-session";
 import "./globals.css";
 
 const themeBootstrapScript = `
@@ -27,11 +30,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getSession();
+
+  async function handleLogout() {
+    "use server";
+
+    await signOut();
+    redirect(LOGIN_PATH);
+  }
+
   return (
     <html
       lang="en"
@@ -63,9 +75,93 @@ export default function RootLayout({
               </span>
             </Link>
             <div className="nav-actions">
-              <Link href="/login" className="nav-cta nav-cta--quiet">
-                Login
-              </Link>
+              {session ? (
+                <form className="nav-logout-form" action={handleLogout}>
+                  <button
+                    className="nav-cta nav-cta--quiet"
+                    type="submit"
+                    aria-label="Logout"
+                    title="Logout"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      className="nav-cta__icon"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M9.2 4.8H6.6c-.9 0-1.6.7-1.6 1.6v11.2c0 .9.7 1.6 1.6 1.6h2.6"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                      />
+                      <path
+                        d="M10.5 12h8.2"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                      />
+                      <path
+                        d="m15.7 8.8 3.2 3.2-3.2 3.2"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M9.2 6.5h3.3c.9 0 1.6.7 1.6 1.6v.6"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <span className="sr-only">Logout</span>
+                  </button>
+                </form>
+              ) : (
+                <Link
+                  href="/login"
+                  className="nav-cta nav-cta--quiet"
+                  aria-label="Login"
+                  title="Login"
+                >
+                  <svg
+                    aria-hidden="true"
+                    className="nav-cta__icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M14.8 4.8h2.6c.9 0 1.6.7 1.6 1.6v11.2c0 .9-.7 1.6-1.6 1.6h-2.6"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M13.5 12H5.3"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M8.3 8.8 5.1 12l3.2 3.2"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M14.8 6.5h-3.3c-.9 0-1.6.7-1.6 1.6v.6"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span className="sr-only">Login</span>
+                </Link>
+              )}
               <a
                 href="https://github.com/aptitude-stack"
                 target="_blank"
@@ -95,7 +191,7 @@ export default function RootLayout({
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span>Docs</span>
+                <span className="sr-only">Docs</span>
               </a>
             </div>
           </nav>

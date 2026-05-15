@@ -1,40 +1,37 @@
-import { NextRequest, NextResponse } from "next/server";
-import {
-  LOGIN_PATH,
-  SESSION_COOKIE_NAME,
-  isProtectedPath,
-  verifySessionToken,
-} from "@/lib/auth-session";
+import { NextRequest, NextResponse } from "next/server"
+import { SESSION_COOKIE_NAME, verifySessionToken } from "@/lib/auth-session"
 
-export async function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+const PUBLIC_FILE = /\.[^/]+$/
 
-  if (!isProtectedPath(pathname)) {
-    return NextResponse.next();
+export default async function proxy(req: NextRequest) {
+  const { pathname } = req.nextUrl
+
+  if (pathname.startsWith("/_next") || pathname.startsWith("/api") || PUBLIC_FILE.test(pathname)) {
+    return
   }
 
-  const session = await verifySessionToken(request.cookies.get(SESSION_COOKIE_NAME)?.value);
-  if (session) {
-    return NextResponse.next();
+  const isLogin = pathname === "/login"
+  const isRoot = pathname === "/"
+  const isCatalog = pathname === "/catalog"
+
+  const session = await verifySessionToken(req.cookies.get(SESSION_COOKIE_NAME)?.value)
+  const loggedIn = Boolean(session)
+
+  if (!loggedIn) {
+    if (isLogin) return
+    if (isRoot || isCatalog) {
+      return NextResponse.redirect(new URL("/login", req.url))
+    }
+    return
   }
 
-  if (pathname.startsWith("/api/")) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (isLogin || isRoot) {
+    return NextResponse.redirect(new URL("/catalog", req.url))
   }
 
-  const loginUrl = new URL(LOGIN_PATH, request.url);
-  loginUrl.searchParams.set("next", pathname);
-  return NextResponse.redirect(loginUrl);
+  return
 }
 
 export const config = {
-  matcher: [
-    "/catalog",
-    "/catalog/:path*",
-    "/skills",
-    "/skills/:path*",
-    "/audit",
-    "/audit/:path*",
-    "/api/search",
-  ],
-};
+  matcher: "/:path*",
+}

@@ -4,7 +4,7 @@ import {
   DEFAULT_AUTHENTICATED_PATH,
   isProtectedPath,
 } from "@/lib/auth-session";
-import { redirectIfAuthenticated, signInWithPassword } from "@/lib/auth";
+import { redirectIfAuthenticated, signInWithStubSession } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Login | Aptitude",
@@ -12,22 +12,21 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  searchParams: Promise<{ error?: string; next?: string }>;
+  searchParams: Promise<{ next?: string }>;
 };
 
 export default async function LoginPage({ searchParams }: Props) {
   await redirectIfAuthenticated();
-  const { error, next } = await searchParams;
+  const { next } = await searchParams;
   const nextPath =
     next && next.startsWith("/") && isProtectedPath(next)
       ? next
       : DEFAULT_AUTHENTICATED_PATH;
 
-  async function handleLogin(formData: FormData) {
+  async function handleLogin(_formData: FormData) {
     "use server";
 
-    const signedIn = await signInWithPassword(formData.get("password"));
-    if (!signedIn) redirect("/login?error=invalid");
+    await signInWithStubSession();
     redirect(nextPath);
   }
 
@@ -74,12 +73,6 @@ export default async function LoginPage({ searchParams }: Props) {
               required
             />
           </label>
-
-          {error === "invalid" && (
-            <p className="login-error" role="alert">
-              Sign-in failed. Check the operator password and try again.
-            </p>
-          )}
 
           <div className="login-row">
             <label className="login-checkbox">
