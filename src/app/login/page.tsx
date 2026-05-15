@@ -48,7 +48,7 @@ export default async function LoginPage({ searchParams }: Props) {
           <div className="login-panel__header">
             <span className="login-panel__status" aria-hidden="true" />
             <div>
-              <h2>Sign in</h2>
+              <h2>SIGN IN</h2>
             </div>
           </div>
 
