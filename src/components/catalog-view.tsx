@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { SearchBar } from "@/components/search-bar"
 import { SkillCard } from "@/components/skill-card"
 import { SkillGraphHero } from "@/components/skill-graph-hero"
@@ -14,6 +14,7 @@ interface CatalogViewProps {
 const countFormatter = new Intl.NumberFormat("en-US")
 const DEFAULT_TOP_SKILL_LIMIT = 8
 const VERIFIED_TRUST_TIER = "verified"
+const EMPTY_SKILL_GRAPH: SkillGraphData = { nodes: [], edges: [] }
 
 export function getTopSkillLimitForWidth(width: number): number {
   if (width >= 1024) return 8
@@ -21,7 +22,7 @@ export function getTopSkillLimitForWidth(width: number): number {
   return 4
 }
 
-export function CatalogView({ topSkills, skillGraph = { nodes: [], edges: [] } }: CatalogViewProps) {
+export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: CatalogViewProps) {
   const [results, setResults] = useState<SkillCardData[]>([])
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
@@ -30,6 +31,15 @@ export function CatalogView({ topSkills, skillGraph = { nodes: [], edges: [] } }
   const [topSkillPage, setTopSkillPage] = useState(0)
 
   const abortRef = useRef<AbortController | null>(null)
+
+  const handleClearSearch = useCallback(() => {
+    abortRef.current?.abort()
+    abortRef.current = null
+    setResults([])
+    setLoading(false)
+    setSearched(false)
+    setError(null)
+  }, [])
 
   const handleSearch = useCallback(async (query: string) => {
     abortRef.current?.abort()
@@ -85,6 +95,10 @@ export function CatalogView({ topSkills, skillGraph = { nodes: [], edges: [] } }
   const topSkillPageCount = Math.max(1, Math.ceil(topSkills.length / topSkillLimit))
   const topSkillStartIndex = topSkillPage * topSkillLimit
   const visibleTopSkills = topSkills.slice(topSkillStartIndex, topSkillStartIndex + topSkillLimit)
+  const heroGraph = useMemo(
+    () => (skillGraph.nodes.length > 0 ? skillGraph : toTopSkillGraph(topSkills)),
+    [skillGraph, topSkills]
+  )
 
   useEffect(() => {
     setTopSkillPage((page) => Math.min(page, topSkillPageCount - 1))
@@ -102,8 +116,8 @@ export function CatalogView({ topSkills, skillGraph = { nodes: [], edges: [] } }
     : 0
   const topSkillInstallCount = topSkills.reduce((total, skill) => total + skill.install_count, 0)
   const graphSummary =
-    skillGraph.nodes.length > 0
-      ? `Showing ${countFormatter.format(skillGraph.nodes.length)} ${skillGraph.nodes.length === 1 ? "skill" : "skills"} and ${countFormatter.format(skillGraph.edges.length)} authored ${skillGraph.edges.length === 1 ? "relation" : "relations"}.`
+    heroGraph.nodes.length > 0
+      ? `Showing ${countFormatter.format(heroGraph.nodes.length)} ${heroGraph.nodes.length === 1 ? "skill" : "skills"} and ${countFormatter.format(heroGraph.edges.length)} authored ${heroGraph.edges.length === 1 ? "relation" : "relations"}.`
       : null
   const metrics = [
     { label: "Top Skills", value: countFormatter.format(topSkills.length) },
@@ -141,11 +155,11 @@ export function CatalogView({ topSkills, skillGraph = { nodes: [], edges: [] } }
             Discover governed, versioned skills for AI agents that need dependable coding workflows, review context, and installable operating knowledge.
           </p>
           <div className="hero-search">
-            <SearchBar onSearch={handleSearch} loading={loading} />
+            <SearchBar onSearch={handleSearch} onClear={handleClearSearch} loading={loading} />
           </div>
         </div>
         {graphSummary && <p className="sr-only">{graphSummary}</p>}
-        <SkillGraphHero graph={skillGraph} />
+        <SkillGraphHero graph={heroGraph} />
       </section>
 
       <section className="catalog-results" aria-labelledby="catalog-results-title">
@@ -221,4 +235,18 @@ export function CatalogView({ topSkills, skillGraph = { nodes: [], edges: [] } }
       </section>
     </div>
   )
+}
+
+function toTopSkillGraph(topSkills: SkillCardData[]): SkillGraphData {
+  return {
+    nodes: topSkills.map((skill) => ({
+      slug: skill.slug,
+      version: skill.version,
+      name: skill.name,
+      install_count: skill.install_count,
+      trust_tier: skill.trust_tier,
+      lifecycle_status: skill.lifecycle_status,
+    })),
+    edges: [],
+  }
 }

@@ -342,9 +342,6 @@ input {
   position: sticky;
   top: 0;
   z-index: 50;
-  border-bottom: 1px solid rgb(var(--border-strong-rgb) / 0.76);
-  background: rgb(var(--bg-base-rgb) / 0.86);
-  backdrop-filter: blur(18px);
 }
 
 .site-nav {
@@ -643,7 +640,6 @@ input {
   gap: clamp(24px, 5vw, 56px);
   align-items: center;
   padding: clamp(30px, 5.6vw, 74px) 0 clamp(22px, 4vw, 50px);
-  border-bottom: 1px solid var(--border);
 }
 
 .hero-copy {

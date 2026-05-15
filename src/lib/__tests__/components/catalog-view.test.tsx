@@ -102,16 +102,42 @@ describe("CatalogView", () => {
     expect(screen.queryByText("top-skill")).not.toBeInTheDocument()
   })
 
+  it("returns to top installed skills when the search box is cleared", async () => {
+    fetchMock.mockResponseOnce(JSON.stringify({ candidates: [makeSkill("search-result", 5)] }))
+
+    render(<CatalogView topSkills={[makeSkill("top-skill", 12)]} />)
+    const searchInput = screen.getByRole("textbox", { name: "Search skills" })
+    fireEvent.change(searchInput, {
+      target: { value: "search" },
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText("Search Results")).toBeInTheDocument()
+      expect(screen.getByText("search-result")).toBeInTheDocument()
+    }, { timeout: 1000 })
+
+    fireEvent.change(searchInput, {
+      target: { value: "" },
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText("Top Installed Skills")).toBeInTheDocument()
+      expect(screen.getByText("top-skill")).toBeInTheDocument()
+    }, { timeout: 1000 })
+    expect(screen.queryByText("search-result")).not.toBeInTheDocument()
+  })
+
   it("announces graph counts when graph data is provided", () => {
     render(<CatalogView topSkills={[makeSkill("skill-1", 20)]} skillGraph={graphData} />)
 
     expect(screen.getByText("Showing 2 skills and 1 authored relation.")).toBeInTheDocument()
   })
 
-  it("handles empty graph data without crowding the hero", () => {
+  it("renders a fallback graph from top skills when graph data is unavailable", () => {
     render(<CatalogView topSkills={[makeSkill("skill-1", 20)]} skillGraph={{ nodes: [], edges: [] }} />)
 
-    expect(screen.queryByText(/authored relation/)).not.toBeInTheDocument()
+    expect(screen.getByText("Showing 1 skill and 0 authored relations.")).toBeInTheDocument()
+    expect(screen.getByText("current-default skills")).toBeInTheDocument()
     expect(screen.getByText("Aptitude")).toBeInTheDocument()
   })
 })
