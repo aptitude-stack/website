@@ -14,27 +14,27 @@ describe("SearchBar", () => {
     expect(screen.getByRole("textbox")).toBeInTheDocument()
   })
 
-  it("alternates short default placeholder examples", () => {
+  it("keeps the default placeholder stable during the page session", () => {
     render(<SearchBar onSearch={jest.fn()} loading={false} />)
     const input = screen.getByRole("textbox")
 
     expect(input).toHaveAttribute("placeholder", "Search skills - e.g. review pull-request…")
 
     act(() => jest.advanceTimersByTime(2400))
-    expect(input).toHaveAttribute("placeholder", "Search skills - e.g. linter…")
+    expect(input).toHaveAttribute("placeholder", "Search skills - e.g. review pull-request…")
 
     act(() => jest.advanceTimersByTime(2400))
-    expect(input).toHaveAttribute("placeholder", "Search skills - e.g. python patterns…")
+    expect(input).toHaveAttribute("placeholder", "Search skills - e.g. review pull-request…")
   })
 
-  it("advances the starting default placeholder between reloads", () => {
+  it("does not advance the default placeholder on remounts in the same page session", () => {
     const firstRender = render(<SearchBar onSearch={jest.fn()} loading={false} />)
     expect(screen.getByRole("textbox")).toHaveAttribute("placeholder", "Search skills - e.g. review pull-request…")
 
     firstRender.unmount()
 
     render(<SearchBar onSearch={jest.fn()} loading={false} />)
-    expect(screen.getByRole("textbox")).toHaveAttribute("placeholder", "Search skills - e.g. linter…")
+    expect(screen.getByRole("textbox")).toHaveAttribute("placeholder", "Search skills - e.g. review pull-request…")
   })
 
   it("keeps custom placeholders fixed", () => {

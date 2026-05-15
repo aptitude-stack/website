@@ -9,7 +9,6 @@ interface SearchBarProps {
   placeholder?: string
 }
 
-const PLACEHOLDER_INTERVAL_MS = 2400
 const PLACEHOLDER_INDEX_STORAGE_KEY = "aptitude.search.placeholderIndex"
 const DEFAULT_PLACEHOLDERS = [
   "Search skills - e.g. review pull-request…",
@@ -18,6 +17,7 @@ const DEFAULT_PLACEHOLDERS = [
   "Search skills - e.g. docs writing…",
   "Search skills - e.g. git workflow…",
 ]
+let pageLoadPlaceholderIndex: number | null = null
 
 export function SearchBar({
   onSearch,
@@ -33,12 +33,7 @@ export function SearchBar({
 
   useEffect(() => {
     if (placeholder !== undefined) return
-    const startingIndex = getNextDefaultPlaceholderIndex()
-    setPlaceholderIndex(startingIndex)
-    const interval = setInterval(() => {
-      setPlaceholderIndex((index) => (index + 1) % DEFAULT_PLACEHOLDERS.length)
-    }, PLACEHOLDER_INTERVAL_MS)
-    return () => clearInterval(interval)
+    setPlaceholderIndex(getPageLoadDefaultPlaceholderIndex())
   }, [placeholder])
 
   useEffect(() => {
@@ -90,6 +85,11 @@ function getNextDefaultPlaceholderIndex(): number {
   const nextIndex = storedIndex === null ? 0 : (storedIndex + 1) % DEFAULT_PLACEHOLDERS.length
   writeStoredPlaceholderIndex(nextIndex)
   return nextIndex
+}
+
+function getPageLoadDefaultPlaceholderIndex(): number {
+  pageLoadPlaceholderIndex ??= getNextDefaultPlaceholderIndex()
+  return pageLoadPlaceholderIndex
 }
 
 function readStoredPlaceholderIndex(): number | null {

@@ -48,13 +48,13 @@ export function InstallButton({ slug, version }: InstallButtonProps) {
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="1.8"
           strokeLinecap="round"
           strokeLinejoin="round"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <rect x="8" y="8" width="10" height="12" rx="2" />
-          <path d="M6 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" />
+          <path d="M6.5 8.75h-0.25a2.5 2.5 0 0 0-2.5 2.5v6a2.5 2.5 0 0 0 2.5 2.5h6.5a2.5 2.5 0 0 0 2.5-2.5V17" />
+          <rect x="8.75" y="4.25" width="11.5" height="13" rx="2.75" />
         </svg>
       </button>
       <span className="sr-only" role="status" aria-live="polite">

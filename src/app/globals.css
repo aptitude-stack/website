@@ -1467,7 +1467,7 @@ input {
 .install-command code {
   min-width: 0;
   flex: 1;
-  color: var(--accent);
+  color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: 0.82rem;
   font-weight: 700;
@@ -1481,10 +1481,11 @@ input {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 38px;
-  border: 1px solid var(--border-strong);
-  border-radius: 999px;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-dim);
   cursor: pointer;
@@ -1492,30 +1493,26 @@ input {
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.14em;
-  padding: 7px 14px;
+  padding: 0;
   text-transform: uppercase;
   touch-action: manipulation;
   transition:
-    border-color 140ms ease,
     color 140ms ease,
     background-color 140ms ease;
 }
 .copy-button:hover,
 .copy-button[data-state="copied"] {
-  border-color: var(--accent);
   background: var(--accent-dim);
   color: var(--accent-hover);
 }
 .copy-button[data-state="error"] {
-  border-color: rgb(var(--red-rgb) / 0.42);
+  background: rgb(var(--red-rgb) / 0.1);
   color: var(--red);
 }
 
-.copy-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
+.copy-button__icon {
+  width: 22px;
+  height: 22px;
 }
 
 .version-panel {
@@ -1603,6 +1600,11 @@ input {
   margin: 2rem 0 0.75rem;
   border-top: 1px solid var(--border);
   padding-top: 1.5rem;
+}
+.prose-skill h2:first-child {
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 0;
 }
 .prose-skill h3 {
   font-size: 1rem;
@@ -2079,8 +2081,9 @@ input {
   }
 
   .copy-button {
+    align-self: flex-end;
     justify-content: center;
-    width: 100%;
+    width: 38px;
   }
 
   .site-footer__inner {
