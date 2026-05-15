@@ -1,4 +1,4 @@
-import { getRenderableGraphEdges } from "@/components/skill-graph-hero"
+import { getGraphNodeDetails, getRenderableGraphEdges } from "@/components/skill-graph-hero"
 import type { SkillGraphData } from "@/lib/types"
 
 function makeGraph(nodeCount: number, edges: SkillGraphData["edges"] = []): SkillGraphData {
@@ -32,5 +32,27 @@ describe("getRenderableGraphEdges", () => {
     expect(edges).toHaveLength(5)
     expect(edges.every((edge) => edge.edge_type === "ambient" && !edge.authored)).toBe(true)
     expect(edges.every((edge) => edge.source_slug !== edge.target_slug)).toBe(true)
+  })
+})
+
+describe("getGraphNodeDetails", () => {
+  it("describes authored relationships for hovered skills", () => {
+    const graph = makeGraph(3, [{ source_slug: "skill-1", target_slug: "skill-2", edge_type: "depends_on" }])
+    const details = getGraphNodeDetails(graph, getRenderableGraphEdges(graph), "skill-1")
+
+    expect(details).toEqual({
+      name: "Skill 1",
+      slug: "skill-1",
+      version: "1.0.0",
+      install_count: 10,
+      relationships: ["depends on Skill 2"],
+    })
+  })
+
+  it("keeps fallback visual links distinct from authored relationships", () => {
+    const graph = makeGraph(3)
+    const details = getGraphNodeDetails(graph, getRenderableGraphEdges(graph), "skill-1")
+
+    expect(details?.relationships).toContain("near Skill 3")
   })
 })

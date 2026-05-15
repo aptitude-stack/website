@@ -715,19 +715,21 @@ input {
 }
 
 .skill-graph-hero {
-  position: absolute;
+  position: relative;
   z-index: 0;
-  inset: -32% -26vw -24% -18vw;
   display: none;
+  align-self: center;
+  min-height: clamp(280px, 31vw, 430px);
   overflow: visible;
-  pointer-events: none;
+  pointer-events: auto;
   background:
-    radial-gradient(circle at 72% 24%, rgb(143 139 74 / 0.12), transparent 17%),
-    radial-gradient(circle at 62% 52%, rgb(93 63 83 / 0.13), transparent 34%),
-    radial-gradient(circle at 24% 82%, rgb(124 101 55 / 0.08), transparent 18%);
-  filter: saturate(0.72);
-  mask-image: radial-gradient(ellipse at 56% 50%, black 0 42%, rgb(0 0 0 / 0.58) 58%, transparent 82%);
-  opacity: 0.68;
+    radial-gradient(circle at 72% 24%, rgb(var(--text-primary-rgb) / 0.08), transparent 17%),
+    radial-gradient(circle at 62% 52%, rgb(var(--accent-rgb) / 0.13), transparent 34%),
+    radial-gradient(circle at 24% 82%, rgb(var(--warn-rgb) / 0.07), transparent 18%);
+  filter: saturate(0.78);
+  mask-image: radial-gradient(ellipse at 52% 50%, black 0 50%, rgb(0 0 0 / 0.66) 64%, transparent 86%);
+  opacity: 0.82;
+  transform: translateY(-6%);
 }
 
 .skill-graph-hero::before {
@@ -750,6 +752,52 @@ input {
 
 .skill-graph-canvas.is-ready {
   opacity: 1;
+}
+
+.skill-graph-tooltip {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  gap: 5px;
+  max-width: 230px;
+  padding: 11px 12px;
+  border: 1px solid rgb(var(--border-rgb) / 0.58);
+  border-radius: 14px;
+  background: rgb(var(--bg-surface-rgb) / 0.82);
+  box-shadow: 0 18px 44px rgb(var(--shadow-rgb) / 0.22);
+  color: var(--text-primary);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  pointer-events: none;
+  transform: translateZ(0);
+  backdrop-filter: blur(14px);
+}
+
+.skill-graph-tooltip strong {
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+
+.skill-graph-tooltip span:not(.skill-graph-tooltip__eyebrow),
+.skill-graph-tooltip li {
+  color: var(--text-muted);
+}
+
+.skill-graph-tooltip__eyebrow {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.skill-graph-tooltip ul {
+  display: grid;
+  gap: 3px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
 }
 
 .metric-label {
@@ -1201,20 +1249,8 @@ input {
   text-wrap: balance;
 }
 
-.skill-kv {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.code-token {
-  color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  overflow-wrap: anywhere;
+.skill-hero__tags {
+  max-width: 720px;
 }
 
 .detail-grid {
@@ -1313,10 +1349,10 @@ input {
   font-variant-numeric: tabular-nums;
 }
 .score-high {
-  color: var(--green);
+  color: var(--text-muted);
 }
 .score-mid {
-  color: var(--accent);
+  color: var(--text-muted);
 }
 .score-low {
   color: var(--red);
@@ -1391,7 +1427,7 @@ input {
 .install-command code {
   min-width: 0;
   flex: 1;
-  color: var(--accent);
+  color: var(--text-muted);
   font-family: var(--font-mono);
   font-size: 0.82rem;
   font-weight: 700;
@@ -1405,41 +1441,37 @@ input {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 38px;
-  border: 1px solid var(--border-strong);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--text-dim);
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 10px;
+  background: rgb(var(--bg-surface-rgb) / 0.34);
+  color: var(--text-primary);
   cursor: pointer;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  padding: 7px 14px;
-  text-transform: uppercase;
+  padding: 0;
   touch-action: manipulation;
   transition:
-    border-color 140ms ease,
-    color 140ms ease,
-    background-color 140ms ease;
+    transform 180ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 180ms ease;
 }
 .copy-button:hover,
 .copy-button[data-state="copied"] {
-  border-color: var(--accent);
+  transform: translateY(-2px);
   background: var(--accent-dim);
+  box-shadow: 0 10px 24px rgb(var(--accent-rgb) / 0.16);
   color: var(--accent-hover);
 }
 .copy-button[data-state="error"] {
-  border-color: rgb(var(--red-rgb) / 0.42);
   color: var(--red);
 }
 
-.copy-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
+.copy-button__icon {
+  width: 19px;
+  height: 19px;
+  display: block;
 }
 
 .version-panel {
@@ -2003,8 +2035,9 @@ input {
   }
 
   .copy-button {
+    align-self: flex-end;
     justify-content: center;
-    width: 100%;
+    width: 38px;
   }
 
   .site-footer__inner {

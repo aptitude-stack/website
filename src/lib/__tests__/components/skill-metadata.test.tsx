@@ -40,6 +40,19 @@ function makeMeta(repo_url: string | null): SkillVersionMetadataDto {
 }
 
 describe("SkillMetadata", () => {
+  it("renders publication metadata without tag chips", () => {
+    render(<SkillMetadata meta={makeMeta(null)} />)
+
+    expect(screen.getByText("Status")).toBeInTheDocument()
+    expect(screen.getByText("PUBLISHED")).toBeInTheDocument()
+    expect(screen.getByText("Access")).toBeInTheDocument()
+    expect(screen.getByText("VERIFIED")).toBeInTheDocument()
+    expect(screen.getByText("Published")).toBeInTheDocument()
+    expect(screen.getByText("Jan 1, 2024")).toBeInTheDocument()
+    expect(screen.queryByText("Tags")).not.toBeInTheDocument()
+    expect(screen.queryByText("python")).not.toBeInTheDocument()
+  })
+
   it("does not crash or render a source link for invalid provenance URLs", () => {
     render(<SkillMetadata meta={makeMeta("not a url")} />)
     expect(screen.queryByRole("link")).not.toBeInTheDocument()

@@ -6,6 +6,11 @@ const sizeFormatter = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
 })
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+})
 
 function MetaRow({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -32,6 +37,8 @@ export function SkillMetadata({ meta }: { meta: SkillVersionMetadataDto }) {
   const { metadata, content, provenance } = meta
   const repoUrl = provenance?.repo_url ? safeHttpUrl(provenance.repo_url) : null
   const repoHost = repoUrl?.hostname ?? null
+  const lifecycleStatus = meta.lifecycle_status.toUpperCase()
+  const trustTier = meta.trust_tier.toUpperCase()
 
   return (
     <aside className="metadata-panel" aria-labelledby="metadata-title">
@@ -40,16 +47,9 @@ export function SkillMetadata({ meta }: { meta: SkillVersionMetadataDto }) {
       </div>
 
       <div className="metadata-panel__primary">
-        {metadata.tags.length > 0 && (
-          <MetaRow label="Tags">
-            <div className="tag-list">
-              {metadata.tags.map((tag) => (
-                <span key={tag} className="tag">{tag}</span>
-              ))}
-            </div>
-          </MetaRow>
-        )}
-
+        <MetaRow label="Status"><span translate="no">{lifecycleStatus}</span></MetaRow>
+        <MetaRow label="Access"><span translate="no">{trustTier}</span></MetaRow>
+        <MetaRow label="Published">{dateFormatter.format(new Date(meta.published_at))}</MetaRow>
         <MetaRow label="Maturity"><Score value={metadata.maturity_score} /></MetaRow>
         <MetaRow label="Security"><Score value={metadata.security_score} /></MetaRow>
       </div>

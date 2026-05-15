@@ -1,24 +1,6 @@
 import Link from "next/link"
 import { InstallButton } from "@/components/install-button"
-import type { LifecycleStatus, SkillVersionMetadataDto, TrustTier } from "@/lib/types"
-
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-})
-
-function lifecycleClass(status: LifecycleStatus) {
-  if (status === "published") return "badge-published"
-  if (status === "deprecated") return "badge-deprecated"
-  return "badge-archived"
-}
-
-function trustClass(tier: TrustTier) {
-  if (tier === "verified") return "trust-verified"
-  if (tier === "internal") return "trust-internal"
-  return "trust-untrusted"
-}
+import type { SkillVersionMetadataDto } from "@/lib/types"
 
 interface SkillHeaderProps {
   meta: SkillVersionMetadataDto
@@ -43,20 +25,13 @@ export function SkillHeader({ meta }: SkillHeaderProps) {
         </p>
       )}
 
-      <div className="skill-kv">
-        <code className="code-token" translate="no">
-          {meta.slug}@{meta.version}
-        </code>
-        <span className={`badge ${lifecycleClass(meta.lifecycle_status)}`}>
-          {meta.lifecycle_status}
-        </span>
-        <span className={`badge ${trustClass(meta.trust_tier)}`}>
-          {meta.trust_tier}
-        </span>
-        <span className="badge">
-          {dateFormatter.format(new Date(meta.published_at))}
-        </span>
-      </div>
+      {meta.metadata.tags.length > 0 && (
+        <div className="skill-hero__tags tag-list" aria-label="Skill tags">
+          {meta.metadata.tags.map((tag) => (
+            <span key={tag} className="tag">{tag}</span>
+          ))}
+        </div>
+      )}
 
       <InstallButton slug={meta.slug} version={meta.version} />
     </header>

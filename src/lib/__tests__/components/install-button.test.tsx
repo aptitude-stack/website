@@ -23,9 +23,14 @@ describe("InstallButton", () => {
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith("uvx aptitude install fastapi")
   })
 
-  it("shows copied feedback after click", async () => {
+  it("uses an icon-only copy control with status feedback", async () => {
     render(<InstallButton slug="fastapi" />)
-    await userEvent.click(screen.getByRole("button", { name: /copy/i }))
-    expect(screen.getByText(/copied/i)).toBeInTheDocument()
+    const button = screen.getByRole("button", { name: /copy/i })
+
+    expect(button).toContainHTML("svg")
+    expect(button).not.toHaveTextContent(/copy/i)
+
+    await userEvent.click(button)
+    expect(screen.getByRole("status")).toHaveTextContent(/clipboard/i)
   })
 })
