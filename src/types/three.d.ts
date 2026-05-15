@@ -58,20 +58,12 @@ declare module "three" {
     dispose(): void
   }
 
-  export class Color {
-    set(color: number | string): this
-  }
-
   export class MeshStandardMaterial extends Material {
     constructor(parameters?: Record<string, unknown>)
-    color: Color
-    emissive: Color
   }
 
   export class LineBasicMaterial extends Material {
     constructor(parameters?: Record<string, unknown>)
-    color: Color
-    opacity: number
   }
 
   export class Mesh extends Object3D {

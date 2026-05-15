@@ -17,43 +17,10 @@ interface PositionedNode {
 }
 
 const MAX_DPR = 1.5
-const GRAPH_EDGE_LIMIT = 60
-const DEFAULT_GRAPH_PALETTE: GraphPalette = {
-  node: 0xffd982,
-  nodeEmissive: 0x5c3608,
-  nodeHover: 0xfff5c7,
-  nodeHoverEmissive: 0xffbd42,
-  edge: {
-    depends_on: 0xffd66b,
-    extends: 0xa9d9ff,
-    overlaps_with: 0xe8cf97,
-  },
-  edgeHover: {
-    depends_on: 0xffefad,
-    extends: 0xd6efff,
-    overlaps_with: 0xffe9b6,
-  },
-  edgeIdleOpacity: 0.54,
-  edgeDimOpacity: 0.16,
-  edgeHoverOpacity: 0.94,
-}
-
-interface GraphPalette {
-  node: number
-  nodeEmissive: number
-  nodeHover: number
-  nodeHoverEmissive: number
-  edge: Record<SkillGraphEdgeType, number>
-  edgeHover: Record<SkillGraphEdgeType, number>
-  edgeIdleOpacity: number
-  edgeDimOpacity: number
-  edgeHoverOpacity: number
-}
-
-interface EdgeRecord {
-  key: string
-  edgeType: SkillGraphEdgeType
-  material: InstanceType<typeof import("three").LineBasicMaterial>
+const EDGE_COLORS: Record<SkillGraphEdgeType, number> = {
+  depends_on: 0xd9a441,
+  extends: 0x86c5ff,
+  overlaps_with: 0xbda57a,
 }
 
 export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
@@ -78,7 +45,6 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
     let cancelled = false
     let observer: IntersectionObserver | null = null
     let resizeObserver: ResizeObserver | null = null
-    let themeObserver: MutationObserver | null = null
     let cleanupScene: (() => void) | null = null
 
     async function initScene() {
@@ -90,7 +56,6 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
         if (cancelled) return
         const activeCanvas = canvas
 
-        let palette = readGraphPalette(window.getComputedStyle(document.documentElement))
         const renderer = new THREE.WebGLRenderer({
           canvas: activeCanvas,
           antialias: true,
@@ -114,21 +79,21 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
 
         const nodeGeometry = new THREE.SphereGeometry(0.105, 20, 16)
         const nodeMaterial = new THREE.MeshStandardMaterial({
-          color: palette.node,
-          emissive: palette.nodeEmissive,
+          color: 0xf2c46b,
+          emissive: 0x3f2a10,
           roughness: 0.52,
           metalness: 0.18,
         })
         const hoverMaterial = new THREE.MeshStandardMaterial({
-          color: palette.nodeHover,
-          emissive: palette.nodeHoverEmissive,
+          color: 0xffffff,
+          emissive: 0xd9a441,
           roughness: 0.34,
           metalness: 0.1,
         })
+        const lineMaterials = new Map<SkillGraphEdgeType, InstanceType<typeof THREE.LineBasicMaterial>>()
 
         const meshBySlug = new Map<string, InstanceType<typeof THREE.Mesh>>()
         const nodeObjects: InstanceType<typeof THREE.Mesh>[] = []
-        const edgeRecords: EdgeRecord[] = []
         const installMax = Math.max(...positionedNodes.map((node) => node.install_count), 1)
         for (const node of positionedNodes) {
           const mesh = new THREE.Mesh(nodeGeometry, nodeMaterial)
@@ -141,31 +106,29 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
           nodeObjects.push(mesh)
         }
 
-        for (const edge of graph.edges.slice(0, GRAPH_EDGE_LIMIT)) {
+        for (const edge of graph.edges.slice(0, 60)) {
           const source = meshBySlug.get(edge.source_slug)
           const target = meshBySlug.get(edge.target_slug)
           if (!source || !target) continue
-          const material = new THREE.LineBasicMaterial({
-            color: palette.edge[edge.edge_type],
-            transparent: true,
-            opacity: palette.edgeIdleOpacity,
-          })
+          let material = lineMaterials.get(edge.edge_type)
+          if (!material) {
+            material = new THREE.LineBasicMaterial({
+              color: EDGE_COLORS[edge.edge_type],
+              transparent: true,
+              opacity: 0.44,
+            })
+            lineMaterials.set(edge.edge_type, material)
+          }
           const geometry = new THREE.BufferGeometry().setFromPoints([
             source.position,
             target.position,
           ])
           group.add(new THREE.Line(geometry, material))
-          edgeRecords.push({
-            key: getEdgeKey(edge),
-            edgeType: edge.edge_type,
-            material,
-          })
         }
 
         const raycaster = new THREE.Raycaster()
         const pointer = new THREE.Vector2(2, 2)
         let activeMesh: InstanceType<typeof THREE.Mesh> | null = null
-        let activeEdgeKeys = new Set<string>()
         let isVisible = true
 
         function resize() {
@@ -183,35 +146,10 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
           activeMesh = mesh
           if (activeMesh) {
             activeMesh.material = hoverMaterial
-            activeEdgeKeys = getIncidentEdgeKeys(graph.edges, String(activeMesh.userData.slug))
             setHoveredNode(String(activeMesh.userData.name))
           } else {
-            activeEdgeKeys = new Set()
             setHoveredNode(null)
           }
-          updateEdgeMaterials()
-        }
-
-        function updateEdgeMaterials() {
-          for (const edge of edgeRecords) {
-            const active = activeEdgeKeys.has(edge.key)
-            edge.material.color.set(active ? palette.edgeHover[edge.edgeType] : palette.edge[edge.edgeType])
-            edge.material.opacity = activeEdgeKeys.size === 0
-              ? palette.edgeIdleOpacity
-              : active
-                ? palette.edgeHoverOpacity
-                : palette.edgeDimOpacity
-          }
-        }
-
-        function updateTheme() {
-          palette = readGraphPalette(window.getComputedStyle(document.documentElement))
-          nodeMaterial.color.set(palette.node)
-          nodeMaterial.emissive.set(palette.nodeEmissive)
-          hoverMaterial.color.set(palette.nodeHover)
-          hoverMaterial.emissive.set(palette.nodeHoverEmissive)
-          updateEdgeMaterials()
-          renderer.render(scene, camera)
         }
 
         function renderFrame() {
@@ -256,11 +194,6 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
         activeCanvas.addEventListener("pointerleave", onPointerLeave)
         resizeObserver = new ResizeObserver(resize)
         resizeObserver.observe(activeCanvas)
-        themeObserver = new MutationObserver(updateTheme)
-        themeObserver.observe(document.documentElement, {
-          attributes: true,
-          attributeFilter: ["data-theme"],
-        })
         observer = new IntersectionObserver(([entry]) => {
           isVisible = Boolean(entry?.isIntersecting)
           if (isVisible) start()
@@ -277,11 +210,10 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
           activeCanvas.removeEventListener("pointerleave", onPointerLeave)
           observer?.disconnect()
           resizeObserver?.disconnect()
-          themeObserver?.disconnect()
           nodeGeometry.dispose()
           nodeMaterial.dispose()
           hoverMaterial.dispose()
-          edgeRecords.forEach(({ material }) => material.dispose())
+          lineMaterials.forEach((material) => material.dispose())
           group.traverse((object) => {
             if (object instanceof THREE.Line) object.geometry.dispose()
           })
@@ -321,21 +253,6 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
   )
 }
 
-export function getIncidentEdgeKeys(
-  edges: SkillGraphData["edges"],
-  slug: string
-): Set<string> {
-  return new Set(
-    edges
-      .filter((edge) => edge.source_slug === slug || edge.target_slug === slug)
-      .map(getEdgeKey)
-  )
-}
-
-function getEdgeKey(edge: SkillGraphData["edges"][number]): string {
-  return `${edge.source_slug}->${edge.target_slug}:${edge.edge_type}`
-}
-
 function positionNodes(graph: SkillGraphData): PositionedNode[] {
   const total = Math.max(graph.nodes.length, 1)
   const radius = total < 8 ? 1.55 : 2.12
@@ -360,32 +277,4 @@ function hashSlug(value: string): number {
     hash = (hash * 31 + value.charCodeAt(index)) % 1009
   }
   return hash
-}
-
-function readGraphPalette(style: CSSStyleDeclaration): GraphPalette {
-  return {
-    node: readColor(style, "--skill-graph-node", DEFAULT_GRAPH_PALETTE.node),
-    nodeEmissive: readColor(style, "--skill-graph-node-emissive", DEFAULT_GRAPH_PALETTE.nodeEmissive),
-    nodeHover: readColor(style, "--skill-graph-node-hover", DEFAULT_GRAPH_PALETTE.nodeHover),
-    nodeHoverEmissive: readColor(style, "--skill-graph-node-hover-emissive", DEFAULT_GRAPH_PALETTE.nodeHoverEmissive),
-    edge: {
-      depends_on: readColor(style, "--skill-graph-edge-depends", DEFAULT_GRAPH_PALETTE.edge.depends_on),
-      extends: readColor(style, "--skill-graph-edge-extends", DEFAULT_GRAPH_PALETTE.edge.extends),
-      overlaps_with: readColor(style, "--skill-graph-edge-overlaps", DEFAULT_GRAPH_PALETTE.edge.overlaps_with),
-    },
-    edgeHover: {
-      depends_on: readColor(style, "--skill-graph-edge-depends-hover", DEFAULT_GRAPH_PALETTE.edgeHover.depends_on),
-      extends: readColor(style, "--skill-graph-edge-extends-hover", DEFAULT_GRAPH_PALETTE.edgeHover.extends),
-      overlaps_with: readColor(style, "--skill-graph-edge-overlaps-hover", DEFAULT_GRAPH_PALETTE.edgeHover.overlaps_with),
-    },
-    edgeIdleOpacity: DEFAULT_GRAPH_PALETTE.edgeIdleOpacity,
-    edgeDimOpacity: DEFAULT_GRAPH_PALETTE.edgeDimOpacity,
-    edgeHoverOpacity: DEFAULT_GRAPH_PALETTE.edgeHoverOpacity,
-  }
-}
-
-function readColor(style: CSSStyleDeclaration, name: string, fallback: number): number {
-  const value = style.getPropertyValue(name).trim()
-  if (!/^#[\da-f]{6}$/i.test(value)) return fallback
-  return Number.parseInt(value.slice(1), 16)
 }
