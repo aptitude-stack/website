@@ -83,5 +83,5 @@ export default async function Page() {
 ## Migration Codemod
 
 ```bash
-npx @next/codemod@latest next-async-request-api .
+bunx @next/codemod@latest next-async-request-api .
 ```

@@ -1,6 +1,7 @@
 // Registry nested types
 export type TrustTier = "untrusted" | "internal" | "verified"
 export type LifecycleStatus = "published" | "deprecated" | "archived"
+export type SkillGraphEdgeType = "depends_on" | "extends" | "overlaps_with"
 
 export interface ChecksumDto {
   algorithm: string
@@ -85,6 +86,29 @@ export interface DiscoveryResponseDto {
 export interface TopSkillsResponseDto {
   skills: SkillVersionMetadataDto[]
 }
+
+// GET /catalog/skill-graph
+export interface SkillGraphNodeDto {
+  slug: string
+  version: string
+  name: string
+  install_count: number
+  trust_tier: TrustTier
+  lifecycle_status: LifecycleStatus
+}
+
+export interface SkillGraphEdgeDto {
+  source_slug: string
+  target_slug: string
+  edge_type: SkillGraphEdgeType
+}
+
+export interface SkillGraphResponseDto {
+  nodes: SkillGraphNodeDto[]
+  edges: SkillGraphEdgeDto[]
+}
+
+export type SkillGraphData = SkillGraphResponseDto
 
 // Flattened shape used for SkillCard display (built from SkillVersionMetadataDto)
 export interface SkillCardData {

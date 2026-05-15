@@ -1,6 +1,9 @@
 import "server-only"
 import type {
   LifecycleStatus,
+  SkillGraphData,
+  SkillGraphEdgeType,
+  SkillGraphResponseDto,
   SkillCardData,
   SkillVersionSummaryDto,
   SkillVersionListDto,
@@ -94,6 +97,21 @@ export async function fetchTopSkillCardsSafe(limit = 12): Promise<SkillCardData[
   }
 }
 
+export async function fetchSkillGraph(limit = 24): Promise<SkillGraphData> {
+  const result = await registryFetch<unknown>(
+    `/catalog/skill-graph?limit=${encodeURIComponent(limit)}`
+  )
+  return assertSkillGraphResponse(result)
+}
+
+export async function fetchSkillGraphSafe(limit = 24): Promise<SkillGraphData> {
+  try {
+    return await fetchSkillGraph(limit)
+  } catch {
+    return { nodes: [], edges: [] }
+  }
+}
+
 export async function fetchSkillCardData(slug: string): Promise<SkillCardData | null> {
   const list = await fetchSkillVersionList(slug)
   const current = list.versions.find((v) => v.is_current_default) ?? list.versions[0]
@@ -159,6 +177,54 @@ function assertTopSkillsResponse(value: unknown): TopSkillsResponseDto {
     throw new Error("Invalid registry top skills response")
   }
   return { skills: value.skills.map(assertSkillVersionMetadata) }
+}
+
+function assertSkillGraphResponse(value: unknown): SkillGraphResponseDto {
+  if (!isRecord(value) || !Array.isArray(value.nodes) || !Array.isArray(value.edges)) {
+    throw new Error("Invalid registry skill graph response")
+  }
+  return {
+    nodes: value.nodes.map(assertSkillGraphNode),
+    edges: value.edges.map(assertSkillGraphEdge),
+  }
+}
+
+function assertSkillGraphNode(value: unknown): SkillGraphResponseDto["nodes"][number] {
+  if (
+    !isRecord(value) ||
+    !isString(value.slug) ||
+    !isString(value.version) ||
+    !isString(value.name) ||
+    !isNumber(value.install_count) ||
+    !isTrustTier(value.trust_tier) ||
+    !isLifecycleStatus(value.lifecycle_status)
+  ) {
+    throw new Error("Invalid registry skill graph node")
+  }
+  return {
+    slug: value.slug,
+    version: value.version,
+    name: value.name,
+    install_count: value.install_count,
+    trust_tier: value.trust_tier,
+    lifecycle_status: value.lifecycle_status,
+  }
+}
+
+function assertSkillGraphEdge(value: unknown): SkillGraphResponseDto["edges"][number] {
+  if (
+    !isRecord(value) ||
+    !isString(value.source_slug) ||
+    !isString(value.target_slug) ||
+    !isSkillGraphEdgeType(value.edge_type)
+  ) {
+    throw new Error("Invalid registry skill graph edge")
+  }
+  return {
+    source_slug: value.source_slug,
+    target_slug: value.target_slug,
+    edge_type: value.edge_type,
+  }
 }
 
 function assertSkillVersionList(value: unknown): SkillVersionListDto {
@@ -272,6 +338,10 @@ function isLifecycleStatus(value: unknown): value is LifecycleStatus {
 
 function isTrustTier(value: unknown): value is TrustTier {
   return value === "untrusted" || value === "internal" || value === "verified"
+}
+
+function isSkillGraphEdgeType(value: unknown): value is SkillGraphEdgeType {
+  return value === "depends_on" || value === "extends" || value === "overlaps_with"
 }
 
 function isProvenance(value: unknown): value is SkillVersionMetadataDto["provenance"] {

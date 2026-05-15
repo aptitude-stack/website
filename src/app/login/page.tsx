@@ -8,7 +8,7 @@ import { redirectIfAuthenticated, signInWithStubSession } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Login | Aptitude",
-  description: "Sign in to the Aptitude Registry audit console.",
+  description: "Sign in to the Aptitude Skills Registry.",
 };
 
 type Props = {
@@ -34,7 +34,7 @@ export default async function LoginPage({ searchParams }: Props) {
     <div className="login-page">
       <section className="login-hero" aria-labelledby="login-title">
         <div className="login-copy">
-          <p className="eyebrow">Audit Console</p>
+          <p className="eyebrow">Skills Registry</p>
           <h1 id="login-title" className="login-title">
             Welcome back to your skills workspace.
           </h1>

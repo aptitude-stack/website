@@ -1,13 +1,14 @@
 import fetchMock from "jest-fetch-mock"
 import {
   REGISTRY_FETCH_TIMEOUT_MS,
+  fetchSkillGraph,
   fetchSkillCardData,
   fetchTopSkillCards,
   fetchTopSkillCardsSafe,
   registryFetch,
   searchSkillCards,
 } from "@/lib/registry-client"
-import type { SkillVersionListDto, SkillVersionMetadataDto } from "@/lib/types"
+import type { SkillGraphResponseDto, SkillVersionListDto, SkillVersionMetadataDto } from "@/lib/types"
 
 beforeEach(() => {
   fetchMock.resetMocks()
@@ -129,6 +130,38 @@ describe("fetchTopSkillCards", () => {
 
     await expect(result).resolves.toEqual([])
     jest.useRealTimers()
+  })
+})
+
+describe("fetchSkillGraph", () => {
+  it("fetches the bounded skill graph", async () => {
+    const graph: SkillGraphResponseDto = {
+      nodes: [
+        {
+          slug: "fastapi",
+          version: "1.0.0",
+          name: "FastAPI",
+          install_count: 1284,
+          trust_tier: "verified",
+          lifecycle_status: "published",
+        },
+      ],
+      edges: [],
+    }
+    fetchMock.mockResponseOnce(JSON.stringify(graph))
+
+    const result = await fetchSkillGraph()
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://registry.example.com/catalog/skill-graph?limit=24",
+      expect.objectContaining({ headers: expect.objectContaining({ Authorization: "Bearer tid.secret" }) })
+    )
+    expect(result.nodes[0].name).toBe("FastAPI")
+  })
+
+  it("rejects malformed skill graph responses", async () => {
+    fetchMock.mockResponseOnce(JSON.stringify({ nodes: [{ slug: "missing-fields" }], edges: [] }))
+    await expect(fetchSkillGraph()).rejects.toThrow("Invalid registry skill graph node")
   })
 })
 

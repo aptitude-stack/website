@@ -3,28 +3,31 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { SearchBar } from "@/components/search-bar"
 import { SkillCard } from "@/components/skill-card"
-import type { SkillCardData } from "@/lib/types"
+import { SkillGraphHero } from "@/components/skill-graph-hero"
+import type { SkillCardData, SkillGraphData } from "@/lib/types"
 
 interface CatalogViewProps {
   topSkills: SkillCardData[]
+  skillGraph?: SkillGraphData
 }
 
 const countFormatter = new Intl.NumberFormat("en-US")
-const DEFAULT_TOP_SKILL_LIMIT = 12
+const DEFAULT_TOP_SKILL_LIMIT = 8
 const VERIFIED_TRUST_TIER = "verified"
 
 export function getTopSkillLimitForWidth(width: number): number {
-  if (width >= 1024) return 12
-  if (width >= 768) return 8
+  if (width >= 1024) return 8
+  if (width >= 768) return 6
   return 4
 }
 
-export function CatalogView({ topSkills }: CatalogViewProps) {
+export function CatalogView({ topSkills, skillGraph = { nodes: [], edges: [] } }: CatalogViewProps) {
   const [results, setResults] = useState<SkillCardData[]>([])
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [topSkillLimit, setTopSkillLimit] = useState(DEFAULT_TOP_SKILL_LIMIT)
+  const [topSkillPage, setTopSkillPage] = useState(0)
 
   const abortRef = useRef<AbortController | null>(null)
 
@@ -62,12 +65,13 @@ export function CatalogView({ topSkills }: CatalogViewProps) {
     const tablet = window.matchMedia("(min-width: 768px)")
     const updateLimit = () => {
       if (desktop.matches) {
-        setTopSkillLimit(12)
-      } else if (tablet.matches) {
         setTopSkillLimit(8)
+      } else if (tablet.matches) {
+        setTopSkillLimit(6)
       } else {
         setTopSkillLimit(4)
       }
+      setTopSkillPage(0)
     }
     updateLimit()
     desktop.addEventListener("change", updateLimit)
@@ -78,15 +82,29 @@ export function CatalogView({ topSkills }: CatalogViewProps) {
     }
   }, [])
 
-  const visibleTopSkills = topSkills.slice(0, topSkillLimit)
+  const topSkillPageCount = Math.max(1, Math.ceil(topSkills.length / topSkillLimit))
+  const topSkillStartIndex = topSkillPage * topSkillLimit
+  const visibleTopSkills = topSkills.slice(topSkillStartIndex, topSkillStartIndex + topSkillLimit)
+
+  useEffect(() => {
+    setTopSkillPage((page) => Math.min(page, topSkillPageCount - 1))
+  }, [topSkillPageCount])
+
   const displaySkills = searched ? results : visibleTopSkills
   const displayCount = countFormatter.format(displaySkills.length)
   const topSkillCount = countFormatter.format(displaySkills.length)
+  const topSkillTotalCount = countFormatter.format(topSkills.length)
+  const topSkillPageStart = topSkills.length === 0 ? 0 : topSkillStartIndex + 1
+  const topSkillPageEnd = Math.min(topSkills.length, topSkillStartIndex + visibleTopSkills.length)
   const verifiedTopSkillCount = topSkills.filter((skill) => skill.trust_tier === VERIFIED_TRUST_TIER).length
   const verifiedTopSkillShare = topSkills.length
     ? Math.round((verifiedTopSkillCount / topSkills.length) * 100)
     : 0
   const topSkillInstallCount = topSkills.reduce((total, skill) => total + skill.install_count, 0)
+  const graphSummary =
+    skillGraph.nodes.length > 0
+      ? `Showing ${countFormatter.format(skillGraph.nodes.length)} ${skillGraph.nodes.length === 1 ? "skill" : "skills"} and ${countFormatter.format(skillGraph.edges.length)} authored ${skillGraph.edges.length === 1 ? "relation" : "relations"}.`
+      : null
   const metrics = [
     { label: "Top Skills", value: countFormatter.format(topSkills.length) },
     { label: "Verified", value: `${verifiedTopSkillShare}%` },
@@ -97,14 +115,18 @@ export function CatalogView({ topSkills }: CatalogViewProps) {
     ? "Searching…"
     : searched
       ? `${displayCount} ${displaySkills.length === 1 ? "match" : "matches"}`
-      : `${topSkillCount} shown`
+      : topSkillPageCount > 1
+        ? `${topSkillPageStart}-${topSkillPageEnd} of ${topSkillTotalCount} shown`
+        : `${topSkillCount} shown`
   const liveStatus = error
     ? error
     : loading
       ? "Searching skills…"
       : searched
         ? `${displayCount} ${displaySkills.length === 1 ? "skill" : "skills"} found.`
-        : `${topSkillCount} top installed ${displaySkills.length === 1 ? "skill" : "skills"} shown.`
+        : topSkillPageCount > 1
+          ? `Top installed skills page ${topSkillPage + 1} of ${topSkillPageCount}, showing ${topSkillPageStart} through ${topSkillPageEnd} of ${topSkillTotalCount}.`
+          : `${topSkillCount} top installed ${displaySkills.length === 1 ? "skill" : "skills"} shown.`
 
   return (
     <div className="catalog-page">
@@ -122,6 +144,8 @@ export function CatalogView({ topSkills }: CatalogViewProps) {
             <SearchBar onSearch={handleSearch} loading={loading} />
           </div>
         </div>
+        {graphSummary && <p className="sr-only">{graphSummary}</p>}
+        <SkillGraphHero graph={skillGraph} />
       </section>
 
       <section className="catalog-results" aria-labelledby="catalog-results-title">
@@ -159,6 +183,32 @@ export function CatalogView({ topSkills }: CatalogViewProps) {
             </div>
           ))}
         </div>
+
+        {!searched && topSkillPageCount > 1 && (
+          <nav className="catalog-pagination" aria-label="Top installed skills pages">
+            <button
+              type="button"
+              className="pagination-button"
+              aria-label="Previous top installed skills page"
+              disabled={topSkillPage === 0}
+              onClick={() => setTopSkillPage((page) => Math.max(0, page - 1))}
+            >
+              Previous
+            </button>
+            <span className="pagination-status">
+              Page {topSkillPage + 1} of {topSkillPageCount}
+            </span>
+            <button
+              type="button"
+              className="pagination-button"
+              aria-label="Next top installed skills page"
+              disabled={topSkillPage >= topSkillPageCount - 1}
+              onClick={() => setTopSkillPage((page) => Math.min(topSkillPageCount - 1, page + 1))}
+            >
+              Next
+            </button>
+          </nav>
+        )}
       </section>
 
       <section className="catalog-metrics" aria-label="Registry summary">

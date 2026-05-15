@@ -4,9 +4,9 @@ Next.js App Router uses file-based routing with special file conventions.
 
 ## Project Structure
 
-Reference: https://nextjs.org/docs/app/getting-started/project-structure
+Reference: [Next.js project structure](https://nextjs.org/docs/app/getting-started/project-structure)
 
-```
+```text
 app/
 ├── layout.tsx          # Root layout (required)
 ├── page.tsx            # Home page (/)
@@ -28,7 +28,7 @@ app/
 ## Special Files
 
 | File | Purpose |
-|------|---------|
+| ---- | ------- |
 | `page.tsx` | UI for a route segment |
 | `layout.tsx` | Shared UI for segment and children |
 | `loading.tsx` | Loading UI (Suspense boundary) |
@@ -40,7 +40,7 @@ app/
 
 ## Route Segments
 
-```
+```text
 app/
 ├── blog/               # Static segment: /blog
 ├── [slug]/             # Dynamic segment: /:slug
@@ -51,7 +51,7 @@ app/
 
 ## Parallel Routes
 
-```
+```text
 app/
 ├── @analytics/
 │   └── page.tsx
@@ -62,7 +62,7 @@ app/
 
 ## Intercepting Routes
 
-```
+```text
 app/
 ├── feed/
 │   └── page.tsx
@@ -74,6 +74,7 @@ app/
 ```
 
 Conventions:
+
 - `(.)` - same level
 - `(..)` - one level up
 - `(..)(..)` - two levels up
@@ -81,7 +82,7 @@ Conventions:
 
 ## Private Folders
 
-```
+```text
 app/
 ├── _components/        # Private folder (not a route)
 │   └── Button.tsx
@@ -129,12 +130,12 @@ export const config = {
 ```
 
 | Version | File | Export | Config |
-|---------|------|--------|--------|
+| ------- | ---- | ------ | ------ |
 | v14-15 | `middleware.ts` | `middleware()` | `config` |
 | v16+ | `proxy.ts` | `proxy()` | `config` |
 
-**Migration**: Run `npx @next/codemod@latest upgrade` to auto-rename.
+**Migration**: Run `bunx @next/codemod@latest upgrade` to auto-rename.
 
 ## File Conventions Reference
 
-Reference: https://nextjs.org/docs/app/api-reference/file-conventions
+Reference: [Next.js file conventions](https://nextjs.org/docs/app/api-reference/file-conventions)

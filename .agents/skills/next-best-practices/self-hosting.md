@@ -15,7 +15,7 @@ module.exports = {
 
 This creates a minimal `standalone` folder with only production dependencies:
 
-```
+```text
 .next/
 ├── standalone/
 │   ├── server.js          # Entry point
@@ -29,20 +29,20 @@ This creates a minimal `standalone` folder with only production dependencies:
 ### Dockerfile
 
 ```dockerfile
-FROM node:20-alpine AS base
+FROM oven/bun:1.3.13-alpine AS base
 
 # Install dependencies
 FROM base AS deps
 WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm ci
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
 
 # Build
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build
+RUN bun run build
 
 # Production
 FROM base AS runner
@@ -65,7 +65,7 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["bun", "server.js"]
 ```
 
 ### Docker Compose
@@ -109,7 +109,7 @@ module.exports = {
 ```
 
 ```bash
-npm run build
+bun run build
 pm2 start ecosystem.config.js
 ```
 
@@ -226,7 +226,7 @@ module.exports = class CacheHandler {
 ## What Works vs What Needs Setup
 
 | Feature | Single Instance | Multi-Instance | Notes |
-|---------|----------------|----------------|-------|
+| ------- | --------------- | -------------- | ----- |
 | SSR | Yes | Yes | No special setup |
 | SSG | Yes | Yes | Built at deploy time |
 | ISR | Yes | Needs cache handler | Filesystem cache breaks |
@@ -244,6 +244,7 @@ Next.js Image Optimization works out of the box but is CPU-intensive.
 ### Option 1: Built-in (Simple)
 
 Works automatically, but consider:
+
 - Set `deviceSizes` and `imageSizes` in config to limit variants
 - Use `minimumCacheTTL` to reduce regeneration
 
@@ -311,12 +312,13 @@ export async function GET() {
 [OpenNext](https://open-next.js.org/) adapts Next.js for AWS Lambda, Cloudflare Workers, etc.
 
 ```bash
-npx create-sst@latest
+bunx create-sst@latest
 # or
-npx @opennextjs/aws build
+bunx @opennextjs/aws build
 ```
 
 Supports:
+
 - AWS Lambda + CloudFront
 - Cloudflare Workers
 - Netlify Functions
@@ -342,8 +344,8 @@ export async function GET() {
 
 ## Pre-Deployment Checklist
 
-1. **Build locally first**: `npm run build` - catch errors before deploy
-2. **Test standalone output**: `node .next/standalone/server.js`
+1. **Build locally first**: `bun run build` - catch errors before deploy
+2. **Test standalone output**: `bun .next/standalone/server.js`
 3. **Set `output: 'standalone'`** for Docker
 4. **Configure cache handler** for multi-instance ISR
 5. **Set `HOSTNAME="0.0.0.0"`** for containers

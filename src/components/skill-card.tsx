@@ -1,5 +1,3 @@
-"use client"
-
 import Link from "next/link"
 import type { LifecycleStatus, SkillCardData, TrustTier } from "@/lib/types"
 
@@ -28,46 +26,58 @@ function trustClass(tier: TrustTier) {
 }
 
 export function SkillCard({ card }: { card: SkillCardData }) {
-  const { slug, version, install_count, description, tags, lifecycle_status, trust_tier, token_estimate, size_bytes } = card
+  const {
+    slug,
+    name,
+    version,
+    install_count,
+    description,
+    tags,
+    lifecycle_status,
+    trust_tier,
+    token_estimate,
+    size_bytes,
+  } = card
   const visibleTags = tags.filter((tag) => tag !== slug).slice(0, 5)
+  const displayName = name && name.trim().length > 0 ? name : slug
 
   return (
     <Link
       href={`/skills/${encodeURIComponent(slug)}`}
       className={`skill-card ${lifecycleClass(lifecycle_status)}`}
     >
-      <span className="skill-card__dot" aria-hidden="true" />
-      <div className="skill-card__body">
-        <div className="skill-card__top">
-          <div className="skill-card__identity">
+      <div className="skill-card__top">
+        <div className="skill-card__identity">
+          <span className="skill-card__name">{displayName}</span>
+          <span className="skill-card__sub">
             <span className="skill-card__slug" translate="no">{slug}</span>
             <span className="skill-card__version" translate="no">v{version}</span>
-          </div>
-          <div className="skill-card__meta">
-            <span className={`badge ${badgeClass(lifecycle_status)}`}>{lifecycle_status}</span>
-            <span className={`badge ${trustClass(trust_tier)}`}>{trust_tier}</span>
-          </div>
+          </span>
         </div>
+        <div className="skill-card__meta">
+          <span className={`badge ${badgeClass(lifecycle_status)}`}>{lifecycle_status}</span>
+          <span className={`badge ${trustClass(trust_tier)}`}>{trust_tier}</span>
+        </div>
+      </div>
 
-        {description && (
-          <p className="skill-card__description">{description}</p>
-        )}
+      {description && (
+        <p className="skill-card__description">{description}</p>
+      )}
 
-        <div className="skill-card__footer">
-          {visibleTags.length > 0 && (
-            <div className="tag-list" aria-label="Skill tags">
-              {visibleTags.map((tag) => (
-                <span key={tag} className="tag">{tag}</span>
-              ))}
-            </div>
-          )}
-          <div className="skill-card__stats">
-            <span>{numberFormatter.format(install_count)} installs</span>
-            {token_estimate !== null && (
-              <span>~{numberFormatter.format(token_estimate)} tok</span>
-            )}
-            <span>{sizeFormatter.format(size_bytes / 1024)} KB</span>
+      <div className="skill-card__footer">
+        {visibleTags.length > 0 && (
+          <div className="tag-list" aria-label="Skill tags">
+            {visibleTags.map((tag) => (
+              <span key={tag} className="tag">{tag}</span>
+            ))}
           </div>
+        )}
+        <div className="skill-card__stats">
+          <span>{numberFormatter.format(install_count)} installs</span>
+          {token_estimate !== null && (
+            <span>~{numberFormatter.format(token_estimate)} tok</span>
+          )}
+          <span>{sizeFormatter.format(size_bytes / 1024)} KB</span>
         </div>
       </div>
     </Link>
