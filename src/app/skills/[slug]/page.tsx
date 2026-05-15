@@ -5,6 +5,7 @@ import { SkillHeader } from "@/components/skill-header"
 import { SkillMetadata } from "@/components/skill-metadata"
 import { SkillContent } from "@/components/skill-content"
 import { VersionList } from "@/components/version-list"
+import { requireSession } from "@/lib/auth"
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -12,6 +13,7 @@ type Props = {
 }
 
 export default async function SkillDetailPage({ params, searchParams }: Props) {
+  await requireSession()
   const { slug } = await params
   const { version: versionParam } = await searchParams
 

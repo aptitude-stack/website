@@ -3,6 +3,7 @@
  */
 import fetchMock from "jest-fetch-mock"
 import { POST } from "@/app/api/search/route"
+import { SESSION_COOKIE_NAME, createSessionToken } from "@/lib/auth-session"
 import { NextRequest } from "next/server"
 
 // jest-fetch-mock replaces global.Response with cross-fetch's implementation,
@@ -23,9 +24,34 @@ beforeEach(() => {
   fetchMock.resetMocks()
   process.env.REGISTRY_BASE_URL = "https://registry.example.com"
   process.env.REGISTRY_READ_TOKEN = "tid.secret"
+  process.env.APTITUDE_SESSION_SECRET = "test-session-secret"
 })
 
-function makeRequest(body: unknown) {
+async function makeRequest(body: unknown) {
+  const token = await createSessionToken("operator")
+  return new NextRequest("http://localhost/api/search", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: `${SESSION_COOKIE_NAME}=${token}`,
+    },
+    body: JSON.stringify(body),
+  })
+}
+
+async function makeRawRequest(body: string) {
+  const token = await createSessionToken("operator")
+  return new NextRequest("http://localhost/api/search", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: `${SESSION_COOKIE_NAME}=${token}`,
+    },
+    body,
+  })
+}
+
+function makeUnauthenticatedRequest(body: unknown) {
   return new NextRequest("http://localhost/api/search", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -33,43 +59,40 @@ function makeRequest(body: unknown) {
   })
 }
 
-function makeRawRequest(body: string) {
-  return new NextRequest("http://localhost/api/search", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body,
-  })
-}
-
 describe("POST /api/search", () => {
+  it("returns 401 when session is missing", async () => {
+    const res = await POST(makeUnauthenticatedRequest({ query: "fastapi" }))
+    expect(res.status).toBe(401)
+  })
+
   it("returns 400 when query is missing", async () => {
-    const res = await POST(makeRequest({}))
+    const res = await POST(await makeRequest({}))
     expect(res.status).toBe(400)
   })
 
   it("returns 400 when query is not a string", async () => {
-    const res = await POST(makeRequest({ query: 42 }))
+    const res = await POST(await makeRequest({ query: 42 }))
     expect(res.status).toBe(400)
   })
 
   it("returns 400 when query is empty after trimming", async () => {
-    const res = await POST(makeRequest({ query: "   " }))
+    const res = await POST(await makeRequest({ query: "   " }))
     expect(res.status).toBe(400)
   })
 
   it("returns 400 when query is too long", async () => {
-    const res = await POST(makeRequest({ query: "a".repeat(201) }))
+    const res = await POST(await makeRequest({ query: "a".repeat(201) }))
     expect(res.status).toBe(400)
   })
 
   it("returns 400 when JSON is malformed", async () => {
-    const res = await POST(makeRawRequest("{"))
+    const res = await POST(await makeRawRequest("{"))
     expect(res.status).toBe(400)
   })
 
   it("returns 502 when registry is unavailable", async () => {
     fetchMock.mockRejectOnce(new Error("Network error"))
-    const res = await POST(makeRequest({ query: "fastapi" }))
+    const res = await POST(await makeRequest({ query: "fastapi" }))
     expect(res.status).toBe(502)
   })
 
@@ -86,7 +109,7 @@ describe("POST /api/search", () => {
       }],
     }))
 
-    const res = await POST(makeRequest({ query: "fastapi" }))
+    const res = await POST(await makeRequest({ query: "fastapi" }))
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.candidates).toHaveLength(1)
@@ -121,7 +144,7 @@ describe("POST /api/search", () => {
       return { status: 404, body: "Not found" }
     })
 
-    const res = await POST(makeRequest({ query: "skills" }))
+    const res = await POST(await makeRequest({ query: "skills" }))
 
     expect(res.status).toBe(200)
     const data = await res.json()
