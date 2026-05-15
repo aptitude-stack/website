@@ -39,17 +39,19 @@ interface HoverCard extends GraphNodeDetails {
 }
 
 const MAX_DPR = 1.5
-const EDGE_COLORS: Record<RenderableEdgeType, number> = {
-  depends_on: 0xf2c94c,
-  extends: 0x9e94a3,
-  overlaps_with: 0xddd5c8,
-  ambient: 0x66556a,
-}
 const EDGE_OPACITY: Record<RenderableEdgeType, number> = {
   depends_on: 0.2,
   extends: 0.18,
   overlaps_with: 0.16,
   ambient: 0.15,
+}
+const DEFAULT_GRAPH_COLORS = {
+  accent: 0xb319cf,
+  borderStrong: 0x66556a,
+  textDim: 0x9e94a3,
+  textMuted: 0xddd5c8,
+  textPrimary: 0xf6efe2,
+  warn: 0xf2c94c,
 }
 
 export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
@@ -66,8 +68,7 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
     if (typeof window === "undefined") return
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
-    const desktop = window.matchMedia("(min-width: 768px)")
-    if (reduceMotion.matches || !desktop.matches) {
+    if (reduceMotion.matches) {
       setMode("static")
       return
     }
@@ -94,6 +95,7 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
         })
         renderer.setClearAlpha(0)
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, MAX_DPR))
+        const colors = getThemeGraphColors()
 
         const scene = new THREE.Scene()
         const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100)
@@ -102,23 +104,23 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
         const group = new THREE.Group()
         scene.add(group)
 
-        const ambient = new THREE.AmbientLight(0xf2ddbb, 0.62)
-        const key = new THREE.DirectionalLight(0xf6efe2, 0.68)
+        const ambient = new THREE.AmbientLight(colors.textMuted, 0.62)
+        const key = new THREE.DirectionalLight(colors.textPrimary, 0.68)
         key.position.set(2, 3, 5)
         scene.add(ambient, key)
 
         const nodeGeometry = new THREE.SphereGeometry(0.052, 18, 12)
         const nodeMaterial = new THREE.MeshStandardMaterial({
-          color: 0xf6efe2,
-          emissive: 0x2a252b,
+          color: colors.node,
+          emissive: colors.nodeEmissive,
           roughness: 0.7,
           metalness: 0.08,
           transparent: true,
           opacity: 0.78,
         })
         const hoverMaterial = new THREE.MeshStandardMaterial({
-          color: 0xffffff,
-          emissive: 0xb319cf,
+          color: colors.nodeHover,
+          emissive: colors.accent,
           roughness: 0.54,
           metalness: 0.08,
           transparent: true,
@@ -147,7 +149,7 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
           let material = lineMaterials.get(edge.edge_type)
           if (!material) {
             material = new THREE.LineBasicMaterial({
-              color: EDGE_COLORS[edge.edge_type],
+              color: colors.edges[edge.edge_type],
               transparent: true,
               opacity: EDGE_OPACITY[edge.edge_type],
             })
@@ -207,11 +209,13 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
             frameRef.current = null
             return
           }
-          drift += 0.0032
-          group.rotation.y += 0.00024
-          group.rotation.x = Math.sin(drift * 0.58) * 0.025
-          group.rotation.z = Math.sin(drift * 0.34) * 0.018
-          group.position.set(Math.sin(drift * 0.42) * 0.07, Math.cos(drift * 0.31) * 0.045, 0)
+          drift += 0.0022
+          group.rotation.y = Math.sin(drift * 0.32) * 0.026
+          group.rotation.x = Math.sin(drift * 0.48) * 0.02
+          group.rotation.z = Math.sin(drift * 0.28) * 0.014
+          const breath = 1 + Math.sin(drift * 0.5) * 0.012
+          group.scale.setScalar(breath)
+          group.position.set(Math.sin(drift * 0.36) * 0.035, Math.cos(drift * 0.31) * 0.028, 0)
           if (isPointerInside) {
             raycaster.setFromCamera(pointer, camera)
             const [hit] = raycaster.intersectObjects(nodeObjects, false)
@@ -303,6 +307,7 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
         width={640}
         height={420}
       />
+      {mode !== "canvas" && <div className="skill-graph-static" aria-hidden="true" />}
       {hoverCard && (
         <div
           className="skill-graph-tooltip"
@@ -322,6 +327,38 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
       )}
     </div>
   )
+}
+
+function getThemeGraphColors() {
+  const styles = window.getComputedStyle(document.documentElement)
+  const textPrimary = cssRgbToNumber(styles.getPropertyValue("--text-primary-rgb"), DEFAULT_GRAPH_COLORS.textPrimary)
+  const textMuted = cssRgbToNumber(styles.getPropertyValue("--text-muted-rgb"), DEFAULT_GRAPH_COLORS.textMuted)
+  const textDim = cssRgbToNumber(styles.getPropertyValue("--text-dim-rgb"), DEFAULT_GRAPH_COLORS.textDim)
+  const accent = cssRgbToNumber(styles.getPropertyValue("--accent-rgb"), DEFAULT_GRAPH_COLORS.accent)
+  const warn = cssRgbToNumber(styles.getPropertyValue("--warn-rgb"), DEFAULT_GRAPH_COLORS.warn)
+  const borderStrong = cssRgbToNumber(styles.getPropertyValue("--border-strong-rgb"), DEFAULT_GRAPH_COLORS.borderStrong)
+
+  return {
+    accent,
+    edges: {
+      depends_on: warn,
+      extends: textDim,
+      overlaps_with: textMuted,
+      ambient: borderStrong,
+    } satisfies Record<RenderableEdgeType, number>,
+    node: textPrimary,
+    nodeEmissive: borderStrong,
+    nodeHover: textMuted,
+    textMuted,
+    textPrimary,
+  }
+}
+
+function cssRgbToNumber(value: string, fallback: number): number {
+  const channels = value.trim().split(/\s+/).map((channel) => Number.parseInt(channel, 10))
+  if (channels.length < 3 || channels.some((channel) => !Number.isFinite(channel))) return fallback
+  const [red, green, blue] = channels
+  return (red << 16) + (green << 8) + blue
 }
 
 function positionNodes(graph: SkillGraphData): PositionedNode[] {

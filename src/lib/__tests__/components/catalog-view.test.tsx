@@ -133,12 +133,12 @@ describe("CatalogView", () => {
     expect(screen.getByText("Showing 2 skills and 1 authored relation.")).toBeInTheDocument()
   })
 
-  it("renders a fallback graph from top skills when graph data is unavailable", () => {
+  it("renders a dedicated graph section between results and metrics", () => {
     const { container } = render(<CatalogView topSkills={[makeSkill("skill-1", 20)]} skillGraph={{ nodes: [], edges: [] }} />)
 
+    expect(screen.getByRole("heading", { name: "Skills Graph" })).toBeInTheDocument()
     expect(screen.getByText("Showing 1 skill and 0 authored relations.")).toBeInTheDocument()
-    expect(container.querySelector(".skill-graph-hero")).toBeInTheDocument()
-    expect(screen.queryByText("current-default skills")).not.toBeInTheDocument()
-    expect(screen.getByText("Aptitude")).toBeInTheDocument()
+    expect(container.querySelector(".catalog-graph .skill-graph-hero")).toBeInTheDocument()
+    expect(container.querySelector(".catalog-hero .skill-graph-hero")).not.toBeInTheDocument()
   })
 })
