@@ -22,15 +22,9 @@ function MetaRow({ label, children }: { label: string; children: ReactNode }) {
 }
 
 function Score({ value }: { value: number | null }) {
-  if (value === null) return <span className="score score-empty">—</span>
-  const pct = Math.round(value * 100)
-  const tone = pct >= 80 ? "score-high" : pct >= 60 ? "score-mid" : "score-low"
+  if (value === null) return <span className="metadata-score metadata-score-empty">—</span>
 
-  return (
-    <span className={`score ${tone}`}>
-      {pct}<span className="score-denominator">/100</span>
-    </span>
-  )
+  return <span className="metadata-score">{Math.round(value * 100)}/100</span>
 }
 
 export function SkillMetadata({ meta }: { meta: SkillVersionMetadataDto }) {
@@ -46,44 +40,31 @@ export function SkillMetadata({ meta }: { meta: SkillVersionMetadataDto }) {
         <h2 id="metadata-title" className="panel-title">Metadata</h2>
       </div>
 
-      <div className="metadata-panel__primary">
+      <div className="metadata-panel__body">
         <MetaRow label="Status"><span translate="no">{lifecycleStatus}</span></MetaRow>
         <MetaRow label="Access"><span translate="no">{trustTier}</span></MetaRow>
         <MetaRow label="Published">{dateFormatter.format(new Date(meta.published_at))}</MetaRow>
         <MetaRow label="Maturity"><Score value={metadata.maturity_score} /></MetaRow>
         <MetaRow label="Security"><Score value={metadata.security_score} /></MetaRow>
+        {metadata.token_estimate !== null && (
+          <MetaRow label="Tokens">
+            <span>~{numberFormatter.format(metadata.token_estimate)}</span>
+          </MetaRow>
+        )}
+        <MetaRow label="Size">
+          <span>{sizeFormatter.format(content.size_bytes / 1024)} KB</span>
+        </MetaRow>
+        <MetaRow label="Namespace">
+          <span translate="no">{meta.namespace}</span>
+        </MetaRow>
+        {repoUrl && repoHost && (
+          <MetaRow label="Source">
+            <a href={repoUrl.toString()} target="_blank" rel="noopener noreferrer">
+              {repoHost} ↗
+            </a>
+          </MetaRow>
+        )}
       </div>
-
-      <details className="metadata-disclosure">
-        <summary>
-          <span>More Details</span>
-          <span aria-hidden="true">+</span>
-        </summary>
-
-        <div className="metadata-disclosure__content">
-          {metadata.token_estimate !== null && (
-            <MetaRow label="Tokens">
-              <span>~{numberFormatter.format(metadata.token_estimate)}</span>
-            </MetaRow>
-          )}
-
-          <MetaRow label="Size">
-            <span>{sizeFormatter.format(content.size_bytes / 1024)} KB</span>
-          </MetaRow>
-
-          <MetaRow label="Namespace">
-            <span translate="no">{meta.namespace}</span>
-          </MetaRow>
-
-          {repoUrl && repoHost && (
-            <MetaRow label="Source">
-              <a href={repoUrl.toString()} target="_blank" rel="noopener noreferrer">
-                {repoHost} ↗
-              </a>
-            </MetaRow>
-          )}
-        </div>
-      </details>
     </aside>
   )
 }

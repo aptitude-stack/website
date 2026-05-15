@@ -52,4 +52,52 @@ describe("SkillHeader", () => {
     expect(screen.getByText("documentation")).toBeInTheDocument()
     expect(screen.getByText("writing")).toBeInTheDocument()
   })
+
+  it("links tags back to the filtered catalog", () => {
+    render(<SkillHeader meta={meta} />)
+
+    expect(screen.getByRole("link", { name: "documentation" })).toHaveAttribute(
+      "href",
+      "/catalog?tag=documentation#catalog-features",
+    )
+  })
+
+  it("shows maturity and security scores in the hero", () => {
+    render(<SkillHeader meta={meta} />)
+
+    expect(screen.getByRole("img", { name: "Maturity score 90 out of 100" })).toBeInTheDocument()
+    expect(screen.getByRole("img", { name: "Security score 80 out of 100" })).toBeInTheDocument()
+  })
+
+  it("keeps score numbers out of the hero donut labels", () => {
+    render(<SkillHeader meta={meta} />)
+
+    const scoreGroup = screen.getByRole("group", { name: "Skill scores" })
+
+    expect(scoreGroup).toHaveTextContent("Maturity")
+    expect(scoreGroup).toHaveTextContent("Security")
+    expect(scoreGroup).not.toHaveTextContent("90")
+    expect(scoreGroup).not.toHaveTextContent("80")
+  })
+
+  it("renders score donuts as inline SVG circles", () => {
+    const { container } = render(<SkillHeader meta={meta} />)
+
+    const donuts = container.querySelectorAll(".score-donut__svg")
+
+    expect(donuts).toHaveLength(2)
+    expect(donuts[0]?.querySelectorAll("circle")).toHaveLength(2)
+    expect(donuts[0]?.querySelector(".score-donut__progress")).toHaveAttribute("pathLength", "100")
+  })
+
+  it("exposes score values as hover hints", () => {
+    const { container } = render(<SkillHeader meta={meta} />)
+
+    const donuts = container.querySelectorAll(".score-donut")
+
+    expect(donuts[0]).toHaveAttribute("title", "Maturity: 90/100")
+    expect(donuts[0]).toHaveAttribute("data-tooltip", "Maturity: 90/100")
+    expect(donuts[1]).toHaveAttribute("title", "Security: 80/100")
+    expect(donuts[1]).toHaveAttribute("data-tooltip", "Security: 80/100")
+  })
 })

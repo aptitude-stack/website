@@ -14,6 +14,10 @@ declare module "three" {
     setScalar(value: number): this
   }
 
+  export class Color {
+    set(color: number | string): this
+  }
+
   export class Euler {
     x: number
     y: number
@@ -40,15 +44,24 @@ declare module "three" {
 
   export class AmbientLight extends Object3D {
     constructor(color?: number | string, intensity?: number)
+    color: Color
   }
 
   export class DirectionalLight extends Object3D {
     constructor(color?: number | string, intensity?: number)
+    color: Color
   }
 
   export class BufferGeometry {
     setFromPoints(points: Vector3[]): this
+    setAttribute(name: string, attribute: BufferAttribute): this
     dispose(): void
+  }
+
+  export class BufferAttribute {
+    constructor(array: Float32Array, itemSize: number)
+    array: Float32Array
+    needsUpdate: boolean
   }
 
   export class SphereGeometry extends BufferGeometry {
@@ -61,10 +74,15 @@ declare module "three" {
 
   export class MeshStandardMaterial extends Material {
     constructor(parameters?: Record<string, unknown>)
+    color: Color
+    emissive: Color
+    needsUpdate: boolean
   }
 
   export class LineBasicMaterial extends Material {
     constructor(parameters?: Record<string, unknown>)
+    color: Color
+    needsUpdate: boolean
   }
 
   export class Mesh extends Object3D {
@@ -77,9 +95,15 @@ declare module "three" {
   export class Line extends Object3D {
     constructor(geometry?: BufferGeometry, material?: Material)
     geometry: BufferGeometry
+    material: Material
   }
 
   export class Raycaster {
+    params: {
+      Line: {
+        threshold: number
+      }
+    }
     setFromCamera(pointer: Vector2, camera: PerspectiveCamera): void
     intersectObjects(objects: Object3D[], recursive?: boolean): Array<{ object: Object3D }>
   }

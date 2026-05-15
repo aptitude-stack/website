@@ -75,6 +75,11 @@ export default async function RootLayout({
               </span>
             </Link>
             <div className="nav-actions">
+              <div className="header-nav-links" aria-label="Catalog sections">
+                <Link href="/catalog#catalog-search" className="nav-link">Search</Link>
+                <Link href="/catalog#catalog-features" className="nav-link">Features</Link>
+                <Link href="/catalog#catalog-metrics" className="nav-link">Metrics</Link>
+              </div>
               <a
                 href="https://github.com/aptitude-stack"
                 target="_blank"

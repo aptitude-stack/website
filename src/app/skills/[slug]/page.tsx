@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation"
-import { fetchSkillVersionList, fetchSkillMetadata, fetchSkillContent } from "@/lib/registry-client"
+import { fetchSkillVersionList, fetchSkillMetadata, fetchSkillContent, fetchSkillGraphSafe } from "@/lib/registry-client"
 import { extractMarkdownFromTarZst } from "@/lib/archive"
 import { SkillHeader } from "@/components/skill-header"
 import { SkillMetadata } from "@/components/skill-metadata"
+import { SkillRelationships } from "@/components/skill-relationships"
 import { SkillContent } from "@/components/skill-content"
 import { VersionList } from "@/components/version-list"
 import { requireSession } from "@/lib/auth"
@@ -25,9 +26,10 @@ export default async function SkillDetailPage({ params, searchParams }: Props) {
 
   if (!current) notFound()
 
-  const [meta, contentBuffer] = await Promise.all([
+  const [meta, contentBuffer, graph] = await Promise.all([
     fetchSkillMetadata(slug, current.version).catch(() => null),
     fetchSkillContent(slug, current.version).catch(() => null),
+    fetchSkillGraphSafe(),
   ])
 
   if (!meta) notFound()
@@ -48,12 +50,13 @@ export default async function SkillDetailPage({ params, searchParams }: Props) {
               SKILL.md not available for this version.
             </div>
           )}
-          {versionList.versions.length > 1 && (
-            <VersionList slug={slug} versions={versionList.versions} />
-          )}
         </div>
         <div className="detail-aside">
           <SkillMetadata meta={meta} />
+          <SkillRelationships graph={graph} slug={slug} />
+          {versionList.versions.length > 1 && (
+            <VersionList slug={slug} versions={versionList.versions} />
+          )}
         </div>
       </div>
     </div>

@@ -87,6 +87,17 @@ describe("CatalogView", () => {
     expect(screen.getByText("Page 2 of 2")).toBeInTheDocument()
   })
 
+  it("filters catalog skills by selected tag", () => {
+    const taggedSkill = { ...makeSkill("python-lint", 12), tags: ["python", "quality"] }
+    const otherSkill = { ...makeSkill("docs", 10), tags: ["writing"] }
+
+    render(<CatalogView topSkills={[taggedSkill, otherSkill]} selectedTag="quality" />)
+
+    expect(screen.getByText("Tag: quality")).toBeInTheDocument()
+    expect(screen.getByText("python-lint")).toBeInTheDocument()
+    expect(screen.queryByText("docs")).not.toBeInTheDocument()
+  })
+
   it("shows search results after a query", async () => {
     fetchMock.mockResponseOnce(JSON.stringify({ candidates: [makeSkill("search-result", 5)] }))
 

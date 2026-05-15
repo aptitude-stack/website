@@ -9,6 +9,7 @@ import type { SkillCardData, SkillGraphData } from "@/lib/types"
 interface CatalogViewProps {
   topSkills: SkillCardData[]
   skillGraph?: SkillGraphData
+  selectedTag?: string
 }
 
 const countFormatter = new Intl.NumberFormat("en-US")
@@ -22,7 +23,7 @@ export function getTopSkillLimitForWidth(width: number): number {
   return 4
 }
 
-export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: CatalogViewProps) {
+export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH, selectedTag }: CatalogViewProps) {
   const [results, setResults] = useState<SkillCardData[]>([])
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
@@ -99,12 +100,24 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
     () => (skillGraph.nodes.length > 0 ? skillGraph : toTopSkillGraph(topSkills)),
     [skillGraph, topSkills]
   )
+  const normalizedSelectedTag = selectedTag?.trim() ?? ""
+  const tagFilteredSkills = useMemo(() => {
+    if (!normalizedSelectedTag) return []
+    const selected = normalizedSelectedTag.toLocaleLowerCase()
+    return topSkills.filter((skill) =>
+      skill.tags.some((tag) => tag.toLocaleLowerCase() === selected)
+    )
+  }, [normalizedSelectedTag, topSkills])
 
   useEffect(() => {
     setTopSkillPage((page) => Math.min(page, topSkillPageCount - 1))
   }, [topSkillPageCount])
 
-  const displaySkills = searched ? results : visibleTopSkills
+  const displaySkills = searched
+    ? results
+    : normalizedSelectedTag
+      ? tagFilteredSkills
+      : visibleTopSkills
   const displayCount = countFormatter.format(displaySkills.length)
   const topSkillCount = countFormatter.format(displaySkills.length)
   const topSkillTotalCount = countFormatter.format(topSkills.length)
@@ -124,23 +137,31 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
     { label: "Verified", value: `${verifiedTopSkillShare}%` },
     { label: "Installs", value: countFormatter.format(topSkillInstallCount) },
   ]
-  const sectionLabel = searched ? "Search Results" : "All Skills"
+  const sectionLabel = searched
+    ? "Search Results"
+    : normalizedSelectedTag
+      ? `Tag: ${normalizedSelectedTag}`
+      : "All Skills"
   const sectionNote = loading
     ? "Searching…"
     : searched
       ? `${displayCount} ${displaySkills.length === 1 ? "match" : "matches"}`
-      : topSkillPageCount > 1
-        ? `${topSkillPageStart}-${topSkillPageEnd} of ${topSkillTotalCount} shown`
-        : `${topSkillCount} shown`
+      : normalizedSelectedTag
+        ? `${displayCount} ${displaySkills.length === 1 ? "match" : "matches"}`
+        : topSkillPageCount > 1
+          ? `${topSkillPageStart}-${topSkillPageEnd} of ${topSkillTotalCount} shown`
+          : `${topSkillCount} shown`
   const liveStatus = error
     ? error
     : loading
       ? "Searching skills…"
       : searched
         ? `${displayCount} ${displaySkills.length === 1 ? "skill" : "skills"} found.`
-        : topSkillPageCount > 1
-          ? `All skills page ${topSkillPage + 1} of ${topSkillPageCount}, showing ${topSkillPageStart} through ${topSkillPageEnd} of ${topSkillTotalCount}.`
-          : `${topSkillCount} catalog ${displaySkills.length === 1 ? "skill" : "skills"} shown.`
+        : normalizedSelectedTag
+          ? `${displayCount} ${displaySkills.length === 1 ? "skill" : "skills"} tagged ${normalizedSelectedTag}.`
+          : topSkillPageCount > 1
+            ? `All skills page ${topSkillPage + 1} of ${topSkillPageCount}, showing ${topSkillPageStart} through ${topSkillPageEnd} of ${topSkillTotalCount}.`
+            : `${topSkillCount} catalog ${displaySkills.length === 1 ? "skill" : "skills"} shown.`
 
   return (
     <div className="catalog-page">
@@ -154,7 +175,7 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
           <p className="hero-description">
             Discover governed, versioned skills for AI agents that need dependable coding workflows, review context, and installable operating knowledge.
           </p>
-          <div className="hero-search">
+          <div id="catalog-search" className="hero-search">
             <SearchBar onSearch={handleSearch} onClear={handleClearSearch} loading={loading} />
           </div>
         </div>
@@ -162,7 +183,7 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
         <SkillGraphHero graph={heroGraph} />
       </section>
 
-      <section className="catalog-results" aria-labelledby="catalog-results-title">
+      <section id="catalog-features" className="catalog-results" aria-labelledby="catalog-results-title">
         <div className="catalog-toolbar">
           <h2 id="catalog-results-title" className="section-label">{sectionLabel}</h2>
           <span className="section-note">{sectionNote}</span>
@@ -180,7 +201,12 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
             No skills found. Try a different query.
           </p>
         )}
-        {!searched && visibleTopSkills.length === 0 && (
+        {!searched && normalizedSelectedTag && tagFilteredSkills.length === 0 && (
+          <p className="state-message">
+            No skills found with the &quot;{normalizedSelectedTag}&quot; tag.
+          </p>
+        )}
+        {!searched && !normalizedSelectedTag && visibleTopSkills.length === 0 && (
           <p className="state-message">
             No catalog skills available.
           </p>
@@ -198,7 +224,7 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
           ))}
         </div>
 
-        {!searched && topSkillPageCount > 1 && (
+        {!searched && !normalizedSelectedTag && topSkillPageCount > 1 && (
           <nav className="catalog-pagination" aria-label="All skills pages">
             <button
               type="button"
@@ -225,7 +251,7 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
         )}
       </section>
 
-      <section className="catalog-metrics" aria-label="Registry summary">
+      <section id="catalog-metrics" className="catalog-metrics" aria-label="Registry summary">
         {metrics.map((metric) => (
           <div className="metric-card" key={metric.label}>
             <div className="metric-label">{metric.label}</div>

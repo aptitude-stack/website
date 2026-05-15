@@ -49,6 +49,10 @@ describe("SkillMetadata", () => {
     expect(screen.getByText("VERIFIED")).toBeInTheDocument()
     expect(screen.getByText("Published")).toBeInTheDocument()
     expect(screen.getByText("Jan 1, 2024")).toBeInTheDocument()
+    expect(screen.getByText("Maturity")).toBeInTheDocument()
+    expect(screen.getByText("90/100")).toBeInTheDocument()
+    expect(screen.getByText("Security")).toBeInTheDocument()
+    expect(screen.getByText("80/100")).toBeInTheDocument()
     expect(screen.queryByText("Tags")).not.toBeInTheDocument()
     expect(screen.queryByText("python")).not.toBeInTheDocument()
   })
@@ -66,12 +70,15 @@ describe("SkillMetadata", () => {
     )
   })
 
-  it("keeps secondary metadata available in a collapsed disclosure", () => {
+  it("renders all metadata without a collapsed disclosure", () => {
     render(<SkillMetadata meta={makeMeta("https://github.com/aptitude-stack/registry")} />)
 
-    const details = screen.getByText("More Details").closest("details")
-    expect(details).toBeInTheDocument()
-    expect(details).not.toHaveAttribute("open")
-    expect(details).toContainElement(screen.getByText("Namespace"))
+    expect(screen.queryByText("More Details")).not.toBeInTheDocument()
+    expect(screen.getByText("Tokens")).toBeInTheDocument()
+    expect(screen.getByText("~900")).toBeInTheDocument()
+    expect(screen.getByText("Size")).toBeInTheDocument()
+    expect(screen.getByText("2.0 KB")).toBeInTheDocument()
+    expect(screen.getByText("Namespace")).toBeInTheDocument()
+    expect(screen.getByText("public")).toBeInTheDocument()
   })
 })

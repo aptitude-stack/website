@@ -9,10 +9,15 @@ interface SkillContentProps {
 
 export function SkillContent({ markdown }: SkillContentProps) {
   return (
-    <div className="prose-skill">
-      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
-        {cleanSkillMarkdown(markdown)}
-      </ReactMarkdown>
+    <div className="prose-skill" aria-labelledby="content-title">
+      <div className="prose-skill__header">
+        <h2 id="content-title" className="panel-title">Content</h2>
+      </div>
+      <div className="prose-skill__body">
+        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
+          {cleanSkillMarkdown(markdown)}
+        </ReactMarkdown>
+      </div>
     </div>
   )
 }
