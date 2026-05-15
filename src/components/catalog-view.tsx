@@ -110,6 +110,7 @@ export function CatalogView({ topSkills }: CatalogViewProps) {
     <div className="catalog-page">
       <section className="catalog-hero" aria-labelledby="catalog-title">
         <div className="hero-copy">
+          <p className="eyebrow">Skills Registry</p>
           <h1 id="catalog-title" className="hero-title">
             <span className="hero-title__accent" data-text="Aptitude">Aptitude</span>{" "}
             <span className="hero-title__cream" data-text="Registry">Registry</span>

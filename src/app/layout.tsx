@@ -75,6 +75,37 @@ export default async function RootLayout({
               </span>
             </Link>
             <div className="nav-actions">
+              <a
+                href="https://github.com/aptitude-stack"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="nav-cta"
+                aria-label="Open Aptitude docs"
+                title="Docs"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="nav-cta__icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M5 5.8h4.5c1.4 0 2.5 1.1 2.5 2.5v10.4c0-1.4-1.1-2.5-2.5-2.5H5V5.8Z"
+                  />
+                  <path
+                    d="M19 5.8h-4.5c-1.4 0-2.5 1.1-2.5 2.5v10.4c0-1.4 1.1-2.5 2.5-2.5H19V5.8Z"
+                  />
+                  <path
+                    d="M12 8.3v10.4"
+                  />
+                </svg>
+                <span className="sr-only">Docs</span>
+              </a>
               {session ? (
                 <form className="nav-logout-form" action={handleLogout}>
                   <button
@@ -88,32 +119,20 @@ export default async function RootLayout({
                       className="nav-cta__icon"
                       viewBox="0 0 24 24"
                       fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <path
-                        d="M9.2 4.8H6.6c-.9 0-1.6.7-1.6 1.6v11.2c0 .9.7 1.6 1.6 1.6h2.6"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
+                        d="M14.2 5.2H7.4c-1 0-1.8.8-1.8 1.8v10c0 1 .8 1.8 1.8 1.8h6.8"
                       />
                       <path
-                        d="M10.5 12h8.2"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
+                        d="M10 12h8.8"
                       />
                       <path
-                        d="m15.7 8.8 3.2 3.2-3.2 3.2"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M9.2 6.5h3.3c.9 0 1.6.7 1.6 1.6v.6"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
+                        d="m15.5 8.7 3.3 3.3-3.3 3.3"
                       />
                     </svg>
                     <span className="sr-only">Logout</span>
@@ -131,68 +150,25 @@ export default async function RootLayout({
                     className="nav-cta__icon"
                     viewBox="0 0 24 24"
                     fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      d="M14.8 4.8h2.6c.9 0 1.6.7 1.6 1.6v11.2c0 .9-.7 1.6-1.6 1.6h-2.6"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
+                      d="M9.8 5.2h6.8c1 0 1.8.8 1.8 1.8v10c0 1-.8 1.8-1.8 1.8H9.8"
                     />
                     <path
-                      d="M13.5 12H5.3"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
+                      d="M5.2 12H14"
                     />
                     <path
-                      d="M8.3 8.8 5.1 12l3.2 3.2"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M14.8 6.5h-3.3c-.9 0-1.6.7-1.6 1.6v.6"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
+                      d="m10.7 8.7 3.3 3.3-3.3 3.3"
                     />
                   </svg>
                   <span className="sr-only">Login</span>
                 </Link>
               )}
-              <a
-                href="https://github.com/aptitude-stack"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="nav-cta"
-                aria-label="Open Aptitude docs"
-              >
-                <svg
-                  aria-hidden="true"
-                  className="nav-cta__icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M5 6.5h4.4c1.45 0 2.6 1.15 2.6 2.6 0-1.45 1.15-2.6 2.6-2.6H19v10.8h-4.4c-1.45 0-2.6 1.15-2.6 2.6 0-1.45-1.15-2.6-2.6-2.6H5V6.5Z"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M12 9.1v10.8"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span className="sr-only">Docs</span>
-              </a>
             </div>
           </nav>
         </header>

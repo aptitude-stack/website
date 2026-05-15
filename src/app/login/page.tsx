@@ -36,7 +36,7 @@ export default async function LoginPage({ searchParams }: Props) {
         <div className="login-copy">
           <p className="eyebrow">Audit Console</p>
           <h1 id="login-title" className="login-title">
-            Secure access for governed skill activity.
+            Welcome back to your skills workspace.
           </h1>
           <p className="login-description">
             Sign in to review skills, registry events, policy decisions, and
