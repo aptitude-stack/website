@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --color-base: #0a0a0a;
-  --color-surface: #141414;
-  --color-elevated: #1c1c1b;
-  --color-border: #2d2c2a;
-  --color-border-strong: #4a4842;
-  --color-primary: #ece7db;
-  --color-muted: #c9c4b7;
-  --color-dim: #7a766d;
-  --color-accent: #a406bc;
-  --color-accent-dim: rgb(164 6 188 / 0.08);
-  --color-green: #d586d2;
+  --color-base: #11100f;
+  --color-surface: #1b181b;
+  --color-elevated: #252127;
+  --color-border: #3c353c;
+  --color-border-strong: #66556a;
+  --color-primary: #f6efe2;
+  --color-muted: #ddd5c8;
+  --color-dim: #9e94a3;
+  --color-accent: #b319cf;
+  --color-accent-dim: rgb(179 25 207 / 0.1);
+  --color-green: #d35de5;
   --color-red: #ff6b5c;
   --color-blue: #5b9ef0;
 
@@ -60,30 +60,35 @@
 
 :root {
   color-scheme: dark;
-  --bg-base-rgb: 10 10 10;
-  --bg-surface-rgb: 20 20 20;
-  --bg-elevated-rgb: 28 28 27;
-  --border-rgb: 45 44 42;
-  --border-strong-rgb: 74 72 66;
-  --text-primary-rgb: 236 231 219;
-  --accent-rgb: 164 6 188;
+  --bg-base-rgb: 17 16 15;
+  --bg-surface-rgb: 27 24 27;
+  --bg-elevated-rgb: 37 33 39;
+  --border-rgb: 60 53 60;
+  --border-strong-rgb: 102 85 106;
+  --text-primary-rgb: 246 239 226;
+  --accent-rgb: 179 25 207;
   --warn-rgb: 242 201 76;
   --red-rgb: 255 107 92;
-  --shadow-rgb: 0 0 0;
-  --bg-base: #0a0a0a;
-  --bg-surface: #141414;
-  --bg-elevated: #1c1c1b;
-  --border: #2d2c2a;
-  --border-strong: #4a4842;
-  --border-subtle: #1e1e1d;
-  --text-primary: #ece7db;
-  --text-muted: #c9c4b7;
-  --text-dim: #7a766d;
-  --accent: #a406bc;
-  --accent-hover: #d586d2;
-  --accent-glow: rgb(var(--accent-rgb) / 0.18);
-  --accent-dim: rgb(var(--accent-rgb) / 0.08);
-  --green: #d586d2;
+  --shadow-rgb: 7 0 12;
+  --bg-base: #11100f;
+  --bg-surface: #1b181b;
+  --bg-elevated: #252127;
+  --border: #3c353c;
+  --border-strong: #66556a;
+  --border-subtle: #2a252b;
+  --text-primary: #f6efe2;
+  --text-muted: #ddd5c8;
+  --text-dim: #9e94a3;
+  --accent: #b319cf;
+  --accent-hover: #d35de5;
+  --accent-button-hover: #9515ad;
+  --accent-glow: rgb(var(--accent-rgb) / 0.22);
+  --accent-dim: rgb(var(--accent-rgb) / 0.1);
+  --login-status-base: #c34bd6;
+  --login-status-highlight: #e079f0;
+  --login-status-ring: rgb(195 75 214 / 0.06);
+  --login-status-glow: rgb(195 75 214 / 0.14);
+  --green: #d35de5;
   --red: #ff6b5c;
   --blue: #5b9ef0;
   --warn: #f2c94c;
@@ -112,25 +117,30 @@
     --bg-surface-rgb: 255 250 243;
     --bg-elevated-rgb: 248 236 220;
     --border-rgb: 236 224 210;
-    --border-strong-rgb: 211 184 219;
+    --border-strong-rgb: 218 202 222;
     --text-primary-rgb: 36 19 36;
     --accent-rgb: 164 6 188;
     --warn-rgb: 151 101 0;
     --red-rgb: 179 43 35;
-    --shadow-rgb: 77 40 90;
-    --bg-base: #fff7ed;
-    --bg-surface: #fffaf3;
-    --bg-elevated: #f8ecdc;
+    --shadow-rgb: 78 56 82;
+    --bg-base: #fff9f2;
+    --bg-surface: #fffdf8;
+    --bg-elevated: #f7efe5;
     --border: #ece0d2;
-    --border-strong: #d3b8db;
+    --border-strong: #dacade;
     --border-subtle: #f0deca;
     --text-primary: #241324;
     --text-muted: #5a435f;
     --text-dim: #846889;
     --accent: #a406bc;
     --accent-hover: #7b048d;
-    --accent-glow: rgb(var(--accent-rgb) / 0.24);
-    --accent-dim: rgb(var(--accent-rgb) / 0.12);
+    --accent-button-hover: #87039a;
+    --accent-glow: rgb(var(--accent-rgb) / 0.12);
+    --accent-dim: rgb(var(--accent-rgb) / 0.07);
+    --login-status-base: #a406bc;
+    --login-status-highlight: #c34bd6;
+    --login-status-ring: rgb(164 6 188 / 0.04);
+    --login-status-glow: rgb(164 6 188 / 0.08);
     --green: #7b048d;
     --red: #b32b23;
     --blue: #1f6ab2;
@@ -148,25 +158,30 @@
   --bg-surface-rgb: 255 250 243;
   --bg-elevated-rgb: 248 236 220;
   --border-rgb: 236 224 210;
-  --border-strong-rgb: 211 184 219;
+  --border-strong-rgb: 218 202 222;
   --text-primary-rgb: 36 19 36;
   --accent-rgb: 164 6 188;
   --warn-rgb: 151 101 0;
   --red-rgb: 179 43 35;
-  --shadow-rgb: 77 40 90;
-  --bg-base: #fff7ed;
-  --bg-surface: #fffaf3;
-  --bg-elevated: #f8ecdc;
+  --shadow-rgb: 78 56 82;
+  --bg-base: #fff9f2;
+  --bg-surface: #fffdf8;
+  --bg-elevated: #f7efe5;
   --border: #ece0d2;
-  --border-strong: #d3b8db;
+  --border-strong: #dacade;
   --border-subtle: #f0deca;
   --text-primary: #241324;
   --text-muted: #5a435f;
   --text-dim: #846889;
   --accent: #a406bc;
   --accent-hover: #7b048d;
-  --accent-glow: rgb(var(--accent-rgb) / 0.24);
-  --accent-dim: rgb(var(--accent-rgb) / 0.12);
+  --accent-button-hover: #87039a;
+  --accent-glow: rgb(var(--accent-rgb) / 0.12);
+  --accent-dim: rgb(var(--accent-rgb) / 0.07);
+  --login-status-base: #a406bc;
+  --login-status-highlight: #c34bd6;
+  --login-status-ring: rgb(164 6 188 / 0.04);
+  --login-status-glow: rgb(164 6 188 / 0.08);
   --green: #7b048d;
   --red: #b32b23;
   --blue: #1f6ab2;
@@ -179,30 +194,35 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg-base-rgb: 10 10 10;
-  --bg-surface-rgb: 20 20 20;
-  --bg-elevated-rgb: 28 28 27;
-  --border-rgb: 45 44 42;
-  --border-strong-rgb: 74 72 66;
-  --text-primary-rgb: 236 231 219;
-  --accent-rgb: 164 6 188;
+  --bg-base-rgb: 17 16 15;
+  --bg-surface-rgb: 27 24 27;
+  --bg-elevated-rgb: 37 33 39;
+  --border-rgb: 60 53 60;
+  --border-strong-rgb: 102 85 106;
+  --text-primary-rgb: 246 239 226;
+  --accent-rgb: 179 25 207;
   --warn-rgb: 242 201 76;
   --red-rgb: 255 107 92;
-  --shadow-rgb: 0 0 0;
-  --bg-base: #0a0a0a;
-  --bg-surface: #141414;
-  --bg-elevated: #1c1c1b;
-  --border: #2d2c2a;
-  --border-strong: #4a4842;
-  --border-subtle: #1e1e1d;
-  --text-primary: #ece7db;
-  --text-muted: #c9c4b7;
-  --text-dim: #7a766d;
-  --accent: #a406bc;
-  --accent-hover: #d586d2;
-  --accent-glow: rgb(var(--accent-rgb) / 0.18);
-  --accent-dim: rgb(var(--accent-rgb) / 0.08);
-  --green: #d586d2;
+  --shadow-rgb: 7 0 12;
+  --bg-base: #11100f;
+  --bg-surface: #1b181b;
+  --bg-elevated: #252127;
+  --border: #3c353c;
+  --border-strong: #66556a;
+  --border-subtle: #2a252b;
+  --text-primary: #f6efe2;
+  --text-muted: #ddd5c8;
+  --text-dim: #9e94a3;
+  --accent: #b319cf;
+  --accent-hover: #d35de5;
+  --accent-button-hover: #9515ad;
+  --accent-glow: rgb(var(--accent-rgb) / 0.22);
+  --accent-dim: rgb(var(--accent-rgb) / 0.1);
+  --login-status-base: #c34bd6;
+  --login-status-highlight: #e079f0;
+  --login-status-ring: rgb(195 75 214 / 0.06);
+  --login-status-glow: rgb(195 75 214 / 0.14);
+  --green: #d35de5;
   --red: #ff6b5c;
   --blue: #5b9ef0;
   --warn: #f2c94c;
@@ -226,17 +246,17 @@ body {
   background:
     radial-gradient(
       circle at 82% 10%,
-      rgb(var(--accent-rgb) / 0.14),
+      rgb(var(--accent-rgb) / 0.13),
       transparent 24rem
     ),
     radial-gradient(
       circle at 8% 34%,
-      rgb(var(--accent-rgb) / 0.1),
+      rgb(var(--accent-rgb) / 0.075),
       transparent 28rem
     ),
     radial-gradient(
       circle at 72% 86%,
-      rgb(var(--accent-rgb) / 0.08),
+      rgb(var(--accent-rgb) / 0.06),
       transparent 30rem
     ),
     linear-gradient(
@@ -245,7 +265,7 @@ body {
         transparent 1px
       )
       0 0 / 72px 72px,
-    linear-gradient(180deg, rgb(var(--accent-rgb) / 0.08), transparent 340px),
+    linear-gradient(180deg, rgb(var(--accent-rgb) / 0.065), transparent 340px),
     var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-body);
@@ -469,12 +489,15 @@ input {
   justify-content: flex-end;
 }
 
-.footer-pip {
-  width: 7px;
-  height: 7px;
+.footer-pip,
+.login-panel__status {
+  width: 8px;
+  height: 8px;
   border-radius: 999px;
-  background: var(--accent);
-  box-shadow: 0 0 18px var(--accent-glow);
+  background: var(--login-status-base);
+  box-shadow:
+    0 0 0 2px var(--login-status-ring),
+    0 0 10px var(--login-status-glow);
   transform-origin: center;
   animation: softPulse 3.8s ease-in-out infinite;
 }
@@ -1478,6 +1501,11 @@ input {
   gap: 18px;
 }
 
+.login-copy .eyebrow {
+  color: var(--accent-hover);
+  text-shadow: 0 0 12px var(--accent-glow);
+}
+
 .login-title {
   max-width: 680px;
   margin: 0;
@@ -1489,6 +1517,7 @@ input {
   line-height: 0.9;
   text-transform: uppercase;
   text-wrap: balance;
+  text-shadow: 0 5px 18px rgb(var(--shadow-rgb) / 0.24);
 }
 
 .login-description {
@@ -1506,16 +1535,18 @@ input {
   overflow: hidden;
   display: grid;
   gap: 18px;
-  border: 1px solid var(--border);
+  border: 1px solid rgb(var(--accent-rgb) / 0.24);
   border-radius: var(--radius-md);
   background:
-    linear-gradient(135deg, rgb(var(--accent-rgb) / 0.1), transparent 42%),
+    linear-gradient(135deg, rgb(var(--accent-rgb) / 0.1), transparent 44%),
     linear-gradient(
       180deg,
-      rgb(var(--bg-elevated-rgb) / 0.96),
-      rgb(var(--bg-surface-rgb) / 0.94)
+      rgb(var(--bg-elevated-rgb) / 0.98),
+      rgb(var(--bg-surface-rgb) / 0.96)
     );
-  box-shadow: var(--shadow-panel);
+  box-shadow:
+    var(--shadow-panel),
+    0 0 64px rgb(var(--accent-rgb) / 0.08);
   padding: clamp(22px, 3vw, 32px);
 }
 
@@ -1540,12 +1571,7 @@ input {
 }
 
 .login-panel__status {
-  width: 8px;
-  height: 8px;
-  background: var(--accent);
   border-radius: 50%;
-  box-shadow: 0 0 12px var(--accent-glow);
-  animation: softPulse 3.8s ease-in-out infinite;
 }
 
 .login-panel h2 {
@@ -1613,12 +1639,15 @@ input {
 
 .login-field input:focus {
   transform: translateY(-1px);
-  outline-color: rgb(var(--accent-rgb) / 0.68);
+  outline-color: rgb(var(--accent-rgb) / 0.72);
   background: var(--bg-surface);
+  box-shadow:
+    var(--shadow-search),
+    0 0 0 4px rgb(var(--accent-rgb) / 0.07);
 }
 
 .login-field input:focus-visible {
-  outline: 1px solid rgb(var(--accent-rgb) / 0.68);
+  outline: 1px solid rgb(var(--accent-rgb) / 0.72);
   outline-offset: 0;
 }
 
@@ -1685,16 +1714,30 @@ input {
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  box-shadow:
+    0 10px 24px rgb(var(--accent-rgb) / 0.18),
+    inset 0 1px 0 rgb(255 255 255 / 0.16);
   transition:
     transform 160ms ease,
     background-color 160ms ease,
-    border-color 160ms ease;
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .login-submit:hover {
   transform: translateY(-1px);
-  border-color: var(--accent-hover);
-  background: var(--accent-hover);
+  border-color: var(--accent-button-hover);
+  background: var(--accent-button-hover);
+  box-shadow:
+    0 12px 28px rgb(var(--accent-rgb) / 0.2),
+    inset 0 1px 0 rgb(255 255 255 / 0.14);
+}
+
+.login-submit:active {
+  transform: translateY(0);
+  box-shadow:
+    0 6px 16px rgb(var(--accent-rgb) / 0.16),
+    inset 0 1px 0 rgb(0 0 0 / 0.08);
 }
 
 .login-footnote {

@@ -9,8 +9,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - When working on login, keep the UI polished and functional-looking; stub authentication should accept any email and password behind the scenes rather than advertising itself in the interface.
 - Preserve existing or remote visual treatments unless explicitly asked to redesign; the user often gives DOM-path feedback for small typography, copy, and alignment fixes.
 - For pull or merge work, protect local changes in stashes before fast-forwarding or merging, and explain which backups were preserved.
+- For UI color tweaks, match the brand purple in `public/logo.svg` (`#a406bc`) and prefer settled, restrained glows and hover states over neon or 3D effects unless explicitly asked.
 
 ## Learned Workspace Facts
 
 - This workspace uses Next.js App Router with `src/proxy.ts` for route gating and `/catalog` as the authenticated catalog destination.
 - The login flow is cookie-gated: unauthenticated users should be routed to `/login`, while authenticated users proceed to `/catalog`.
+- The brand mark in `public/logo.svg` uses purple `#a406bc`.
