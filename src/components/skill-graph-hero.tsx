@@ -16,19 +16,51 @@ interface PositionedNode {
   z: number
 }
 
+type RenderableEdgeType = SkillGraphEdgeType | "ambient"
+
+export interface RenderableGraphEdge {
+  source_slug: string
+  target_slug: string
+  edge_type: RenderableEdgeType
+  authored: boolean
+}
+
+export interface GraphNodeDetails {
+  name: string
+  slug: string
+  version: string
+  install_count: number
+  relationships: string[]
+}
+
+interface HoverCard extends GraphNodeDetails {
+  x: number
+  y: number
+}
+
 const MAX_DPR = 1.5
-const EDGE_COLORS: Record<SkillGraphEdgeType, number> = {
-  depends_on: 0xd9a441,
-  extends: 0x86c5ff,
-  overlaps_with: 0xbda57a,
+const EDGE_OPACITY: Record<RenderableEdgeType, number> = {
+  depends_on: 0.2,
+  extends: 0.18,
+  overlaps_with: 0.16,
+  ambient: 0.15,
+}
+const DEFAULT_GRAPH_COLORS = {
+  accent: 0xb319cf,
+  borderStrong: 0x66556a,
+  textDim: 0x9e94a3,
+  textMuted: 0xddd5c8,
+  textPrimary: 0xf6efe2,
+  warn: 0xf2c94c,
 }
 
 export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const frameRef = useRef<number | null>(null)
   const [mode, setMode] = useState<"pending" | "canvas" | "static">("pending")
-  const [hoveredNode, setHoveredNode] = useState<string | null>(null)
+  const [hoverCard, setHoverCard] = useState<HoverCard | null>(null)
   const positionedNodes = useMemo(() => positionNodes(graph), [graph])
+  const renderableEdges = useMemo(() => getRenderableGraphEdges(graph), [graph])
   const hasGraph = graph.nodes.length > 0
 
   useEffect(() => {
@@ -36,8 +68,7 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
     if (typeof window === "undefined") return
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
-    const desktop = window.matchMedia("(min-width: 768px)")
-    if (reduceMotion.matches || !desktop.matches) {
+    if (reduceMotion.matches) {
       setMode("static")
       return
     }
@@ -64,40 +95,45 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
         })
         renderer.setClearAlpha(0)
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, MAX_DPR))
+        const colors = getThemeGraphColors()
 
         const scene = new THREE.Scene()
-        const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100)
-        camera.position.set(0, 0, 7)
+        const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100)
+        camera.position.set(0, 0, 8.4)
 
         const group = new THREE.Group()
         scene.add(group)
 
-        const ambient = new THREE.AmbientLight(0xffffff, 0.7)
-        const key = new THREE.DirectionalLight(0xffffff, 1.1)
-        key.position.set(3, 4, 6)
+        const ambient = new THREE.AmbientLight(colors.textMuted, 0.62)
+        const key = new THREE.DirectionalLight(colors.textPrimary, 0.68)
+        key.position.set(2, 3, 5)
         scene.add(ambient, key)
 
-        const nodeGeometry = new THREE.SphereGeometry(0.105, 20, 16)
+        const nodeGeometry = new THREE.SphereGeometry(0.052, 18, 12)
         const nodeMaterial = new THREE.MeshStandardMaterial({
-          color: 0xf2c46b,
-          emissive: 0x3f2a10,
-          roughness: 0.52,
-          metalness: 0.18,
+          color: colors.node,
+          emissive: colors.nodeEmissive,
+          roughness: 0.7,
+          metalness: 0.08,
+          transparent: true,
+          opacity: 0.78,
         })
         const hoverMaterial = new THREE.MeshStandardMaterial({
-          color: 0xffffff,
-          emissive: 0xd9a441,
-          roughness: 0.34,
-          metalness: 0.1,
+          color: colors.nodeHover,
+          emissive: colors.accent,
+          roughness: 0.54,
+          metalness: 0.08,
+          transparent: true,
+          opacity: 0.96,
         })
-        const lineMaterials = new Map<SkillGraphEdgeType, InstanceType<typeof THREE.LineBasicMaterial>>()
+        const lineMaterials = new Map<RenderableEdgeType, InstanceType<typeof THREE.LineBasicMaterial>>()
 
         const meshBySlug = new Map<string, InstanceType<typeof THREE.Mesh>>()
         const nodeObjects: InstanceType<typeof THREE.Mesh>[] = []
         const installMax = Math.max(...positionedNodes.map((node) => node.install_count), 1)
         for (const node of positionedNodes) {
           const mesh = new THREE.Mesh(nodeGeometry, nodeMaterial)
-          const scale = 0.82 + (node.install_count / installMax) * 0.58
+          const scale = 0.82 + (node.install_count / installMax) * 0.48
           mesh.scale.setScalar(scale)
           mesh.position.set(node.x, node.y, node.z)
           mesh.userData = { slug: node.slug, name: node.name }
@@ -106,16 +142,16 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
           nodeObjects.push(mesh)
         }
 
-        for (const edge of graph.edges.slice(0, 60)) {
+        for (const edge of renderableEdges.slice(0, 60)) {
           const source = meshBySlug.get(edge.source_slug)
           const target = meshBySlug.get(edge.target_slug)
           if (!source || !target) continue
           let material = lineMaterials.get(edge.edge_type)
           if (!material) {
             material = new THREE.LineBasicMaterial({
-              color: EDGE_COLORS[edge.edge_type],
+              color: colors.edges[edge.edge_type],
               transparent: true,
-              opacity: 0.44,
+              opacity: EDGE_OPACITY[edge.edge_type],
             })
             lineMaterials.set(edge.edge_type, material)
           }
@@ -129,7 +165,9 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
         const raycaster = new THREE.Raycaster()
         const pointer = new THREE.Vector2(2, 2)
         let activeMesh: InstanceType<typeof THREE.Mesh> | null = null
+        let isPointerInside = false
         let isVisible = true
+        let drift = 0
 
         function resize() {
           const width = Math.max(activeCanvas.clientWidth, 1)
@@ -140,16 +178,30 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
           renderer.render(scene, camera)
         }
 
-        function setActiveMesh(mesh: InstanceType<typeof THREE.Mesh> | null) {
+        function setActiveMesh(mesh: InstanceType<typeof THREE.Mesh> | null, event?: PointerEvent) {
           if (activeMesh === mesh) return
           if (activeMesh) activeMesh.material = nodeMaterial
           activeMesh = mesh
-          if (activeMesh) {
-            activeMesh.material = hoverMaterial
-            setHoveredNode(String(activeMesh.userData.name))
-          } else {
-            setHoveredNode(null)
+
+          if (!activeMesh || !event) {
+            setHoverCard(null)
+            return
           }
+
+          activeMesh.material = hoverMaterial
+          const slug = String(activeMesh.userData.slug)
+          const details = getGraphNodeDetails(graph, renderableEdges, slug)
+          if (!details) {
+            setHoverCard(null)
+            return
+          }
+
+          const rect = activeCanvas.getBoundingClientRect()
+          setHoverCard({
+            ...details,
+            x: Math.min(Math.max(event.clientX - rect.left + 18, 16), rect.width - 180),
+            y: Math.min(Math.max(event.clientY - rect.top + 18, 16), rect.height - 96),
+          })
         }
 
         function renderFrame() {
@@ -157,11 +209,18 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
             frameRef.current = null
             return
           }
-          group.rotation.y += 0.0022
-          group.rotation.x = Math.sin(group.rotation.y * 0.6) * 0.08
-          raycaster.setFromCamera(pointer, camera)
-          const [hit] = raycaster.intersectObjects(nodeObjects, false)
-          setActiveMesh(hit?.object instanceof THREE.Mesh ? hit.object : null)
+          drift += 0.0022
+          group.rotation.y = Math.sin(drift * 0.32) * 0.026
+          group.rotation.x = Math.sin(drift * 0.48) * 0.02
+          group.rotation.z = Math.sin(drift * 0.28) * 0.014
+          const breath = 1 + Math.sin(drift * 0.5) * 0.012
+          group.scale.setScalar(breath)
+          group.position.set(Math.sin(drift * 0.36) * 0.035, Math.cos(drift * 0.31) * 0.028, 0)
+          if (isPointerInside) {
+            raycaster.setFromCamera(pointer, camera)
+            const [hit] = raycaster.intersectObjects(nodeObjects, false)
+            setActiveMesh(hit?.object instanceof THREE.Mesh ? hit.object : null)
+          }
           renderer.render(scene, camera)
           frameRef.current = window.requestAnimationFrame(renderFrame)
         }
@@ -181,11 +240,16 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
 
         function onPointerMove(event: PointerEvent) {
           const rect = activeCanvas.getBoundingClientRect()
+          isPointerInside = true
           pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
           pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+          raycaster.setFromCamera(pointer, camera)
+          const [hit] = raycaster.intersectObjects(nodeObjects, false)
+          setActiveMesh(hit?.object instanceof THREE.Mesh ? hit.object : null, event)
         }
 
         function onPointerLeave() {
+          isPointerInside = false
           pointer.set(2, 2)
           setActiveMesh(null)
         }
@@ -230,45 +294,160 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
       cancelled = true
       cleanupScene?.()
     }
-  }, [graph, hasGraph, positionedNodes])
+  }, [graph, hasGraph, positionedNodes, renderableEdges])
 
   if (!hasGraph) return null
 
   return (
-    <div className="skill-graph-hero" aria-hidden="true">
+    <div className="skill-graph-hero">
       <canvas
         ref={canvasRef}
         className={mode === "canvas" ? "skill-graph-canvas is-ready" : "skill-graph-canvas"}
+        aria-hidden="true"
         width={640}
         height={420}
       />
-      {hoveredNode && <div className="skill-graph-label">{hoveredNode}</div>}
-      {mode !== "canvas" && (
-        <div className="skill-graph-static">
-          <span className="skill-graph-static__count" translate="no">{graph.nodes.length}</span>
-          <span>current-default skills</span>
+      {mode !== "canvas" && <div className="skill-graph-static" aria-hidden="true" />}
+      {hoverCard && (
+        <div
+          className="skill-graph-tooltip"
+          style={{ left: `${hoverCard.x}px`, top: `${hoverCard.y}px` }}
+        >
+          <span className="skill-graph-tooltip__eyebrow">Current Skill</span>
+          <strong>{hoverCard.name}</strong>
+          <span translate="no">{hoverCard.slug}@{hoverCard.version}</span>
+          {hoverCard.relationships.length > 0 && (
+            <ul>
+              {hoverCard.relationships.slice(0, 3).map((relationship) => (
+                <li key={relationship}>{relationship}</li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </div>
   )
 }
 
+function getThemeGraphColors() {
+  const styles = window.getComputedStyle(document.documentElement)
+  const textPrimary = cssRgbToNumber(styles.getPropertyValue("--text-primary-rgb"), DEFAULT_GRAPH_COLORS.textPrimary)
+  const textMuted = cssRgbToNumber(styles.getPropertyValue("--text-muted-rgb"), DEFAULT_GRAPH_COLORS.textMuted)
+  const textDim = cssRgbToNumber(styles.getPropertyValue("--text-dim-rgb"), DEFAULT_GRAPH_COLORS.textDim)
+  const accent = cssRgbToNumber(styles.getPropertyValue("--accent-rgb"), DEFAULT_GRAPH_COLORS.accent)
+  const warn = cssRgbToNumber(styles.getPropertyValue("--warn-rgb"), DEFAULT_GRAPH_COLORS.warn)
+  const borderStrong = cssRgbToNumber(styles.getPropertyValue("--border-strong-rgb"), DEFAULT_GRAPH_COLORS.borderStrong)
+
+  return {
+    accent,
+    edges: {
+      depends_on: warn,
+      extends: textDim,
+      overlaps_with: textMuted,
+      ambient: borderStrong,
+    } satisfies Record<RenderableEdgeType, number>,
+    node: textPrimary,
+    nodeEmissive: borderStrong,
+    nodeHover: textMuted,
+    textMuted,
+    textPrimary,
+  }
+}
+
+function cssRgbToNumber(value: string, fallback: number): number {
+  const channels = value.trim().split(/\s+/).map((channel) => Number.parseInt(channel, 10))
+  if (channels.length < 3 || channels.some((channel) => !Number.isFinite(channel))) return fallback
+  const [red, green, blue] = channels
+  return (red << 16) + (green << 8) + blue
+}
+
 function positionNodes(graph: SkillGraphData): PositionedNode[] {
   const total = Math.max(graph.nodes.length, 1)
-  const radius = total < 8 ? 1.55 : 2.12
+  const radius = total < 8 ? 2.6 : 3.75
   return graph.nodes.map((node, index) => {
-    const y = 1 - (index / Math.max(total - 1, 1)) * 2
-    const radial = Math.sqrt(Math.max(0, 1 - y * y))
-    const theta = index * Math.PI * (3 - Math.sqrt(5)) + hashSlug(node.slug) * 0.0009
+    const hash = hashSlug(node.slug)
+    const theta = index * Math.PI * (3 - Math.sqrt(5)) + hash * 0.004
+    const ring = 0.52 + ((hash % 37) / 37) * 0.68
+    const verticalBias = ((hash % 17) - 8) / 8
     return {
       slug: node.slug,
       name: node.name,
       install_count: node.install_count,
-      x: Math.cos(theta) * radial * radius,
-      y: y * radius * 0.78,
-      z: Math.sin(theta) * radial * radius,
+      x: Math.cos(theta) * ring * radius * 1.22,
+      y: Math.sin(theta) * ring * radius * 0.92 + verticalBias * 0.52,
+      z: ((hash % 101) / 100 - 0.5) * 2.1,
     }
   })
+}
+
+export function getRenderableGraphEdges(graph: SkillGraphData): RenderableGraphEdge[] {
+  const nodeSlugs = new Set(graph.nodes.map((node) => node.slug))
+  const authoredEdges = graph.edges
+    .filter((edge) => nodeSlugs.has(edge.source_slug) && nodeSlugs.has(edge.target_slug))
+    .map((edge) => ({ ...edge, authored: true }))
+
+  if (authoredEdges.length > 0) return authoredEdges
+  if (graph.nodes.length < 2) return []
+
+  const ambientEdges: RenderableGraphEdge[] = []
+  const seen = new Set<string>()
+  const edgeCount = Math.min(graph.nodes.length, 18)
+  for (let index = 0; index < edgeCount; index += 1) {
+    const source = graph.nodes[index]
+    const target = graph.nodes[(index + 2) % graph.nodes.length]
+    if (!source || !target || source.slug === target.slug) continue
+
+    const key = [source.slug, target.slug].sort().join(":")
+    if (seen.has(key)) continue
+    seen.add(key)
+    ambientEdges.push({
+      source_slug: source.slug,
+      target_slug: target.slug,
+      edge_type: "ambient",
+      authored: false,
+    })
+  }
+
+  return ambientEdges
+}
+
+export function getGraphNodeDetails(
+  graph: SkillGraphData,
+  edges: RenderableGraphEdge[],
+  slug: string
+): GraphNodeDetails | null {
+  const node = graph.nodes.find((candidate) => candidate.slug === slug)
+  if (!node) return null
+
+  const relationships = edges
+    .filter((edge) => edge.source_slug === slug || edge.target_slug === slug)
+    .map((edge) => describeRelationship(graph, edge, slug))
+    .filter((relationship): relationship is string => Boolean(relationship))
+
+  return {
+    name: node.name,
+    slug: node.slug,
+    version: node.version,
+    install_count: node.install_count,
+    relationships,
+  }
+}
+
+function describeRelationship(graph: SkillGraphData, edge: RenderableGraphEdge, slug: string): string | null {
+  const isSource = edge.source_slug === slug
+  const otherSlug = isSource ? edge.target_slug : edge.source_slug
+  const other = graph.nodes.find((node) => node.slug === otherSlug)
+  if (!other) return null
+
+  if (!edge.authored) return `near ${other.name}`
+
+  if (edge.edge_type === "depends_on") {
+    return isSource ? `depends on ${other.name}` : `used by ${other.name}`
+  }
+  if (edge.edge_type === "extends") {
+    return isSource ? `extends ${other.name}` : `extended by ${other.name}`
+  }
+  return `overlaps with ${other.name}`
 }
 
 function hashSlug(value: string): number {

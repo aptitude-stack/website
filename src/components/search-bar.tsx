@@ -9,16 +9,34 @@ interface SearchBarProps {
   placeholder?: string
 }
 
+const PLACEHOLDER_INTERVAL_MS = 2400
+const DEFAULT_PLACEHOLDERS = [
+  "Search skills - e.g. review pull-request…",
+  "Search skills - e.g. linter…",
+  "Search skills - e.g. python patterns…",
+  "Search skills - e.g. docs writing…",
+  "Search skills - e.g. git workflow…",
+]
+
 export function SearchBar({
   onSearch,
   onClear,
   loading,
-  placeholder = "Search skills, e.g. review FastAPI pull requests…",
+  placeholder,
 }: SearchBarProps) {
   const inputId = useId()
   const [value, setValue] = useState("")
+  const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSearchedValueRef = useRef("")
+
+  useEffect(() => {
+    if (placeholder !== undefined) return
+    const interval = setInterval(() => {
+      setPlaceholderIndex((index) => (index + 1) % DEFAULT_PLACEHOLDERS.length)
+    }, PLACEHOLDER_INTERVAL_MS)
+    return () => clearInterval(interval)
+  }, [placeholder])
 
   useEffect(() => {
     if (timerRef.current !== null) clearTimeout(timerRef.current)
@@ -47,7 +65,7 @@ export function SearchBar({
         role="textbox"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder}
+        placeholder={placeholder ?? DEFAULT_PLACEHOLDERS[placeholderIndex]}
         autoComplete="off"
         inputMode="search"
         spellCheck={false}

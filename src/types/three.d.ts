@@ -23,6 +23,7 @@ declare module "three" {
   export class Object3D {
     position: Vector3
     rotation: Euler
+    scale: Vector3
     userData: Record<string, unknown>
     add(...objects: Object3D[]): this
     traverse(callback: (object: Object3D) => void): void

@@ -11,6 +11,27 @@ describe("SearchBar", () => {
     expect(screen.getByRole("textbox")).toBeInTheDocument()
   })
 
+  it("alternates short default placeholder examples", () => {
+    render(<SearchBar onSearch={jest.fn()} loading={false} />)
+    const input = screen.getByRole("textbox")
+
+    expect(input).toHaveAttribute("placeholder", "Search skills - e.g. review pull-request…")
+
+    act(() => jest.advanceTimersByTime(2400))
+    expect(input).toHaveAttribute("placeholder", "Search skills - e.g. linter…")
+
+    act(() => jest.advanceTimersByTime(2400))
+    expect(input).toHaveAttribute("placeholder", "Search skills - e.g. python patterns…")
+  })
+
+  it("keeps custom placeholders fixed", () => {
+    render(<SearchBar onSearch={jest.fn()} loading={false} placeholder="Find skills…" />)
+    const input = screen.getByRole("textbox")
+
+    act(() => jest.advanceTimersByTime(4800))
+    expect(input).toHaveAttribute("placeholder", "Find skills…")
+  })
+
   it("calls onSearch after 350ms debounce", async () => {
     const onSearch = jest.fn()
     render(<SearchBar onSearch={onSearch} loading={false} />)
