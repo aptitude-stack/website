@@ -39,40 +39,51 @@ export function SkillMetadata({ meta }: { meta: SkillVersionMetadataDto }) {
         <h2 id="metadata-title" className="panel-title">Metadata</h2>
       </div>
 
-      {metadata.tags.length > 0 && (
-        <MetaRow label="Tags">
-          <div className="tag-list">
-            {metadata.tags.map((tag) => (
-              <span key={tag} className="tag">{tag}</span>
-            ))}
-          </div>
-        </MetaRow>
-      )}
+      <div className="metadata-panel__primary">
+        {metadata.tags.length > 0 && (
+          <MetaRow label="Tags">
+            <div className="tag-list">
+              {metadata.tags.map((tag) => (
+                <span key={tag} className="tag">{tag}</span>
+              ))}
+            </div>
+          </MetaRow>
+        )}
 
-      <MetaRow label="Maturity"><Score value={metadata.maturity_score} /></MetaRow>
-      <MetaRow label="Security"><Score value={metadata.security_score} /></MetaRow>
+        <MetaRow label="Maturity"><Score value={metadata.maturity_score} /></MetaRow>
+        <MetaRow label="Security"><Score value={metadata.security_score} /></MetaRow>
+      </div>
 
-      {metadata.token_estimate !== null && (
-        <MetaRow label="Tokens">
-          <span>~{numberFormatter.format(metadata.token_estimate)}</span>
-        </MetaRow>
-      )}
+      <details className="metadata-disclosure">
+        <summary>
+          <span>More Details</span>
+          <span aria-hidden="true">+</span>
+        </summary>
 
-      <MetaRow label="Size">
-        <span>{sizeFormatter.format(content.size_bytes / 1024)} KB</span>
-      </MetaRow>
+        <div className="metadata-disclosure__content">
+          {metadata.token_estimate !== null && (
+            <MetaRow label="Tokens">
+              <span>~{numberFormatter.format(metadata.token_estimate)}</span>
+            </MetaRow>
+          )}
 
-      <MetaRow label="Namespace">
-        <span translate="no">{meta.namespace}</span>
-      </MetaRow>
+          <MetaRow label="Size">
+            <span>{sizeFormatter.format(content.size_bytes / 1024)} KB</span>
+          </MetaRow>
 
-      {repoUrl && repoHost && (
-        <MetaRow label="Source">
-          <a href={repoUrl.toString()} target="_blank" rel="noopener noreferrer">
-            {repoHost} ↗
-          </a>
-        </MetaRow>
-      )}
+          <MetaRow label="Namespace">
+            <span translate="no">{meta.namespace}</span>
+          </MetaRow>
+
+          {repoUrl && repoHost && (
+            <MetaRow label="Source">
+              <a href={repoUrl.toString()} target="_blank" rel="noopener noreferrer">
+                {repoHost} ↗
+              </a>
+            </MetaRow>
+          )}
+        </div>
+      </details>
     </aside>
   )
 }

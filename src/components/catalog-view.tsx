@@ -193,7 +193,7 @@ export function CatalogView({ topSkills, skillGraph = { nodes: [], edges: [] } }
               disabled={topSkillPage === 0}
               onClick={() => setTopSkillPage((page) => Math.max(0, page - 1))}
             >
-              Previous
+              {"<"}
             </button>
             <span className="pagination-status">
               Page {topSkillPage + 1} of {topSkillPageCount}
@@ -205,7 +205,7 @@ export function CatalogView({ topSkills, skillGraph = { nodes: [], edges: [] } }
               disabled={topSkillPage >= topSkillPageCount - 1}
               onClick={() => setTopSkillPage((page) => Math.min(topSkillPageCount - 1, page + 1))}
             >
-              Next
+              {">"}
             </button>
           </nav>
         )}

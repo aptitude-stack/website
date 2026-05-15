@@ -52,4 +52,13 @@ describe("SkillMetadata", () => {
       "https://github.com/aptitude-stack/registry",
     )
   })
+
+  it("keeps secondary metadata available in a collapsed disclosure", () => {
+    render(<SkillMetadata meta={makeMeta("https://github.com/aptitude-stack/registry")} />)
+
+    const details = screen.getByText("More Details").closest("details")
+    expect(details).toBeInTheDocument()
+    expect(details).not.toHaveAttribute("open")
+    expect(details).toContainElement(screen.getByText("Namespace"))
+  })
 })
