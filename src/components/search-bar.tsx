@@ -10,6 +10,7 @@ interface SearchBarProps {
 }
 
 const PLACEHOLDER_INTERVAL_MS = 2400
+const PLACEHOLDER_INDEX_STORAGE_KEY = "aptitude.search.placeholderIndex"
 const DEFAULT_PLACEHOLDERS = [
   "Search skills - e.g. review pull-request…",
   "Search skills - e.g. linter…",
@@ -32,6 +33,8 @@ export function SearchBar({
 
   useEffect(() => {
     if (placeholder !== undefined) return
+    const startingIndex = getNextDefaultPlaceholderIndex()
+    setPlaceholderIndex(startingIndex)
     const interval = setInterval(() => {
       setPlaceholderIndex((index) => (index + 1) % DEFAULT_PLACEHOLDERS.length)
     }, PLACEHOLDER_INTERVAL_MS)
@@ -80,4 +83,33 @@ export function SearchBar({
       )}
     </div>
   )
+}
+
+function getNextDefaultPlaceholderIndex(): number {
+  const storedIndex = readStoredPlaceholderIndex()
+  const nextIndex = storedIndex === null ? 0 : (storedIndex + 1) % DEFAULT_PLACEHOLDERS.length
+  writeStoredPlaceholderIndex(nextIndex)
+  return nextIndex
+}
+
+function readStoredPlaceholderIndex(): number | null {
+  try {
+    const storedIndex = window.localStorage.getItem(PLACEHOLDER_INDEX_STORAGE_KEY)
+    if (storedIndex === null) return null
+    const parsedIndex = Number.parseInt(storedIndex, 10)
+    if (!Number.isInteger(parsedIndex) || parsedIndex < 0 || parsedIndex >= DEFAULT_PLACEHOLDERS.length) {
+      return null
+    }
+    return parsedIndex
+  } catch {
+    return null
+  }
+}
+
+function writeStoredPlaceholderIndex(index: number) {
+  try {
+    window.localStorage.setItem(PLACEHOLDER_INDEX_STORAGE_KEY, String(index))
+  } catch {
+    // Storage can be unavailable in restricted browser contexts; keep the in-memory fallback.
+  }
 }

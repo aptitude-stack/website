@@ -1,6 +1,8 @@
 import fetchMock from "jest-fetch-mock"
 import {
   REGISTRY_FETCH_TIMEOUT_MS,
+  fetchCatalogSkillCards,
+  fetchCatalogSkillCardsSafe,
   fetchSkillGraph,
   fetchSkillCardData,
   fetchTopSkillCards,
@@ -130,6 +132,36 @@ describe("fetchTopSkillCards", () => {
 
     await expect(result).resolves.toEqual([])
     jest.useRealTimers()
+  })
+})
+
+describe("fetchCatalogSkillCards", () => {
+  it("fetches all catalog skills ordered by registry install rank", async () => {
+    const meta: SkillVersionMetadataDto = {
+      slug: "fastapi", version: "1.0.0", install_count: 1284,
+      version_checksum: { algorithm: "sha256", digest: "abc" },
+      content: { checksum: { algorithm: "sha256", digest: "abc" }, media_type: "application/zstd", size_bytes: 2048 },
+      metadata: { name: "FastAPI", description: "FastAPI skill", tags: ["python"], inputs_schema: null, outputs_schema: null, token_estimate: 900, maturity_score: 0.9, security_score: 0.85 },
+      lifecycle_status: "published", trust_tier: "verified", namespace: "public",
+      artifact_origin: "authored", review_state: "approved", promotion_channel: "prod",
+      policy_pack_slug: null, provenance: null, published_at: "2024-01-01T00:00:00Z",
+    }
+    fetchMock.mockResponseOnce(JSON.stringify({ skills: [meta] }))
+
+    const result = await fetchCatalogSkillCards()
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://registry.example.com/catalog/skills",
+      expect.objectContaining({ headers: expect.objectContaining({ Authorization: "Bearer tid.secret" }) })
+    )
+    expect(result).toHaveLength(1)
+    expect(result[0].slug).toBe("fastapi")
+    expect(result[0].install_count).toBe(1284)
+  })
+
+  it("returns empty catalog skills when the registry response is malformed", async () => {
+    fetchMock.mockResponseOnce(JSON.stringify({ skills: [{ slug: "missing-fields" }] }))
+    await expect(fetchCatalogSkillCardsSafe()).resolves.toEqual([])
   })
 })
 

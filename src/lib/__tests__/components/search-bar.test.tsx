@@ -3,7 +3,10 @@ import userEvent from "@testing-library/user-event"
 import { SearchBar } from "@/components/search-bar"
 
 describe("SearchBar", () => {
-  beforeEach(() => jest.useFakeTimers())
+  beforeEach(() => {
+    jest.useFakeTimers()
+    window.localStorage.clear()
+  })
   afterEach(() => jest.useRealTimers())
 
   it("renders the search input", () => {
@@ -22,6 +25,16 @@ describe("SearchBar", () => {
 
     act(() => jest.advanceTimersByTime(2400))
     expect(input).toHaveAttribute("placeholder", "Search skills - e.g. python patterns…")
+  })
+
+  it("advances the starting default placeholder between reloads", () => {
+    const firstRender = render(<SearchBar onSearch={jest.fn()} loading={false} />)
+    expect(screen.getByRole("textbox")).toHaveAttribute("placeholder", "Search skills - e.g. review pull-request…")
+
+    firstRender.unmount()
+
+    render(<SearchBar onSearch={jest.fn()} loading={false} />)
+    expect(screen.getByRole("textbox")).toHaveAttribute("placeholder", "Search skills - e.g. linter…")
   })
 
   it("keeps custom placeholders fixed", () => {

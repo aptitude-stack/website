@@ -120,11 +120,11 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
       ? `Showing ${countFormatter.format(heroGraph.nodes.length)} ${heroGraph.nodes.length === 1 ? "skill" : "skills"} and ${countFormatter.format(heroGraph.edges.length)} authored ${heroGraph.edges.length === 1 ? "relation" : "relations"}.`
       : null
   const metrics = [
-    { label: "Top Skills", value: countFormatter.format(topSkills.length) },
+    { label: "Skills", value: countFormatter.format(topSkills.length) },
     { label: "Verified", value: `${verifiedTopSkillShare}%` },
     { label: "Installs", value: countFormatter.format(topSkillInstallCount) },
   ]
-  const sectionLabel = searched ? "Search Results" : "Top Installed Skills"
+  const sectionLabel = searched ? "Search Results" : "All Skills"
   const sectionNote = loading
     ? "Searching…"
     : searched
@@ -139,8 +139,8 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
       : searched
         ? `${displayCount} ${displaySkills.length === 1 ? "skill" : "skills"} found.`
         : topSkillPageCount > 1
-          ? `Top installed skills page ${topSkillPage + 1} of ${topSkillPageCount}, showing ${topSkillPageStart} through ${topSkillPageEnd} of ${topSkillTotalCount}.`
-          : `${topSkillCount} top installed ${displaySkills.length === 1 ? "skill" : "skills"} shown.`
+          ? `All skills page ${topSkillPage + 1} of ${topSkillPageCount}, showing ${topSkillPageStart} through ${topSkillPageEnd} of ${topSkillTotalCount}.`
+          : `${topSkillCount} catalog ${displaySkills.length === 1 ? "skill" : "skills"} shown.`
 
   return (
     <div className="catalog-page">
@@ -182,7 +182,7 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
         )}
         {!searched && visibleTopSkills.length === 0 && (
           <p className="state-message">
-            No top installed skills available.
+            No catalog skills available.
           </p>
         )}
 
@@ -199,11 +199,11 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
         </div>
 
         {!searched && topSkillPageCount > 1 && (
-          <nav className="catalog-pagination" aria-label="Top installed skills pages">
+          <nav className="catalog-pagination" aria-label="All skills pages">
             <button
               type="button"
               className="pagination-button"
-              aria-label="Previous top installed skills page"
+              aria-label="Previous all skills page"
               disabled={topSkillPage === 0}
               onClick={() => setTopSkillPage((page) => Math.max(0, page - 1))}
             >
@@ -215,7 +215,7 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
             <button
               type="button"
               className="pagination-button"
-              aria-label="Next top installed skills page"
+              aria-label="Next all skills page"
               disabled={topSkillPage >= topSkillPageCount - 1}
               onClick={() => setTopSkillPage((page) => Math.min(topSkillPageCount - 1, page + 1))}
             >

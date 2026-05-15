@@ -82,7 +82,7 @@ export interface DiscoveryResponseDto {
   candidates: string[]
 }
 
-// GET /catalog/top-skills
+// GET /catalog/skills and GET /catalog/top-skills
 export interface TopSkillsResponseDto {
   skills: SkillVersionMetadataDto[]
 }

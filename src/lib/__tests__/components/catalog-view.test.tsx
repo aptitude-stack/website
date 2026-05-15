@@ -59,13 +59,13 @@ describe("CatalogView", () => {
     mockViewport(390)
   })
 
-  it("maps viewport width to top skill page size", () => {
+  it("maps viewport width to catalog page size", () => {
     expect(getTopSkillLimitForWidth(390)).toBe(4)
     expect(getTopSkillLimitForWidth(800)).toBe(6)
     expect(getTopSkillLimitForWidth(1280)).toBe(8)
   })
 
-  it("paginates top installed skills before search using the viewport page size", async () => {
+  it("paginates all catalog skills before search using the viewport page size", async () => {
     mockViewport(1280)
     const skills = Array.from({ length: 12 }, (_, index) => makeSkill(`skill-${index + 1}`, 20 - index))
 
@@ -74,12 +74,12 @@ describe("CatalogView", () => {
     await waitFor(() => {
       expect(screen.queryByText("skill-9")).not.toBeInTheDocument()
     })
-    expect(screen.getByText("Top Installed Skills")).toBeInTheDocument()
+    expect(screen.getByText("All Skills")).toBeInTheDocument()
     expect(screen.getByText("skill-1")).toBeInTheDocument()
     expect(screen.getByText("skill-8")).toBeInTheDocument()
     expect(screen.getByText("Page 1 of 2")).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole("button", { name: "Next top installed skills page" }))
+    fireEvent.click(screen.getByRole("button", { name: "Next all skills page" }))
 
     expect(screen.queryByText("skill-1")).not.toBeInTheDocument()
     expect(screen.getByText("skill-9")).toBeInTheDocument()
@@ -102,7 +102,7 @@ describe("CatalogView", () => {
     expect(screen.queryByText("top-skill")).not.toBeInTheDocument()
   })
 
-  it("returns to top installed skills when the search box is cleared", async () => {
+  it("returns to all catalog skills when the search box is cleared", async () => {
     fetchMock.mockResponseOnce(JSON.stringify({ candidates: [makeSkill("search-result", 5)] }))
 
     render(<CatalogView topSkills={[makeSkill("top-skill", 12)]} />)
@@ -121,7 +121,7 @@ describe("CatalogView", () => {
     })
 
     await waitFor(() => {
-      expect(screen.getByText("Top Installed Skills")).toBeInTheDocument()
+      expect(screen.getByText("All Skills")).toBeInTheDocument()
       expect(screen.getByText("top-skill")).toBeInTheDocument()
     }, { timeout: 1000 })
     expect(screen.queryByText("search-result")).not.toBeInTheDocument()

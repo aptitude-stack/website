@@ -1,14 +1,14 @@
 import { connection } from "next/server"
 import { CatalogView } from "@/components/catalog-view"
 import { requireSession } from "@/lib/auth"
-import { fetchSkillGraphSafe, fetchTopSkillCardsSafe } from "@/lib/registry-client"
+import { fetchCatalogSkillCardsSafe, fetchSkillGraphSafe } from "@/lib/registry-client"
 
 export default async function CatalogPage() {
   await requireSession()
   await connection()
-  const [topSkills, skillGraph] = await Promise.all([
-    fetchTopSkillCardsSafe(12),
+  const [catalogSkills, skillGraph] = await Promise.all([
+    fetchCatalogSkillCardsSafe(),
     fetchSkillGraphSafe(),
   ])
-  return <CatalogView topSkills={topSkills} skillGraph={skillGraph} />
+  return <CatalogView topSkills={catalogSkills} skillGraph={skillGraph} />
 }

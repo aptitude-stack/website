@@ -40,10 +40,10 @@ interface HoverCard extends GraphNodeDetails {
 
 const MAX_DPR = 1.5
 const EDGE_OPACITY: Record<RenderableEdgeType, number> = {
-  depends_on: 0.2,
-  extends: 0.18,
-  overlaps_with: 0.16,
-  ambient: 0.15,
+  depends_on: 0.42,
+  extends: 0.34,
+  overlaps_with: 0.32,
+  ambient: 0.3,
 }
 const DEFAULT_GRAPH_COLORS = {
   accent: 0xb319cf,
@@ -99,32 +99,32 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
 
         const scene = new THREE.Scene()
         const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100)
-        camera.position.set(0, 0, 8.4)
+        camera.position.set(0, 0, 7.2)
 
         const group = new THREE.Group()
         scene.add(group)
 
-        const ambient = new THREE.AmbientLight(colors.textMuted, 0.62)
-        const key = new THREE.DirectionalLight(colors.textPrimary, 0.68)
+        const ambient = new THREE.AmbientLight(colors.textMuted, 0.86)
+        const key = new THREE.DirectionalLight(colors.textPrimary, 0.96)
         key.position.set(2, 3, 5)
         scene.add(ambient, key)
 
-        const nodeGeometry = new THREE.SphereGeometry(0.052, 18, 12)
+        const nodeGeometry = new THREE.SphereGeometry(0.085, 20, 14)
         const nodeMaterial = new THREE.MeshStandardMaterial({
           color: colors.node,
           emissive: colors.nodeEmissive,
-          roughness: 0.7,
+          roughness: 0.58,
           metalness: 0.08,
           transparent: true,
-          opacity: 0.78,
+          opacity: 0.94,
         })
         const hoverMaterial = new THREE.MeshStandardMaterial({
           color: colors.nodeHover,
           emissive: colors.accent,
-          roughness: 0.54,
+          roughness: 0.46,
           metalness: 0.08,
           transparent: true,
-          opacity: 0.96,
+          opacity: 1,
         })
         const lineMaterials = new Map<RenderableEdgeType, InstanceType<typeof THREE.LineBasicMaterial>>()
 
@@ -133,7 +133,7 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
         const installMax = Math.max(...positionedNodes.map((node) => node.install_count), 1)
         for (const node of positionedNodes) {
           const mesh = new THREE.Mesh(nodeGeometry, nodeMaterial)
-          const scale = 0.82 + (node.install_count / installMax) * 0.48
+          const scale = 0.92 + (node.install_count / installMax) * 0.62
           mesh.scale.setScalar(scale)
           mesh.position.set(node.x, node.y, node.z)
           mesh.userData = { slug: node.slug, name: node.name }
@@ -209,13 +209,13 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
             frameRef.current = null
             return
           }
-          drift += 0.0022
-          group.rotation.y = Math.sin(drift * 0.32) * 0.026
-          group.rotation.x = Math.sin(drift * 0.48) * 0.02
-          group.rotation.z = Math.sin(drift * 0.28) * 0.014
-          const breath = 1 + Math.sin(drift * 0.5) * 0.012
+          drift += 0.0052
+          group.rotation.y = Math.sin(drift * 0.34) * 0.12
+          group.rotation.x = Math.sin(drift * 0.48) * 0.052
+          group.rotation.z = Math.sin(drift * 0.28) * 0.034
+          const breath = 1 + Math.sin(drift * 0.54) * 0.024
           group.scale.setScalar(breath)
-          group.position.set(Math.sin(drift * 0.36) * 0.035, Math.cos(drift * 0.31) * 0.028, 0)
+          group.position.set(Math.sin(drift * 0.36) * 0.08, Math.cos(drift * 0.31) * 0.064, 0)
           if (isPointerInside) {
             raycaster.setFromCamera(pointer, camera)
             const [hit] = raycaster.intersectObjects(nodeObjects, false)
@@ -331,6 +331,7 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
 
 function getThemeGraphColors() {
   const styles = window.getComputedStyle(document.documentElement)
+  const isLightTheme = styles.colorScheme.includes("light")
   const textPrimary = cssRgbToNumber(styles.getPropertyValue("--text-primary-rgb"), DEFAULT_GRAPH_COLORS.textPrimary)
   const textMuted = cssRgbToNumber(styles.getPropertyValue("--text-muted-rgb"), DEFAULT_GRAPH_COLORS.textMuted)
   const textDim = cssRgbToNumber(styles.getPropertyValue("--text-dim-rgb"), DEFAULT_GRAPH_COLORS.textDim)
@@ -342,13 +343,13 @@ function getThemeGraphColors() {
     accent,
     edges: {
       depends_on: warn,
-      extends: textDim,
-      overlaps_with: textMuted,
-      ambient: borderStrong,
+      extends: isLightTheme ? accent : textDim,
+      overlaps_with: isLightTheme ? textPrimary : textMuted,
+      ambient: isLightTheme ? textMuted : borderStrong,
     } satisfies Record<RenderableEdgeType, number>,
-    node: textPrimary,
-    nodeEmissive: borderStrong,
-    nodeHover: textMuted,
+    node: isLightTheme ? accent : textPrimary,
+    nodeEmissive: isLightTheme ? warn : borderStrong,
+    nodeHover: isLightTheme ? textPrimary : textMuted,
     textMuted,
     textPrimary,
   }
@@ -363,7 +364,7 @@ function cssRgbToNumber(value: string, fallback: number): number {
 
 function positionNodes(graph: SkillGraphData): PositionedNode[] {
   const total = Math.max(graph.nodes.length, 1)
-  const radius = total < 8 ? 2.6 : 3.75
+  const radius = total < 8 ? 2.2 : 3.18
   return graph.nodes.map((node, index) => {
     const hash = hashSlug(node.slug)
     const theta = index * Math.PI * (3 - Math.sqrt(5)) + hash * 0.004

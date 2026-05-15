@@ -720,12 +720,11 @@ input {
   overflow: visible;
   pointer-events: auto;
   background:
-    radial-gradient(circle at 72% 24%, rgb(var(--text-primary-rgb) / 0.08), transparent 17%),
-    radial-gradient(circle at 62% 52%, rgb(var(--accent-rgb) / 0.13), transparent 34%),
-    radial-gradient(circle at 24% 82%, rgb(var(--warn-rgb) / 0.07), transparent 18%);
-  filter: saturate(0.78);
-  mask-image: radial-gradient(ellipse at 52% 50%, black 0 50%, rgb(0 0 0 / 0.66) 64%, transparent 86%);
-  opacity: 0.82;
+    radial-gradient(circle at 72% 24%, rgb(var(--text-primary-rgb) / 0.14), transparent 18%),
+    radial-gradient(circle at 62% 52%, rgb(var(--accent-rgb) / 0.22), transparent 36%),
+    radial-gradient(circle at 24% 82%, rgb(var(--warn-rgb) / 0.12), transparent 20%);
+  filter: saturate(1.05);
+  opacity: 1;
   transform: translateZ(0);
 }
 
@@ -733,8 +732,8 @@ input {
   content: "";
   position: absolute;
   inset: 18% 16%;
-  background: radial-gradient(circle at 55% 50%, rgb(var(--accent-rgb) / 0.1), transparent 46%);
-  opacity: 0.38;
+  background: radial-gradient(circle at 55% 50%, rgb(var(--accent-rgb) / 0.18), transparent 48%);
+  opacity: 0.56;
   pointer-events: none;
 }
 
@@ -755,13 +754,13 @@ input {
   position: absolute;
   inset: 18% 10%;
   background:
-    radial-gradient(circle at 18% 32%, rgb(var(--text-primary-rgb) / 0.8) 0 3px, transparent 4px),
-    radial-gradient(circle at 42% 46%, rgb(var(--text-muted-rgb) / 0.72) 0 2px, transparent 3px),
-    radial-gradient(circle at 66% 28%, rgb(var(--text-primary-rgb) / 0.72) 0 2px, transparent 3px),
-    radial-gradient(circle at 78% 62%, rgb(var(--text-dim-rgb) / 0.7) 0 2px, transparent 3px),
-    linear-gradient(28deg, transparent 18%, rgb(var(--border-strong-rgb) / 0.18) 18.5%, transparent 46%),
-    linear-gradient(154deg, transparent 24%, rgb(var(--border-strong-rgb) / 0.14) 24.5%, transparent 62%);
-  opacity: 0.76;
+    radial-gradient(circle at 18% 32%, rgb(var(--accent-rgb) / 0.9) 0 4px, transparent 5px),
+    radial-gradient(circle at 42% 46%, rgb(var(--warn-rgb) / 0.82) 0 3px, transparent 4px),
+    radial-gradient(circle at 66% 28%, rgb(var(--text-primary-rgb) / 0.82) 0 3px, transparent 4px),
+    radial-gradient(circle at 78% 62%, rgb(var(--text-dim-rgb) / 0.86) 0 3px, transparent 4px),
+    linear-gradient(28deg, transparent 18%, rgb(var(--border-strong-rgb) / 0.32) 18.5%, transparent 46%),
+    linear-gradient(154deg, transparent 24%, rgb(var(--border-strong-rgb) / 0.28) 24.5%, transparent 62%);
+  opacity: 0.92;
   animation: graphBreath 7s ease-in-out infinite;
 }
 
@@ -782,6 +781,24 @@ input {
   pointer-events: none;
   transform: translateZ(0);
   backdrop-filter: blur(14px);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .skill-graph-hero {
+    background:
+      radial-gradient(circle at 72% 24%, rgb(var(--text-primary-rgb) / 0.1), transparent 18%),
+      radial-gradient(circle at 62% 52%, rgb(var(--accent-rgb) / 0.18), transparent 36%),
+      radial-gradient(circle at 24% 82%, rgb(var(--warn-rgb) / 0.14), transparent 20%);
+    filter: saturate(1.16) contrast(1.08);
+  }
+}
+
+:root[data-theme="light"] .skill-graph-hero {
+  background:
+    radial-gradient(circle at 72% 24%, rgb(var(--text-primary-rgb) / 0.1), transparent 18%),
+    radial-gradient(circle at 62% 52%, rgb(var(--accent-rgb) / 0.18), transparent 36%),
+    radial-gradient(circle at 24% 82%, rgb(var(--warn-rgb) / 0.14), transparent 20%);
+  filter: saturate(1.16) contrast(1.08);
 }
 
 .skill-graph-tooltip strong {

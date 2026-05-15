@@ -89,6 +89,19 @@ export async function fetchTopSkillCards(limit = 12): Promise<SkillCardData[]> {
   return assertTopSkillsResponse(result).skills.map(toSkillCardData)
 }
 
+export async function fetchCatalogSkillCards(): Promise<SkillCardData[]> {
+  const result = await registryFetch<unknown>("/catalog/skills")
+  return assertTopSkillsResponse(result).skills.map(toSkillCardData)
+}
+
+export async function fetchCatalogSkillCardsSafe(): Promise<SkillCardData[]> {
+  try {
+    return await fetchCatalogSkillCards()
+  } catch {
+    return []
+  }
+}
+
 export async function fetchTopSkillCardsSafe(limit = 12): Promise<SkillCardData[]> {
   try {
     return await fetchTopSkillCards(limit)
