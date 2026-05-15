@@ -952,14 +952,14 @@ input {
 
 .skill-graph-static {
   position: absolute;
-  inset: 18% 10%;
+  inset: 16% 6%;
   background:
-    radial-gradient(circle at 18% 32%, rgb(var(--accent-rgb) / 0.9) 0 4px, transparent 5px),
-    radial-gradient(circle at 42% 46%, rgb(var(--warn-rgb) / 0.82) 0 3px, transparent 4px),
-    radial-gradient(circle at 66% 28%, rgb(var(--text-primary-rgb) / 0.82) 0 3px, transparent 4px),
-    radial-gradient(circle at 78% 62%, rgb(var(--text-dim-rgb) / 0.86) 0 3px, transparent 4px),
-    linear-gradient(28deg, transparent 18%, rgb(var(--border-strong-rgb) / 0.32) 18.5%, transparent 46%),
-    linear-gradient(154deg, transparent 24%, rgb(var(--border-strong-rgb) / 0.28) 24.5%, transparent 62%);
+    radial-gradient(circle at 16% 32%, rgb(var(--accent-rgb) / 0.9) 0 5px, transparent 6px),
+    radial-gradient(circle at 42% 46%, rgb(var(--warn-rgb) / 0.82) 0 4px, transparent 5px),
+    radial-gradient(circle at 68% 26%, rgb(var(--text-primary-rgb) / 0.82) 0 4px, transparent 5px),
+    radial-gradient(circle at 82% 62%, rgb(var(--text-dim-rgb) / 0.86) 0 4px, transparent 5px),
+    linear-gradient(28deg, transparent 18%, rgb(var(--border-strong-rgb) / 0.22) 18.5%, transparent 46%),
+    linear-gradient(154deg, transparent 24%, rgb(var(--border-strong-rgb) / 0.2) 24.5%, transparent 62%);
   opacity: 0.92;
   animation: graphBreath 7s ease-in-out infinite;
 }

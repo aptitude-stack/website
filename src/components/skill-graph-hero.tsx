@@ -56,13 +56,13 @@ type HoverCard = NodeHoverCard | EdgeHoverCard
 const MAX_DPR = 1.5
 const CAMERA_FOV = 34
 const CAMERA_Z = 6.9
-const NODE_SCALE_MIN = 0.74
-const NODE_SCALE_MAX = 1.04
+const NODE_SCALE_MIN = 0.88
+const NODE_SCALE_MAX = 1.22
 const EDGE_OPACITY: Record<RenderableEdgeType, number> = {
-  depends_on: 0.62,
-  extends: 0.56,
-  overlaps_with: 0.54,
-  ambient: 0.46,
+  depends_on: 0.42,
+  extends: 0.38,
+  overlaps_with: 0.36,
+  ambient: 0.28,
 }
 export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -122,11 +122,11 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
         key.position.set(0, 0, 4)
         scene.add(ambient, key)
 
-        const nodeGeometry = new THREE.SphereGeometry(0.066, 18, 12)
+        const nodeGeometry = new THREE.SphereGeometry(0.078, 20, 14)
         const nodeMaterial = new THREE.MeshStandardMaterial({
           color: colors.node,
           emissive: colors.nodeEmissive,
-          roughness: 0.82,
+          roughness: 0.76,
           metalness: 0,
           transparent: true,
           opacity: 0.98,
@@ -553,7 +553,7 @@ function getThemeGraphColors() {
 
 function positionNodes(graph: SkillGraphData): PositionedNode[] {
   const total = Math.max(graph.nodes.length, 1)
-  const radius = total < 8 ? 2.38 : 2.9
+  const radius = total < 8 ? 2.48 : 3.02
   const nodes = graph.nodes.map((node, index) => {
     const hash = hashSlug(node.slug)
     const isSmallGraph = total < 8
@@ -566,8 +566,8 @@ function positionNodes(graph: SkillGraphData): PositionedNode[] {
       slug: node.slug,
       name: node.name,
       install_count: node.install_count,
-      x: Math.cos(theta) * ring * radius * (isSmallGraph ? 1.7 : 1.45),
-      y: Math.sin(theta) * ring * radius * (isSmallGraph ? 0.74 : 0.82) + verticalBias * 0.26,
+      x: Math.cos(theta) * ring * radius * (isSmallGraph ? 1.86 : 1.66),
+      y: Math.sin(theta) * ring * radius * (isSmallGraph ? 0.72 : 0.78) + verticalBias * 0.24,
       z: 0,
     }
   })
@@ -591,7 +591,7 @@ function getGraphFitScale(nodes: PositionedNode[], aspect: number): number {
   const visibleHeight = 2 * Math.tan((CAMERA_FOV * Math.PI) / 360) * CAMERA_Z
   const visibleWidth = visibleHeight * aspect
 
-  return Math.min(1, (visibleWidth * 0.84) / layoutWidth, (visibleHeight * 0.78) / layoutHeight)
+  return Math.min(1, (visibleWidth * 0.9) / layoutWidth, (visibleHeight * 0.8) / layoutHeight)
 }
 
 function getPositionedNodeBounds(nodes: PositionedNode[]) {
