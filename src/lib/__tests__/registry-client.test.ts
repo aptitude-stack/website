@@ -7,16 +7,25 @@ import {
   fetchSkillCardData,
   fetchTopSkillCards,
   fetchTopSkillCardsSafe,
+  hasRegistryEnv,
   registryFetch,
   searchSkillCards,
 } from "@/lib/registry-client"
 import type { SkillGraphResponseDto, SkillVersionListDto, SkillVersionMetadataDto } from "@/lib/types"
 
+const ORIGINAL_NODE_ENV = process.env.NODE_ENV
+
 beforeEach(() => {
   fetchMock.resetMocks()
+  setNodeEnv(ORIGINAL_NODE_ENV)
   process.env.REGISTRY_BASE_URL = "https://registry.example.com"
   process.env.REGISTRY_READ_TOKEN = "tid.secret"
 })
+
+function setNodeEnv(value: string | undefined): void {
+  const env = process.env as Record<string, string | undefined>
+  env.NODE_ENV = value
+}
 
 describe("registryFetch", () => {
   it("sends bearer token", async () => {
@@ -36,6 +45,23 @@ describe("registryFetch", () => {
   it("rejects invalid registry base URLs", async () => {
     process.env.REGISTRY_BASE_URL = "javascript:alert(1)"
     await expect(registryFetch("/test")).rejects.toThrow("REGISTRY_BASE_URL")
+  })
+
+  it("uses seeded local registry defaults in development", async () => {
+    setNodeEnv("development")
+    delete process.env.REGISTRY_BASE_URL
+    delete process.env.REGISTRY_READ_TOKEN
+    fetchMock.mockResponseOnce(JSON.stringify({ ok: true }))
+
+    await registryFetch("/test")
+
+    expect(hasRegistryEnv()).toBe(true)
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://127.0.0.1:8000/test",
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: "Bearer reader-token.dev-reader-secret" }),
+      })
+    )
   })
 })
 

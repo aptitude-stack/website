@@ -6,16 +6,36 @@ Operator-gated catalog UI for browsing governed Aptitude skills from the registr
 
 - Bun
 - Node.js compatible with the pinned Next.js version
-- Server-side registry credentials in `.env.local`
+- Seeded local registry API for catalog data
 
-Copy `.env.local.example` to `.env.local` and set:
+For local development, start the seeded registry API from the registry package:
 
 ```bash
-REGISTRY_BASE_URL=https://api.aptitude-registry.dev
-REGISTRY_READ_TOKEN=your_token_id.your_token_secret
-APTITUDE_OPERATOR_PASSWORD=change_me_locally
-APTITUDE_SESSION_SECRET=change_me_to_a_long_random_value
+cd ../registry
+make run-dev
 ```
+
+Then run the website from this package:
+
+```bash
+bun install
+bun run dev
+```
+
+Open `http://localhost:3001`. The local registry is expected at
+`http://127.0.0.1:8000`, matching `registry/Makefile`'s seeded `run-dev`
+stack.
+
+In `NODE_ENV=development`, the website falls back to the seeded registry
+fixture credentials when registry env vars are omitted:
+
+```bash
+REGISTRY_BASE_URL=http://127.0.0.1:8000
+REGISTRY_READ_TOKEN=reader-token.dev-reader-secret
+```
+
+Copy `.env.local.example` to `.env.local` only when you want to override those
+local defaults.
 
 `REGISTRY_READ_TOKEN` is server-side only. Do not expose it through `NEXT_PUBLIC_*`.
 `APTITUDE_OPERATOR_PASSWORD` and `APTITUDE_SESSION_SECRET` are also server-side
@@ -31,11 +51,17 @@ instead of failing the whole page.
 ## Local Development
 
 ```bash
+# Terminal 1: seeded local registry API
+cd ../registry
+make run-dev
+
+# Terminal 2: website
+cd ../website
 bun install
 bun run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3001`.
 
 ## Checks
 

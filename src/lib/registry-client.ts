@@ -13,17 +13,31 @@ import type {
 } from "@/lib/types"
 
 const HTTP_PROTOCOLS = new Set(["http:", "https:"])
+const LOCAL_DEV_REGISTRY_BASE_URL = "http://127.0.0.1:8000"
+const LOCAL_DEV_REGISTRY_READ_TOKEN = "reader-token.dev-reader-secret"
 export const REGISTRY_FETCH_TIMEOUT_MS = 5000
 
 function getRegistryEnv(): { baseUrl: string; token: string } {
-  const baseUrl = normalizeBaseUrl(process.env.REGISTRY_BASE_URL)
-  const token = process.env.REGISTRY_READ_TOKEN
+  const baseUrl = normalizeBaseUrl(getRegistryBaseUrl())
+  const token = getRegistryReadToken()
   if (!baseUrl || !token) throw new Error("REGISTRY_BASE_URL and REGISTRY_READ_TOKEN must be set")
   return { baseUrl, token }
 }
 
 export function hasRegistryEnv(): boolean {
-  return Boolean(process.env.REGISTRY_BASE_URL && process.env.REGISTRY_READ_TOKEN)
+  return Boolean(normalizeBaseUrl(getRegistryBaseUrl()) && getRegistryReadToken())
+}
+
+function getRegistryBaseUrl(): string | undefined {
+  return process.env.REGISTRY_BASE_URL ?? getLocalDevRegistryDefault(LOCAL_DEV_REGISTRY_BASE_URL)
+}
+
+function getRegistryReadToken(): string | undefined {
+  return process.env.REGISTRY_READ_TOKEN ?? getLocalDevRegistryDefault(LOCAL_DEV_REGISTRY_READ_TOKEN)
+}
+
+function getLocalDevRegistryDefault(value: string): string | undefined {
+  return process.env.NODE_ENV === "development" ? value : undefined
 }
 
 export async function registryFetch<T>(path: string, init?: RequestInit): Promise<T> {
