@@ -6,7 +6,7 @@ const versions: SkillVersionSummaryDto[] = [
   {
     version: "1.0.0 beta",
     lifecycle_status: "published",
-    trust_tier: "trusted",
+    trust_tier: "verified",
     namespace: "public",
     artifact_origin: "authored",
     review_state: "approved",

@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
-import { discoverSlugs, fetchSkillCardData } from "@/lib/registry-client"
-import type { SkillCardData } from "@/lib/types"
+import { searchSkillCards } from "@/lib/registry-client"
 
 const MAX_SEARCH_QUERY_LENGTH = 200
-const MAX_SEARCH_CANDIDATES = 20
 
 export async function POST(req: NextRequest) {
   let body: unknown
@@ -26,12 +24,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const slugs = await discoverSlugs(query)
-    const boundedSlugs = slugs.slice(0, MAX_SEARCH_CANDIDATES)
-    const settled = await Promise.allSettled(boundedSlugs.map(fetchSkillCardData))
-    const cards: SkillCardData[] = settled
-      .filter((r): r is PromiseFulfilledResult<SkillCardData> => r.status === "fulfilled" && r.value !== null)
-      .map((r) => r.value)
+    const cards = await searchSkillCards(query)
     return NextResponse.json({ candidates: cards })
   } catch {
     return NextResponse.json({ error: "Search unavailable" }, { status: 502 })

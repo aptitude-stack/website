@@ -11,7 +11,7 @@ function makeSkill(slug: string, install_count: number): SkillCardData {
     description: `${slug} description`,
     tags: ["test"],
     lifecycle_status: "published",
-    trust_tier: "trusted",
+    trust_tier: "verified",
     token_estimate: 900,
     size_bytes: 2048,
     published_at: "2024-06-01T00:00:00Z",

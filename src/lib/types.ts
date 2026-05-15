@@ -1,4 +1,7 @@
 // Registry nested types
+export type TrustTier = "untrusted" | "internal" | "verified"
+export type LifecycleStatus = "published" | "deprecated" | "archived"
+
 export interface ChecksumDto {
   algorithm: string
   digest: string
@@ -22,7 +25,7 @@ export interface SkillMetadataDto {
 }
 
 export interface TrustContextDto {
-  trust_tier: string
+  trust_tier: TrustTier
   policy_profile: string
 }
 
@@ -42,8 +45,8 @@ export interface SkillVersionMetadataDto {
   version_checksum: ChecksumDto
   content: ContentSummaryDto
   metadata: SkillMetadataDto
-  lifecycle_status: string
-  trust_tier: string
+  lifecycle_status: LifecycleStatus
+  trust_tier: TrustTier
   namespace: string
   artifact_origin: string
   review_state: string
@@ -56,8 +59,8 @@ export interface SkillVersionMetadataDto {
 // GET /skills/{slug} — version list item
 export interface SkillVersionSummaryDto {
   version: string
-  lifecycle_status: string
-  trust_tier: string
+  lifecycle_status: LifecycleStatus
+  trust_tier: TrustTier
   namespace: string
   artifact_origin: string
   review_state: string
@@ -91,8 +94,8 @@ export interface SkillCardData {
   name: string
   description: string | null
   tags: string[]
-  lifecycle_status: string
-  trust_tier: string
+  lifecycle_status: LifecycleStatus
+  trust_tier: TrustTier
   token_estimate: number | null
   size_bytes: number
   published_at: string
