@@ -23,7 +23,6 @@ declare module "three" {
   export class Object3D {
     position: Vector3
     rotation: Euler
-    scale: Vector3
     userData: Record<string, unknown>
     add(...objects: Object3D[]): this
     traverse(callback: (object: Object3D) => void): void
@@ -59,18 +58,27 @@ declare module "three" {
     dispose(): void
   }
 
+  export class Color {
+    set(color: number | string): this
+  }
+
   export class MeshStandardMaterial extends Material {
     constructor(parameters?: Record<string, unknown>)
+    color: Color
+    emissive: Color
   }
 
   export class LineBasicMaterial extends Material {
     constructor(parameters?: Record<string, unknown>)
+    color: Color
+    opacity: number
   }
 
   export class Mesh extends Object3D {
     constructor(geometry?: BufferGeometry, material?: Material)
     geometry: BufferGeometry
     material: Material
+    scale: Vector3
   }
 
   export class Line extends Object3D {

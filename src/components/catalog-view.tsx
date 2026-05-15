@@ -115,11 +115,9 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
     ? Math.round((verifiedTopSkillCount / topSkills.length) * 100)
     : 0
   const topSkillInstallCount = topSkills.reduce((total, skill) => total + skill.install_count, 0)
-  const graphNodeCount = countFormatter.format(heroGraph.nodes.length)
-  const graphEdgeCount = countFormatter.format(heroGraph.edges.length)
   const graphSummary =
     heroGraph.nodes.length > 0
-      ? `Showing ${graphNodeCount} ${heroGraph.nodes.length === 1 ? "skill" : "skills"} and ${graphEdgeCount} authored ${heroGraph.edges.length === 1 ? "relation" : "relations"}.`
+      ? `Showing ${countFormatter.format(heroGraph.nodes.length)} ${heroGraph.nodes.length === 1 ? "skill" : "skills"} and ${countFormatter.format(heroGraph.edges.length)} authored ${heroGraph.edges.length === 1 ? "relation" : "relations"}.`
       : null
   const metrics = [
     { label: "Top Skills", value: countFormatter.format(topSkills.length) },
@@ -160,6 +158,8 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
             <SearchBar onSearch={handleSearch} onClear={handleClearSearch} loading={loading} />
           </div>
         </div>
+        {graphSummary && <p className="sr-only">{graphSummary}</p>}
+        <SkillGraphHero graph={heroGraph} />
       </section>
 
       <section className="catalog-results" aria-labelledby="catalog-results-title">
@@ -224,26 +224,6 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH }: Catal
           </nav>
         )}
       </section>
-
-      {heroGraph.nodes.length > 0 && (
-        <section id="catalog-graph" className="catalog-graph" aria-labelledby="catalog-graph-title">
-          <div className="catalog-toolbar">
-            <div>
-              <h2 id="catalog-graph-title" className="section-label">Skills Graph</h2>
-              <p className="graph-note">
-                Living view of current skills and their relationships.
-              </p>
-            </div>
-            <span className="section-note">
-              {graphNodeCount} {heroGraph.nodes.length === 1 ? "node" : "nodes"} · {graphEdgeCount} authored {heroGraph.edges.length === 1 ? "edge" : "edges"}
-            </span>
-          </div>
-          {graphSummary && <p className="sr-only">{graphSummary}</p>}
-          <div className="graph-panel">
-            <SkillGraphHero graph={heroGraph} />
-          </div>
-        </section>
-      )}
 
       <section className="catalog-metrics" aria-label="Registry summary">
         {metrics.map((metric) => (

@@ -1,58 +1,26 @@
-import { getGraphNodeDetails, getRenderableGraphEdges } from "@/components/skill-graph-hero"
+import { getIncidentEdgeKeys } from "@/components/skill-graph-hero"
 import type { SkillGraphData } from "@/lib/types"
 
-function makeGraph(nodeCount: number, edges: SkillGraphData["edges"] = []): SkillGraphData {
-  return {
-    nodes: Array.from({ length: nodeCount }, (_, index) => ({
-      slug: `skill-${index + 1}`,
-      version: "1.0.0",
-      name: `Skill ${index + 1}`,
-      install_count: 10 - index,
-      trust_tier: "verified",
-      lifecycle_status: "published",
-    })),
-    edges,
-  }
+const graph: SkillGraphData = {
+  nodes: [],
+  edges: [
+    { source_slug: "python.base", target_slug: "python.lint", edge_type: "depends_on" },
+    { source_slug: "python.format", target_slug: "python.base", edge_type: "extends" },
+    { source_slug: "python.docs", target_slug: "python.review", edge_type: "overlaps_with" },
+  ],
 }
 
-describe("getRenderableGraphEdges", () => {
-  it("uses authored graph edges when they are available", () => {
-    const edges = getRenderableGraphEdges(
-      makeGraph(3, [{ source_slug: "skill-1", target_slug: "skill-2", edge_type: "depends_on" }])
+describe("SkillGraphHero hover helpers", () => {
+  it("returns only the edge keys connected to the hovered node", () => {
+    expect(getIncidentEdgeKeys(graph.edges, "python.base")).toEqual(
+      new Set([
+        "python.base->python.lint:depends_on",
+        "python.format->python.base:extends",
+      ])
     )
-
-    expect(edges).toEqual([
-      { source_slug: "skill-1", target_slug: "skill-2", edge_type: "depends_on", authored: true },
-    ])
   })
 
-  it("creates ambient depth links when the graph has nodes but no authored edges", () => {
-    const edges = getRenderableGraphEdges(makeGraph(5))
-
-    expect(edges).toHaveLength(5)
-    expect(edges.every((edge) => edge.edge_type === "ambient" && !edge.authored)).toBe(true)
-    expect(edges.every((edge) => edge.source_slug !== edge.target_slug)).toBe(true)
-  })
-})
-
-describe("getGraphNodeDetails", () => {
-  it("describes authored relationships for hovered skills", () => {
-    const graph = makeGraph(3, [{ source_slug: "skill-1", target_slug: "skill-2", edge_type: "depends_on" }])
-    const details = getGraphNodeDetails(graph, getRenderableGraphEdges(graph), "skill-1")
-
-    expect(details).toEqual({
-      name: "Skill 1",
-      slug: "skill-1",
-      version: "1.0.0",
-      install_count: 10,
-      relationships: ["depends on Skill 2"],
-    })
-  })
-
-  it("keeps fallback visual links distinct from authored relationships", () => {
-    const graph = makeGraph(3)
-    const details = getGraphNodeDetails(graph, getRenderableGraphEdges(graph), "skill-1")
-
-    expect(details?.relationships).toContain("near Skill 3")
+  it("returns no edges when the hovered node is isolated", () => {
+    expect(getIncidentEdgeKeys(graph.edges, "python.docs.extra")).toEqual(new Set())
   })
 })
