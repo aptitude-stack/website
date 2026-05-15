@@ -20,7 +20,7 @@ function makeMeta(repo_url: string | null): SkillVersionMetadataDto {
       security_score: 0.8,
     },
     lifecycle_status: "published",
-    trust_tier: "trusted",
+    trust_tier: "verified",
     namespace: "public",
     artifact_origin: "authored",
     review_state: "approved",

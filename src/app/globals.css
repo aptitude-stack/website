@@ -857,9 +857,9 @@ button, input { font: inherit; }
   padding: 0.2rem 0.58rem;
 }
 
-.trust-trusted { color: var(--green); }
-.trust-community { color: var(--text-muted); }
-.trust-unverified { color: var(--text-dim); }
+.trust-verified { color: var(--green); }
+.trust-internal { color: var(--text-muted); }
+.trust-untrusted { color: var(--text-dim); }
 
 .skill-card__description {
   margin: 0;

@@ -1,14 +1,16 @@
 import "server-only"
 import type {
-  DiscoveryResponseDto,
+  LifecycleStatus,
   SkillCardData,
   SkillVersionSummaryDto,
   SkillVersionListDto,
   SkillVersionMetadataDto,
   TopSkillsResponseDto,
+  TrustTier,
 } from "@/lib/types"
 
 const HTTP_PROTOCOLS = new Set(["http:", "https:"])
+export const REGISTRY_FETCH_TIMEOUT_MS = 5000
 
 function getRegistryEnv(): { baseUrl: string; token: string } {
   const baseUrl = normalizeBaseUrl(process.env.REGISTRY_BASE_URL)
@@ -23,8 +25,8 @@ export function hasRegistryEnv(): boolean {
 
 export async function registryFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const { baseUrl, token } = getRegistryEnv()
-  const res = await fetch(`${baseUrl}${path}`, {
-    ...init,
+  const res = await fetchWithRegistryTimeout(`${baseUrl}${path}`, {
+    init,
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", ...init?.headers },
   })
   if (!res.ok) throw new Error(`Registry ${res.status}: ${path}`)
@@ -45,7 +47,7 @@ export async function fetchSkillMetadata(slug: string, version: string): Promise
 
 export async function fetchSkillContent(slug: string, version: string): Promise<ArrayBuffer> {
   const { baseUrl, token } = getRegistryEnv()
-  const res = await fetch(
+  const res = await fetchWithRegistryTimeout(
     `${baseUrl}/skills/${encodeURIComponent(slug)}/${encodeURIComponent(version)}/content`,
     { headers: { Authorization: `Bearer ${token}` } }
   )
@@ -53,12 +55,12 @@ export async function fetchSkillContent(slug: string, version: string): Promise<
   return res.arrayBuffer()
 }
 
-export async function discoverSlugs(query: string): Promise<string[]> {
-  const result = await registryFetch<unknown>("/discovery", {
+export async function searchSkillCards(query: string): Promise<SkillCardData[]> {
+  const result = await registryFetch<unknown>("/catalog/search?limit=20", {
     method: "POST",
     body: JSON.stringify({ name: query }),
   })
-  return assertDiscoveryResponse(result).candidates
+  return assertTopSkillsResponse(result).skills.map(toSkillCardData)
 }
 
 function toSkillCardData(meta: SkillVersionMetadataDto): SkillCardData {
@@ -84,6 +86,14 @@ export async function fetchTopSkillCards(limit = 12): Promise<SkillCardData[]> {
   return assertTopSkillsResponse(result).skills.map(toSkillCardData)
 }
 
+export async function fetchTopSkillCardsSafe(limit = 12): Promise<SkillCardData[]> {
+  try {
+    return await fetchTopSkillCards(limit)
+  } catch {
+    return []
+  }
+}
+
 export async function fetchSkillCardData(slug: string): Promise<SkillCardData | null> {
   const list = await fetchSkillVersionList(slug)
   const current = list.versions.find((v) => v.is_current_default) ?? list.versions[0]
@@ -100,6 +110,23 @@ function normalizeBaseUrl(value: string | undefined): string | undefined {
     return url.origin + url.pathname.replace(/\/+$/, "")
   } catch {
     return undefined
+  }
+}
+
+async function fetchWithRegistryTimeout(
+  input: RequestInfo | URL,
+  options: { init?: RequestInit; headers?: HeadersInit } = {},
+): Promise<Response> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), REGISTRY_FETCH_TIMEOUT_MS)
+  try {
+    return await fetch(input, {
+      ...options.init,
+      headers: options.headers ?? options.init?.headers,
+      signal: controller.signal,
+    })
+  } finally {
+    clearTimeout(timeout)
   }
 }
 
@@ -127,13 +154,6 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every(isString)
 }
 
-function assertDiscoveryResponse(value: unknown): DiscoveryResponseDto {
-  if (!isRecord(value) || !isStringArray(value.candidates)) {
-    throw new Error("Invalid registry discovery response")
-  }
-  return { candidates: value.candidates }
-}
-
 function assertTopSkillsResponse(value: unknown): TopSkillsResponseDto {
   if (!isRecord(value) || !Array.isArray(value.skills)) {
     throw new Error("Invalid registry top skills response")
@@ -155,8 +175,8 @@ function assertSkillVersionSummary(value: unknown): SkillVersionSummaryDto {
   if (
     !isRecord(value) ||
     !isString(value.version) ||
-    !isString(value.lifecycle_status) ||
-    !isString(value.trust_tier) ||
+    !isLifecycleStatus(value.lifecycle_status) ||
+    !isTrustTier(value.trust_tier) ||
     !isString(value.namespace) ||
     !isString(value.artifact_origin) ||
     !isString(value.review_state) ||
@@ -193,8 +213,8 @@ function assertSkillVersionMetadata(value: unknown): SkillVersionMetadataDto {
     !isChecksum(checksum) ||
     !isContent(content) ||
     !isMetadata(metadata) ||
-    !isString(value.lifecycle_status) ||
-    !isString(value.trust_tier) ||
+    !isLifecycleStatus(value.lifecycle_status) ||
+    !isTrustTier(value.trust_tier) ||
     !isString(value.namespace) ||
     !isString(value.artifact_origin) ||
     !isString(value.review_state) ||
@@ -246,6 +266,14 @@ function isMetadata(value: unknown): value is SkillVersionMetadataDto["metadata"
   )
 }
 
+function isLifecycleStatus(value: unknown): value is LifecycleStatus {
+  return value === "published" || value === "deprecated" || value === "archived"
+}
+
+function isTrustTier(value: unknown): value is TrustTier {
+  return value === "untrusted" || value === "internal" || value === "verified"
+}
+
 function isProvenance(value: unknown): value is SkillVersionMetadataDto["provenance"] {
   if (value === null) return true
   if (!isRecord(value)) return false
@@ -256,7 +284,7 @@ function isProvenance(value: unknown): value is SkillVersionMetadataDto["provena
     isNullableString(value.publisher_identity) &&
     (value.trust_context === null ||
       (isRecord(value.trust_context) &&
-        isString(value.trust_context.trust_tier) &&
+        isTrustTier(value.trust_context.trust_tier) &&
         isString(value.trust_context.policy_profile)))
   )
 }

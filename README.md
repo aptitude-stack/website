@@ -17,6 +17,11 @@ REGISTRY_READ_TOKEN=your_token_id.your_token_secret
 
 `REGISTRY_READ_TOKEN` is server-side only. Do not expose it through `NEXT_PUBLIC_*`.
 
+The homepage reads `GET /catalog/top-skills` and the browser search API reads
+`POST /catalog/search`. If the registry URL, token, response, or network is
+unavailable, the homepage renders an empty catalog instead of failing the whole
+page.
+
 ## Local Development
 
 ```bash
@@ -39,3 +44,10 @@ bun run build
 ## Deployment
 
 The Vercel project uses bun install/build commands from `vercel.json`. Security headers are defined centrally in `next.config.ts`; keep route and API cache headers there instead of duplicating them in provider-specific config.
+
+Set the same server-side registry variables in Vercel production:
+
+```text
+REGISTRY_BASE_URL=https://api.aptitude-registry.dev
+REGISTRY_READ_TOKEN=<read token>
+```

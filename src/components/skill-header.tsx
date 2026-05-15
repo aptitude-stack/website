@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { InstallButton } from "@/components/install-button"
-import type { SkillVersionMetadataDto } from "@/lib/types"
+import type { LifecycleStatus, SkillVersionMetadataDto, TrustTier } from "@/lib/types"
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
@@ -8,16 +8,16 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
 })
 
-function lifecycleClass(status: string) {
+function lifecycleClass(status: LifecycleStatus) {
   if (status === "published") return "badge-published"
   if (status === "deprecated") return "badge-deprecated"
   return "badge-archived"
 }
 
-function trustClass(tier: string) {
-  if (tier === "trusted") return "trust-trusted"
-  if (tier === "community") return "trust-community"
-  return "trust-unverified"
+function trustClass(tier: TrustTier) {
+  if (tier === "verified") return "trust-verified"
+  if (tier === "internal") return "trust-internal"
+  return "trust-untrusted"
 }
 
 interface SkillHeaderProps {

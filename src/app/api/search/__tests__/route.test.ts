@@ -74,22 +74,16 @@ describe("POST /api/search", () => {
   })
 
   it("returns candidates on success", async () => {
-    // discoverSlugs call
-    fetchMock.mockResponseOnce(JSON.stringify({ candidates: ["fastapi"] }))
-    // fetchSkillVersionList for "fastapi"
     fetchMock.mockResponseOnce(JSON.stringify({
-      slug: "fastapi",
-      versions: [{ version: "1.0.0", lifecycle_status: "published", trust_tier: "trusted", namespace: "public", artifact_origin: "authored", review_state: "approved", promotion_channel: "prod", policy_pack_slug: null, published_at: "2024-01-01T00:00:00Z", is_current_default: true }],
-    }))
-    // fetchSkillMetadata for "fastapi" + "1.0.0"
-    fetchMock.mockResponseOnce(JSON.stringify({
-      slug: "fastapi", version: "1.0.0", install_count: 0,
-      version_checksum: { algorithm: "sha256", digest: "abc" },
-      content: { checksum: { algorithm: "sha256", digest: "abc" }, media_type: "application/zstd", size_bytes: 2048 },
-      metadata: { name: "FastAPI", description: "FastAPI skill", tags: ["python"], inputs_schema: null, outputs_schema: null, token_estimate: 900, maturity_score: 0.9, security_score: 0.85 },
-      lifecycle_status: "published", trust_tier: "trusted", namespace: "public",
-      artifact_origin: "authored", review_state: "approved", promotion_channel: "prod",
-      policy_pack_slug: null, provenance: null, published_at: "2024-01-01T00:00:00Z",
+      skills: [{
+        slug: "fastapi", version: "1.0.0", install_count: 0,
+        version_checksum: { algorithm: "sha256", digest: "abc" },
+        content: { checksum: { algorithm: "sha256", digest: "abc" }, media_type: "application/zstd", size_bytes: 2048 },
+        metadata: { name: "FastAPI", description: "FastAPI skill", tags: ["python"], inputs_schema: null, outputs_schema: null, token_estimate: 900, maturity_score: 0.9, security_score: 0.85 },
+        lifecycle_status: "published", trust_tier: "verified", namespace: "public",
+        artifact_origin: "authored", review_state: "approved", promotion_channel: "prod",
+        policy_pack_slug: null, provenance: null, published_at: "2024-01-01T00:00:00Z",
+      }],
     }))
 
     const res = await POST(makeRequest({ query: "fastapi" }))
@@ -97,32 +91,30 @@ describe("POST /api/search", () => {
     const data = await res.json()
     expect(data.candidates).toHaveLength(1)
     expect(data.candidates[0].slug).toBe("fastapi")
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://registry.example.com/catalog/search?limit=20",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ name: "fastapi" }),
+      }),
+    )
   })
 
-  it("caps registry candidate fanout", async () => {
+  it("performs exactly one registry fetch for browser search", async () => {
     fetchMock.mockResponse(async (req) => {
       const url = new URL(req.url)
-      if (url.pathname === "/discovery") {
-        return JSON.stringify({ candidates: Array.from({ length: 25 }, (_, index) => `skill-${index}`) })
-      }
-
-      const parts = url.pathname.split("/").filter(Boolean)
-      if (parts.length === 2 && parts[0] === "skills") {
+      if (url.pathname === "/catalog/search") {
         return JSON.stringify({
-          slug: parts[1],
-          versions: [{ version: "1.0.0", lifecycle_status: "published", trust_tier: "trusted", namespace: "public", artifact_origin: "authored", review_state: "approved", promotion_channel: "prod", policy_pack_slug: null, published_at: "2024-01-01T00:00:00Z", is_current_default: true }],
-        })
-      }
-
-      if (parts.length === 3 && parts[0] === "skills") {
-        return JSON.stringify({
-          slug: parts[1], version: parts[2], install_count: 0,
-          version_checksum: { algorithm: "sha256", digest: "abc" },
-          content: { checksum: { algorithm: "sha256", digest: "abc" }, media_type: "application/zstd", size_bytes: 2048 },
-          metadata: { name: parts[1], description: null, tags: ["test"], inputs_schema: null, outputs_schema: null, token_estimate: null, maturity_score: null, security_score: null },
-          lifecycle_status: "published", trust_tier: "trusted", namespace: "public",
-          artifact_origin: "authored", review_state: "approved", promotion_channel: "prod",
-          policy_pack_slug: null, provenance: null, published_at: "2024-01-01T00:00:00Z",
+          skills: Array.from({ length: 20 }, (_, index) => ({
+            slug: `skill-${index}`, version: "1.0.0", install_count: 0,
+            version_checksum: { algorithm: "sha256", digest: "abc" },
+            content: { checksum: { algorithm: "sha256", digest: "abc" }, media_type: "application/zstd", size_bytes: 2048 },
+            metadata: { name: `skill-${index}`, description: null, tags: ["test"], inputs_schema: null, outputs_schema: null, token_estimate: null, maturity_score: null, security_score: null },
+            lifecycle_status: "published", trust_tier: "verified", namespace: "public",
+            artifact_origin: "authored", review_state: "approved", promotion_channel: "prod",
+            policy_pack_slug: null, provenance: null, published_at: "2024-01-01T00:00:00Z",
+          })),
         })
       }
 
@@ -134,7 +126,7 @@ describe("POST /api/search", () => {
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.candidates).toHaveLength(20)
-    expect(fetchMock).toHaveBeenCalledTimes(41)
-    expect(fetchMock.mock.calls.some(([url]) => String(url).includes("skill-20"))).toBe(false)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock.mock.calls[0][0]).toBe("https://registry.example.com/catalog/search?limit=20")
   })
 })

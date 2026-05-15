@@ -9,7 +9,7 @@ const fixture: SkillCardData = {
   description: "Expert guidance for building FastAPI services.",
   tags: ["python", "api", "fastapi"],
   lifecycle_status: "published",
-  trust_tier: "trusted",
+  trust_tier: "verified",
   install_count: 1284,
   token_estimate: 900,
   size_bytes: 2048,
@@ -46,6 +46,15 @@ describe("SkillCard", () => {
     render(<SkillCard card={fixture} />)
     const link = screen.getByRole("link")
     expect(link).toHaveAttribute("href", "/skills/fastapi")
+  })
+
+  it.each([
+    ["verified", "trust-verified"],
+    ["internal", "trust-internal"],
+    ["untrusted", "trust-untrusted"],
+  ] as const)("renders %s trust tier with a distinct class", (trust_tier, expectedClass) => {
+    render(<SkillCard card={{ ...fixture, trust_tier }} />)
+    expect(screen.getByText(trust_tier)).toHaveClass(expectedClass)
   })
 
   it("encodes slug in the detail link", () => {

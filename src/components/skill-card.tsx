@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import type { SkillCardData } from "@/lib/types"
+import type { LifecycleStatus, SkillCardData, TrustTier } from "@/lib/types"
 
 const numberFormatter = new Intl.NumberFormat("en-US")
 const sizeFormatter = new Intl.NumberFormat("en-US", {
@@ -9,22 +9,22 @@ const sizeFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 1,
 })
 
-function lifecycleClass(status: string) {
+function lifecycleClass(status: LifecycleStatus) {
   if (status === "published") return "status-published"
   if (status === "deprecated") return "status-deprecated"
   return "status-archived"
 }
 
-function badgeClass(status: string) {
+function badgeClass(status: LifecycleStatus) {
   if (status === "published") return "badge-published"
   if (status === "deprecated") return "badge-deprecated"
   return "badge-archived"
 }
 
-function trustClass(tier: string) {
-  if (tier === "trusted") return "trust-trusted"
-  if (tier === "community") return "trust-community"
-  return "trust-unverified"
+function trustClass(tier: TrustTier) {
+  if (tier === "verified") return "trust-verified"
+  if (tier === "internal") return "trust-internal"
+  return "trust-untrusted"
 }
 
 export function SkillCard({ card }: { card: SkillCardData }) {
