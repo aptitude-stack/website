@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server"
+import { SESSION_COOKIE_NAME, verifySessionToken } from "@/lib/auth-session"
 import { searchSkillCards } from "@/lib/registry-client"
 
 const MAX_SEARCH_QUERY_LENGTH = 200
 
 export async function POST(req: NextRequest) {
+  const session = await verifySessionToken(req.cookies.get(SESSION_COOKIE_NAME)?.value)
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
   let body: unknown
   try {
     body = await req.json()

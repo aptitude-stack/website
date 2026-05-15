@@ -1,6 +1,6 @@
 # Aptitude Registry Website
 
-Public catalog UI for browsing governed Aptitude skills from the registry API.
+Operator-gated catalog UI for browsing governed Aptitude skills from the registry API.
 
 ## Requirements
 
@@ -13,14 +13,20 @@ Copy `.env.local.example` to `.env.local` and set:
 ```bash
 REGISTRY_BASE_URL=https://api.aptitude-registry.dev
 REGISTRY_READ_TOKEN=your_token_id.your_token_secret
+APTITUDE_OPERATOR_PASSWORD=change_me_locally
+APTITUDE_SESSION_SECRET=change_me_to_a_long_random_value
 ```
 
 `REGISTRY_READ_TOKEN` is server-side only. Do not expose it through `NEXT_PUBLIC_*`.
+`APTITUDE_OPERATOR_PASSWORD` and `APTITUDE_SESSION_SECRET` are also server-side
+only. Local development falls back to the password `aptitude-dev` and a local
+session secret if those auth variables are omitted; production requires both.
 
-The homepage reads `GET /catalog/top-skills` and the browser search API reads
-`POST /catalog/search`. If the registry URL, token, response, or network is
-unavailable, the homepage renders an empty catalog instead of failing the whole
-page.
+`/login` is public. `/catalog`, `/skills/*`, `/audit/*`, and `/api/search` require
+the operator session cookie. The catalog reads `GET /catalog/top-skills` and the
+browser search API reads `POST /catalog/search`. If the registry URL, token,
+response, or network is unavailable, the catalog renders an empty result set
+instead of failing the whole page.
 
 ## Local Development
 
@@ -50,4 +56,6 @@ Set the same server-side registry variables in Vercel production:
 ```text
 REGISTRY_BASE_URL=https://api.aptitude-registry.dev
 REGISTRY_READ_TOKEN=<read token>
+APTITUDE_OPERATOR_PASSWORD=<operator password>
+APTITUDE_SESSION_SECRET=<long random session signing secret>
 ```

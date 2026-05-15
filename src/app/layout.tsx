@@ -45,9 +45,9 @@ export default function RootLayout({
         <header className="site-header">
           <nav className="site-nav" aria-label="Primary">
             <Link
-              href="/"
+              href="/catalog"
               className="brand-link"
-              aria-label="Aptitude Registry home"
+              aria-label="Aptitude Registry catalog"
             >
               <Image
                 className="brand-mark"
@@ -55,6 +55,7 @@ export default function RootLayout({
                 alt=""
                 width={30}
                 height={34}
+                priority
               />
               <span className="brand-text" translate="no">
                 <strong>Aptitude</strong>
@@ -62,16 +63,39 @@ export default function RootLayout({
               </span>
             </Link>
             <div className="nav-actions">
-              <Link href="/" className="nav-link">
-                Catalog
+              <Link href="/login" className="nav-cta nav-cta--quiet">
+                Login
               </Link>
               <a
                 href="https://github.com/aptitude-stack"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="nav-cta"
+                aria-label="Open Aptitude docs"
               >
-                Docs ↗
+                <svg
+                  aria-hidden="true"
+                  className="nav-cta__icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M5 6.5h4.4c1.45 0 2.6 1.15 2.6 2.6 0-1.45 1.15-2.6 2.6-2.6H19v10.8h-4.4c-1.45 0-2.6 1.15-2.6 2.6 0-1.45-1.15-2.6-2.6-2.6H5V6.5Z"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M12 9.1v10.8"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span>Docs</span>
               </a>
             </div>
           </nav>
