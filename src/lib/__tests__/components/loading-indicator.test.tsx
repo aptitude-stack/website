@@ -1,4 +1,5 @@
 import { act, render, screen } from "@testing-library/react"
+import Loading from "@/app/loading"
 import { LoadingIndicator } from "@/components/loading-indicator"
 
 describe("LoadingIndicator", () => {
@@ -14,6 +15,13 @@ describe("LoadingIndicator", () => {
     expect(screen.queryByRole("status", { name: "Loading…" })).not.toBeInTheDocument()
 
     act(() => jest.advanceTimersByTime(1))
+    expect(screen.getByRole("status", { name: "Loading…" })).toBeInTheDocument()
+    expect(screen.getAllByTestId("loading-cube-face")).toHaveLength(6)
+  })
+
+  it("shows the route loading fallback immediately", () => {
+    render(<Loading />)
+
     expect(screen.getByRole("status", { name: "Loading…" })).toBeInTheDocument()
     expect(screen.getAllByTestId("loading-cube-face")).toHaveLength(6)
   })
