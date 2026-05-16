@@ -1,5 +1,10 @@
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen, within } from "@testing-library/react"
+import fetchMock from "jest-fetch-mock"
 import { SkillHeader } from "@/components/skill-header"
+import { SkillMetadata } from "@/components/skill-metadata"
+import { __resetStarCountStoreForTests } from "@/lib/star-count-store"
+import { __resetStarEventQueueForTests, flushStarEvents } from "@/lib/star-event-queue"
+import { __resetStarredSkillsStoreForTests } from "@/lib/starred-skills-store"
 import type { SkillVersionMetadataDto } from "@/lib/types"
 
 const meta: SkillVersionMetadataDto = {
@@ -31,6 +36,20 @@ const meta: SkillVersionMetadataDto = {
 }
 
 describe("SkillHeader", () => {
+  beforeEach(() => {
+    fetchMock.resetMocks()
+    fetchMock.mockResponse(JSON.stringify({ accepted: 1, counts: [] }))
+    __resetStarEventQueueForTests({ flushIntervalMs: 0 })
+    __resetStarCountStoreForTests()
+    __resetStarredSkillsStoreForTests()
+  })
+
+  afterEach(() => {
+    window.localStorage.clear()
+    __resetStarCountStoreForTests()
+    __resetStarredSkillsStoreForTests()
+  })
+
   it("keeps status metadata out of the hero line", () => {
     render(<SkillHeader meta={meta} />)
 
@@ -70,13 +89,48 @@ describe("SkillHeader", () => {
     expect(screen.getByRole("img", { name: "Security score 80 out of 100" })).toBeInTheDocument()
   })
 
-  it("includes a star action for the skill", () => {
-    render(<SkillHeader meta={meta} />)
+  it("includes the star action to the right of the install command", () => {
+    const { container } = render(<SkillHeader meta={meta} />)
 
+    const skillActions = container.querySelector(".skill-actions")
+    const installCommand = skillActions?.querySelector(".install-command")
     const button = screen.getByRole("button", { name: "Star Documentation Writing" })
 
-    expect(button).toBeInTheDocument()
+    expect(skillActions).not.toBeNull()
+    expect(installCommand).not.toBeNull()
     expect(button).toHaveAttribute("title", "7 stars")
+    expect(skillActions?.lastElementChild).toBe(button)
+  })
+
+  it("updates metadata stars and sends star event deltas from the header action", async () => {
+    render(
+      <>
+        <SkillHeader meta={meta} />
+        <SkillMetadata meta={meta} />
+      </>,
+    )
+
+    const starsRow = screen.getByText("Stars").closest(".meta-row")
+    expect(starsRow).not.toBeNull()
+    expect(within(starsRow as HTMLElement).getByText("7")).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: "Star Documentation Writing" }))
+    await flushStarEvents()
+
+    expect(within(starsRow as HTMLElement).getByText("8")).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toEqual({
+      events: [{ slug: "documentation-writing", action: "star" }],
+    })
+
+    fireEvent.click(screen.getByRole("button", { name: "Unstar Documentation Writing" }))
+    await flushStarEvents()
+
+    expect(within(starsRow as HTMLElement).getByText("7")).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(JSON.parse(String(fetchMock.mock.calls[1][1]?.body))).toEqual({
+      events: [{ slug: "documentation-writing", action: "unstar" }],
+    })
   })
 
   it("keeps score numbers out of the hero donut labels", () => {

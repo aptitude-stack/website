@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { SkillStarButton } from "@/components/skill-star-button"
 import { SkillStarCount } from "@/components/skill-star-count"
 import { SkillStarredBadge } from "@/components/skill-starred-badge"
 import type { LifecycleStatus, SkillCardData, TrustTier } from "@/lib/types"
@@ -89,9 +88,6 @@ export function SkillCard({ card }: { card: SkillCardData }) {
           </div>
         </div>
       </Link>
-      <div className="skill-card__action">
-        <SkillStarButton slug={slug} name={displayName} starCount={star_count} />
-      </div>
     </article>
   )
 }

@@ -1372,24 +1372,16 @@ input {
   text-decoration: none;
 }
 
-.skill-card__action {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 2;
-}
-
 .skill-card:hover {
   border-color: var(--border-strong);
   background: var(--bg-elevated);
 }
 
 .skill-card__top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
   gap: 16px;
-  flex-wrap: wrap;
 }
 
 .skill-card__identity {
@@ -1433,7 +1425,8 @@ input {
 }
 
 .skill-card__meta {
-  padding-right: 40px;
+  min-width: 0;
+  max-width: 100%;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -2078,6 +2071,10 @@ input {
 }
 
 .prose-skill__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   padding: 14px 18px;
   border-bottom: 1px solid var(--border);
 }
