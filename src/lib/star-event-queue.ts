@@ -29,7 +29,7 @@ class StarEventQueue {
     this.flushIntervalMs = options.flushIntervalMs ?? DEFAULT_FLUSH_INTERVAL_MS
     this.maxBatchSize = options.maxBatchSize ?? DEFAULT_MAX_BATCH_SIZE
     this.endpoint = options.endpoint ?? "/api/star-events"
-    this.fetchImpl = options.fetchImpl ?? globalThis.fetch
+    this.fetchImpl = options.fetchImpl ?? ((input, init) => globalThis.fetch(input, init))
   }
 
   enqueue(event: PendingEvent) {

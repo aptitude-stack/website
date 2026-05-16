@@ -3,6 +3,7 @@ import { __resetStarEventQueueForTests } from "@/lib/star-event-queue"
 describe("star-event-queue", () => {
   let fetchSpy: jest.Mock
   let consoleErrorSpy: jest.SpyInstance
+  const originalFetch = globalThis.fetch
 
   beforeEach(() => {
     fetchSpy = jest.fn(async () =>
@@ -13,6 +14,7 @@ describe("star-event-queue", () => {
 
   afterEach(() => {
     consoleErrorSpy.mockRestore()
+    globalThis.fetch = originalFetch
   })
 
   it("preserves repeated toggles for one slug in order", async () => {
@@ -100,5 +102,22 @@ describe("star-event-queue", () => {
         headers: { "Content-Type": "application/json" },
       }),
     )
+  })
+
+  it("calls the default global fetch with the global receiver", async () => {
+    globalThis.fetch = jest.fn(function (this: typeof globalThis) {
+      if (this !== globalThis) {
+        throw new TypeError("Illegal invocation")
+      }
+      return Promise.resolve(
+        new Response(JSON.stringify({ accepted: 1, counts: [] }), { status: 200 }),
+      )
+    }) as typeof fetch
+    const queue = __resetStarEventQueueForTests({ flushIntervalMs: 0 })
+
+    queue.enqueue({ slug: "fastapi", action: "star" })
+
+    await expect(queue.flush()).resolves.toBeUndefined()
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1)
   })
 })

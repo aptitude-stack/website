@@ -11,8 +11,17 @@ const SLUG_PATTERN = /^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,127})$/
 const MAX_DIAGNOSTIC_BODY_LENGTH = 2000
 
 export async function POST(req: NextRequest) {
-  const session = await verifySessionToken(req.cookies.get(SESSION_COOKIE_NAME)?.value)
+  const sessionCookie = req.cookies.get(SESSION_COOKIE_NAME)?.value
+  logStarEventRequest(req, Boolean(sessionCookie))
+
+  const session = await verifySessionToken(sessionCookie)
   if (!session) {
+    console.error("Star events unauthenticated", {
+      hasSessionCookie: Boolean(sessionCookie),
+      host: req.headers.get("host"),
+      origin: req.headers.get("origin"),
+      referer: req.headers.get("referer"),
+    })
     return NextResponse.json(
       {
         error: "Unauthorized",
@@ -27,14 +36,20 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json()
   } catch {
+    console.error("Star events invalid JSON body")
     return NextResponse.json({ error: "invalid JSON body" }, { status: 400 })
   }
 
   const events = parseStarEventBatch(body)
   if (!events) {
+    console.error("Star events invalid batch")
     return NextResponse.json({ error: "events must be a non-empty array" }, { status: 400 })
   }
   if (events.length > MAX_STAR_EVENT_BATCH_SIZE) {
+    console.error("Star events batch too large", {
+      eventCount: events.length,
+      limit: MAX_STAR_EVENT_BATCH_SIZE,
+    })
     return NextResponse.json(
       { error: `events must contain at most ${MAX_STAR_EVENT_BATCH_SIZE} entries` },
       { status: 400 },
@@ -43,6 +58,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const result = await submitStarEvents(events)
+    console.info("Star events submitted", {
+      accepted: result.accepted,
+      eventCount: events.length,
+      slugs: [...new Set(events.map((event) => event.slug))],
+    })
     return NextResponse.json(result)
   } catch (error) {
     logStarEventFailure(error, events)
@@ -94,6 +114,15 @@ function parseStarEventBatch(value: unknown): StarEventDto[] | null {
     events.push({ slug: event.slug, action: event.action })
   }
   return events
+}
+
+function logStarEventRequest(req: NextRequest, hasSessionCookie: boolean): void {
+  console.info("Star events request received", {
+    hasSessionCookie,
+    host: req.headers.get("host"),
+    origin: req.headers.get("origin"),
+    referer: req.headers.get("referer"),
+  })
 }
 
 function logStarEventFailure(error: unknown, events: StarEventDto[]): void {
