@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import {
   getOptimisticStarCount,
   setOptimisticStarCount,
   useStarCount,
 } from "@/lib/star-count-store"
 import { enqueueStarEvent } from "@/lib/star-event-queue"
+import { setSkillStarred, useIsSkillStarred } from "@/lib/starred-skills-store"
 
 interface SkillStarButtonProps {
   slug: string
@@ -14,30 +14,18 @@ interface SkillStarButtonProps {
   starCount: number
 }
 
-const STARRED_SKILLS_KEY = "aptitude.starredSkills"
 const numberFormatter = new Intl.NumberFormat("en-US")
 
 export function SkillStarButton({ slug, name, starCount }: SkillStarButtonProps) {
-  const [isStarred, setIsStarred] = useState(false)
+  const isStarred = useIsSkillStarred(slug)
   const displayCount = useStarCount(slug, starCount)
 
-  useEffect(() => {
-    setIsStarred(readStarredSkills().has(slug))
-  }, [slug])
-
   function toggleStar() {
-    const starredSkills = readStarredSkills()
-    const willStar = !starredSkills.has(slug)
-    if (willStar) {
-      starredSkills.add(slug)
-    } else {
-      starredSkills.delete(slug)
-    }
-    setIsStarred(willStar)
+    const willStar = !isStarred
     const baseline = getOptimisticStarCount(slug) ?? starCount
     const next = Math.max(0, baseline + (willStar ? 1 : -1))
+    setSkillStarred(slug, willStar)
     setOptimisticStarCount(slug, next)
-    writeStarredSkills(starredSkills)
     enqueueStarEvent({ slug, action: willStar ? "star" : "unstar" })
   }
 
@@ -70,26 +58,4 @@ export function SkillStarButton({ slug, name, starCount }: SkillStarButtonProps)
       </svg>
     </button>
   )
-}
-
-function readStarredSkills() {
-  if (typeof window === "undefined") return new Set<string>()
-
-  try {
-    const stored = window.localStorage.getItem(STARRED_SKILLS_KEY)
-    const parsed: unknown = stored ? JSON.parse(stored) : []
-    if (!Array.isArray(parsed)) return new Set<string>()
-
-    return new Set(parsed.filter((value): value is string => typeof value === "string"))
-  } catch {
-    return new Set<string>()
-  }
-}
-
-function writeStarredSkills(starredSkills: Set<string>) {
-  try {
-    window.localStorage.setItem(STARRED_SKILLS_KEY, JSON.stringify([...starredSkills]))
-  } catch {
-    // Keep the control responsive even if browser storage is unavailable.
-  }
 }

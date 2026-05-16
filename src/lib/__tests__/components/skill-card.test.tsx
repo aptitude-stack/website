@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react"
 import { SkillCard } from "@/components/skill-card"
+import { __resetStarredSkillsStoreForTests } from "@/lib/starred-skills-store"
 import type { SkillCardData } from "@/lib/types"
 
 const fixture: SkillCardData = {
@@ -18,6 +19,11 @@ const fixture: SkillCardData = {
 }
 
 describe("SkillCard", () => {
+  afterEach(() => {
+    window.localStorage.clear()
+    __resetStarredSkillsStoreForTests()
+  })
+
   it("renders the skill slug", () => {
     render(<SkillCard card={fixture} />)
     expect(screen.getByText("fastapi")).toBeInTheDocument()
@@ -46,6 +52,14 @@ describe("SkillCard", () => {
   it("renders formatted star count", () => {
     render(<SkillCard card={fixture} />)
     expect(screen.getByText("42 stars")).toBeInTheDocument()
+  })
+
+  it("shows when the user has starred the skill", () => {
+    window.localStorage.setItem("aptitude.starredSkills", JSON.stringify(["fastapi"]))
+
+    render(<SkillCard card={fixture} />)
+
+    expect(screen.getByText("Starred")).toBeInTheDocument()
   })
 
   it("uses singular star copy when count is 1", () => {

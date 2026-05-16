@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { SkillStarCount } from "@/components/skill-star-count"
+import { SkillStarredBadge } from "@/components/skill-starred-badge"
 import type { LifecycleStatus, SkillCardData, TrustTier } from "@/lib/types"
 
 const numberFormatter = new Intl.NumberFormat("en-US")
@@ -57,6 +58,7 @@ export function SkillCard({ card }: { card: SkillCardData }) {
           </span>
         </div>
         <div className="skill-card__meta">
+          <SkillStarredBadge slug={slug} name={displayName} />
           <span className={`badge ${badgeClass(lifecycle_status)}`}>{lifecycle_status}</span>
           <span className={`badge ${trustClass(trust_tier)}`}>{trust_tier}</span>
         </div>

@@ -4,6 +4,7 @@ import { SkillStarButton } from "@/components/skill-star-button"
 import { SkillStarCount } from "@/components/skill-star-count"
 import { __resetStarCountStoreForTests } from "@/lib/star-count-store"
 import { __resetStarEventQueueForTests, flushStarEvents } from "@/lib/star-event-queue"
+import { __resetStarredSkillsStoreForTests } from "@/lib/starred-skills-store"
 
 describe("SkillStarButton", () => {
   beforeEach(() => {
@@ -13,11 +14,13 @@ describe("SkillStarButton", () => {
     )
     __resetStarEventQueueForTests({ flushIntervalMs: 0 })
     __resetStarCountStoreForTests()
+    __resetStarredSkillsStoreForTests()
   })
 
   afterEach(() => {
     window.localStorage.clear()
     __resetStarCountStoreForTests()
+    __resetStarredSkillsStoreForTests()
   })
 
   it("toggles the starred state and updates the optimistic tooltip count", () => {
