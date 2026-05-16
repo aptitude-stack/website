@@ -1987,7 +1987,7 @@ input {
 }
 
 .skill-star-button[data-state="starred"] .skill-star-button__icon {
-  transform: scale(1.08);
+  transform: scale(1.02);
 }
 
 @keyframes copy-icon-enter {
