@@ -1,6 +1,6 @@
 import type { StarEventAction, StarEventDto } from "@/lib/types"
 
-const DEFAULT_FLUSH_INTERVAL_MS = 1500
+const DEFAULT_FLUSH_INTERVAL_MS = 0
 const DEFAULT_MAX_BATCH_SIZE = 50
 
 export interface StarEventQueueOptions {
@@ -20,7 +20,7 @@ class StarEventQueue {
   private readonly maxBatchSize: number
   private readonly endpoint: string
   private readonly fetchImpl: typeof fetch
-  private readonly pending = new Map<string, StarEventAction>()
+  private readonly pending: StarEventDto[] = []
   private timer: ReturnType<typeof setTimeout> | null = null
   private inFlight: Promise<void> | null = null
 
@@ -32,8 +32,8 @@ class StarEventQueue {
   }
 
   enqueue(event: PendingEvent) {
-    this.pending.set(event.slug, event.action)
-    if (this.pending.size >= this.maxBatchSize) {
+    this.pending.push({ slug: event.slug, action: event.action })
+    if (this.pending.length >= this.maxBatchSize) {
       void this.flush()
       return
     }
@@ -48,10 +48,9 @@ class StarEventQueue {
     if (this.inFlight) {
       await this.inFlight
     }
-    if (this.pending.size === 0) return
+    if (this.pending.length === 0) return
 
-    const events: StarEventDto[] = Array.from(this.pending, ([slug, action]) => ({ slug, action }))
-    this.pending.clear()
+    const events = this.pending.splice(0, this.maxBatchSize)
 
     this.inFlight = this.send(events).finally(() => {
       this.inFlight = null

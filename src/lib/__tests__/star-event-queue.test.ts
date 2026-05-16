@@ -9,7 +9,7 @@ describe("star-event-queue", () => {
     )
   })
 
-  it("coalesces repeated toggles for one slug into the latest action", async () => {
+  it("preserves repeated toggles for one slug in order", async () => {
     const queue = __resetStarEventQueueForTests({ flushIntervalMs: 0, fetchImpl: fetchSpy })
 
     queue.enqueue({ slug: "fastapi", action: "star" })
@@ -20,7 +20,11 @@ describe("star-event-queue", () => {
     expect(fetchSpy).toHaveBeenCalledTimes(1)
     const init = fetchSpy.mock.calls[0][1] as RequestInit
     expect(JSON.parse(String(init.body))).toEqual({
-      events: [{ slug: "fastapi", action: "star" }],
+      events: [
+        { slug: "fastapi", action: "star" },
+        { slug: "fastapi", action: "unstar" },
+        { slug: "fastapi", action: "star" },
+      ],
     })
   })
 
