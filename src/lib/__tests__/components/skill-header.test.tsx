@@ -69,6 +69,15 @@ describe("SkillHeader", () => {
     expect(screen.getByRole("img", { name: "Security score 80 out of 100" })).toBeInTheDocument()
   })
 
+  it("includes a star action for the skill", () => {
+    render(<SkillHeader meta={meta} />)
+
+    const button = screen.getByRole("button", { name: "Star Documentation Writing" })
+
+    expect(button).toBeInTheDocument()
+    expect(button).toHaveAttribute("title", "10 stars")
+  })
+
   it("keeps score numbers out of the hero donut labels", () => {
     render(<SkillHeader meta={meta} />)
 

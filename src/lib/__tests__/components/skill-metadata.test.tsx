@@ -49,6 +49,8 @@ describe("SkillMetadata", () => {
     expect(screen.getByText("VERIFIED")).toBeInTheDocument()
     expect(screen.getByText("Published")).toBeInTheDocument()
     expect(screen.getByText("Jan 1, 2024")).toBeInTheDocument()
+    expect(screen.getByText("Stars")).toBeInTheDocument()
+    expect(screen.getByText("10")).toBeInTheDocument()
     expect(screen.getByText("Maturity")).toBeInTheDocument()
     expect(screen.getByText("90/100")).toBeInTheDocument()
     expect(screen.getByText("Security")).toBeInTheDocument()

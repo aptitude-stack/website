@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react"
 import Link from "next/link"
 import { InstallButton } from "@/components/install-button"
+import { SkillStarButton } from "@/components/skill-star-button"
 import type { SkillVersionMetadataDto } from "@/lib/types"
 
 interface SkillHeaderProps {
@@ -77,7 +78,14 @@ export function SkillHeader({ meta }: SkillHeaderProps) {
         </div>
       )}
 
-      <InstallButton slug={meta.slug} version={meta.version} />
+      <div className="skill-actions">
+        <InstallButton slug={meta.slug} version={meta.version} />
+        <SkillStarButton
+          slug={meta.slug}
+          name={meta.metadata.name}
+          starCount={meta.install_count}
+        />
+      </div>
     </header>
   )
 }

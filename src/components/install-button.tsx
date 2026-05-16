@@ -8,7 +8,7 @@ interface InstallButtonProps {
 }
 
 type CopyState = "idle" | "copied" | "error"
-const COPY_FEEDBACK_RESET_MS = 450
+const COPY_FEEDBACK_RESET_MS = 900
 
 export function InstallButton({ slug, version }: InstallButtonProps) {
   const command = version
@@ -63,25 +63,56 @@ export function InstallButton({ slug, version }: InstallButtonProps) {
         className="copy-button"
         data-state={copyState}
       >
-        <svg
-          aria-hidden="true"
-          className="copy-button__icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          xmlns="http://www.w3.org/2000/svg"
+        <span
+          key={copyState === "copied" ? "copied" : "copy"}
+          className="copy-button__icon-frame"
         >
-          <path d="M14.75 14.75v1.5a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h2.5" />
-          <rect x="9.25" y="4.75" width="10" height="10" rx="2" />
-        </svg>
+          {copyState === "copied" ? <CopiedIcon /> : <CopyIcon />}
+        </span>
       </button>
       <span className="sr-only" role="status" aria-live="polite">
         {copyState === "copied" ? "Install command is on your clipboard." : ""}
         {copyState === "error" ? "Install command could not be copied." : ""}
       </span>
     </div>
+  )
+}
+
+function CopyIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="copy-button__icon"
+      data-icon="copy"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M14.75 14.75v1.5a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h2.5" />
+      <rect x="9.25" y="4.75" width="10" height="10" rx="2" />
+    </svg>
+  )
+}
+
+function CopiedIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="copy-button__icon"
+      data-icon="check"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="m5.5 12.5 4.25 4.25L18.5 7.25" />
+    </svg>
   )
 }

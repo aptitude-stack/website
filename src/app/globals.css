@@ -1685,11 +1685,23 @@ input {
   display: flex;
   align-items: center;
   gap: 12px;
-  max-width: 760px;
   padding: 12px;
   transform: translateX(4px);
   border-color: rgb(var(--border-strong-rgb) / 0.72);
   background: rgb(var(--bg-surface-rgb) / 0.82);
+}
+
+.skill-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 760px) 36px;
+  align-items: center;
+  gap: 8px;
+  max-width: 804px;
+  transform: translateX(4px);
+}
+
+.skill-actions .install-command {
+  transform: none;
 }
 
 .install-command code {
@@ -1726,9 +1738,9 @@ input {
   text-transform: uppercase;
   touch-action: manipulation;
   transition:
-    color 90ms ease,
-    background-color 90ms ease,
-    transform 70ms ease;
+    color 150ms ease,
+    background-color 150ms ease,
+    transform 120ms cubic-bezier(0.2, 0, 0, 1);
 }
 .copy-button[data-state="copied"] {
   color: var(--accent-hover);
@@ -1748,13 +1760,119 @@ input {
 .copy-button:active {
   background: rgb(var(--accent-rgb) / 0.16);
   color: var(--text-primary);
-  transform: scale(0.94);
+  transform: scale(0.96);
+}
+
+.copy-button__icon-frame {
+  display: inline-flex;
+  animation: copy-icon-enter 180ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 .copy-button__icon {
   width: 22px;
   height: 22px;
   pointer-events: none;
+}
+
+.skill-star-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 38px;
+  border: 0;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0;
+  touch-action: manipulation;
+  transition:
+    color 150ms ease,
+    transform 120ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.skill-star-button[data-state="starred"] {
+  color: var(--accent-hover);
+}
+
+.skill-star-button::after {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  z-index: 5;
+  padding: 4px 7px;
+  border: 1px solid rgb(var(--border-strong-rgb) / 0.68);
+  border-radius: 4px;
+  background: rgb(var(--bg-base-rgb) / 0.96);
+  box-shadow: 0 8px 22px rgb(var(--shadow-rgb) / 0.24);
+  color: var(--text-muted);
+  content: attr(data-tooltip);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  line-height: 1.2;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 2px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+  white-space: nowrap;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .skill-star-button:hover {
+    color: var(--accent-hover);
+  }
+
+  .skill-star-button:hover::after {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.skill-star-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.skill-star-button:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.skill-star-button:active {
+  transform: scale(0.96);
+}
+
+.skill-star-button__icon {
+  width: 21px;
+  height: 21px;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 150ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.skill-star-button[data-state="starred"] .skill-star-button__icon {
+  transform: scale(1.08);
+}
+
+@keyframes copy-icon-enter {
+  from {
+    opacity: 0.2;
+    transform: scale(0.82);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy-button__icon-frame {
+    animation: none;
+  }
 }
 
 .version-panel {
@@ -2357,8 +2475,10 @@ input {
   .catalog-toolbar,
   .skill-card__top,
   .skill-card__footer,
+  .skill-actions,
   .install-command {
     align-items: stretch;
+    grid-template-columns: 1fr;
     flex-direction: column;
   }
 

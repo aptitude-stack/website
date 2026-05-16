@@ -41,6 +41,24 @@ describe("InstallButton", () => {
     expect(screen.getByRole("status")).toHaveTextContent(/clipboard/i)
   })
 
+  it("shows a check icon briefly after copying", async () => {
+    jest.useFakeTimers()
+
+    render(<InstallButton slug="fastapi" />)
+    const button = screen.getByRole("button", { name: /copy/i })
+
+    expect(button.querySelector('[data-icon="copy"]')).toBeInTheDocument()
+
+    const resolveCopy = mockNextClipboardWrite()
+    act(() => { fireEvent.click(button) })
+    await resolveCopy()
+
+    expect(button.querySelector('[data-icon="check"]')).toBeInTheDocument()
+
+    act(() => jest.advanceTimersByTime(900))
+    expect(button.querySelector('[data-icon="copy"]')).toBeInTheDocument()
+  })
+
   it("resets copy feedback from the latest press", async () => {
     jest.useFakeTimers()
 
@@ -52,12 +70,12 @@ describe("InstallButton", () => {
     await resolveFirstCopy()
     expect(button).toHaveAttribute("data-state", "copied")
 
-    act(() => jest.advanceTimersByTime(220))
+    act(() => jest.advanceTimersByTime(450))
     const resolveSecondCopy = mockNextClipboardWrite()
     act(() => { fireEvent.click(button) })
     await resolveSecondCopy()
 
-    act(() => jest.advanceTimersByTime(449))
+    act(() => jest.advanceTimersByTime(899))
     expect(button).toHaveAttribute("data-state", "copied")
 
     act(() => jest.advanceTimersByTime(1))
