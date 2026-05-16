@@ -44,7 +44,8 @@ export function SkillMetadata({ meta }: { meta: SkillVersionMetadataDto }) {
         <MetaRow label="Status"><span translate="no">{lifecycleStatus}</span></MetaRow>
         <MetaRow label="Access"><span translate="no">{trustTier}</span></MetaRow>
         <MetaRow label="Published">{dateFormatter.format(new Date(meta.published_at))}</MetaRow>
-        <MetaRow label="Stars">{numberFormatter.format(meta.install_count)}</MetaRow>
+        <MetaRow label="Installs">{numberFormatter.format(meta.install_count)}</MetaRow>
+        <MetaRow label="Stars">{numberFormatter.format(meta.star_count)}</MetaRow>
         <MetaRow label="Maturity"><Score value={metadata.maturity_score} /></MetaRow>
         <MetaRow label="Security"><Score value={metadata.security_score} /></MetaRow>
         {metadata.token_estimate !== null && (

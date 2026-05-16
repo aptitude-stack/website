@@ -31,6 +31,7 @@ export function SkillCard({ card }: { card: SkillCardData }) {
     name,
     version,
     install_count,
+    star_count,
     description,
     tags,
     lifecycle_status,
@@ -74,6 +75,7 @@ export function SkillCard({ card }: { card: SkillCardData }) {
         )}
         <div className="skill-card__stats">
           <span>{numberFormatter.format(install_count)} installs</span>
+          <span>{numberFormatter.format(star_count)} {star_count === 1 ? "star" : "stars"}</span>
           {token_estimate !== null && (
             <span>~{numberFormatter.format(token_estimate)} tok</span>
           )}

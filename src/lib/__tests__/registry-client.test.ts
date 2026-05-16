@@ -1,6 +1,7 @@
 import fetchMock from "jest-fetch-mock"
 import {
   REGISTRY_FETCH_TIMEOUT_MS,
+  StarEventSubmissionError,
   fetchCatalogSkillCards,
   fetchCatalogSkillCardsSafe,
   fetchSkillGraph,
@@ -10,6 +11,7 @@ import {
   hasRegistryEnv,
   registryFetch,
   searchSkillCards,
+  submitStarEvents,
 } from "@/lib/registry-client"
 import type { SkillGraphResponseDto, SkillVersionListDto, SkillVersionMetadataDto } from "@/lib/types"
 
@@ -20,6 +22,7 @@ beforeEach(() => {
   setNodeEnv(ORIGINAL_NODE_ENV)
   process.env.REGISTRY_BASE_URL = "https://registry.example.com"
   process.env.REGISTRY_READ_TOKEN = "tid.secret"
+  process.env.REGISTRY_TELEMETRY_TOKEN = "telemetry-id.telemetry-secret"
 })
 
 function setNodeEnv(value: string | undefined): void {
@@ -72,7 +75,7 @@ describe("fetchSkillCardData", () => {
       versions: [{ version: "1.0.0", lifecycle_status: "published", trust_tier: "verified", namespace: "public", artifact_origin: "authored", review_state: "approved", promotion_channel: "prod", policy_pack_slug: null, published_at: "2024-01-01T00:00:00Z", is_current_default: true }],
     }
     const meta: SkillVersionMetadataDto = {
-      slug: "fastapi", version: "1.0.0", install_count: 5,
+      slug: "fastapi", version: "1.0.0", install_count: 5, star_count: 2,
       version_checksum: { algorithm: "sha256", digest: "abc" },
       content: { checksum: { algorithm: "sha256", digest: "abc" }, media_type: "application/zstd", size_bytes: 2048 },
       metadata: { name: "FastAPI", description: "FastAPI skill", tags: ["python"], inputs_schema: null, outputs_schema: null, token_estimate: 900, maturity_score: 0.9, security_score: 0.85 },
@@ -89,6 +92,7 @@ describe("fetchSkillCardData", () => {
     expect(result?.size_bytes).toBe(2048)
     expect(result?.version).toBe("1.0.0")
     expect(result?.install_count).toBe(5)
+    expect(result?.star_count).toBe(2)
   })
 
   it("returns null if no versions available", async () => {
@@ -101,7 +105,7 @@ describe("fetchSkillCardData", () => {
 describe("fetchTopSkillCards", () => {
   it("fetches top skills and flattens metadata", async () => {
     const meta: SkillVersionMetadataDto = {
-      slug: "fastapi", version: "1.0.0", install_count: 1284,
+      slug: "fastapi", version: "1.0.0", install_count: 1284, star_count: 9,
       version_checksum: { algorithm: "sha256", digest: "abc" },
       content: { checksum: { algorithm: "sha256", digest: "abc" }, media_type: "application/zstd", size_bytes: 2048 },
       metadata: { name: "FastAPI", description: "FastAPI skill", tags: ["python"], inputs_schema: null, outputs_schema: null, token_estimate: 900, maturity_score: 0.9, security_score: 0.85 },
@@ -120,6 +124,7 @@ describe("fetchTopSkillCards", () => {
     expect(result).toHaveLength(1)
     expect(result[0].slug).toBe("fastapi")
     expect(result[0].install_count).toBe(1284)
+    expect(result[0].star_count).toBe(9)
   })
 
   it("returns empty top skills when registry env is missing", async () => {
@@ -164,7 +169,7 @@ describe("fetchTopSkillCards", () => {
 describe("fetchCatalogSkillCards", () => {
   it("fetches all catalog skills ordered by registry install rank", async () => {
     const meta: SkillVersionMetadataDto = {
-      slug: "fastapi", version: "1.0.0", install_count: 1284,
+      slug: "fastapi", version: "1.0.0", install_count: 1284, star_count: 0,
       version_checksum: { algorithm: "sha256", digest: "abc" },
       content: { checksum: { algorithm: "sha256", digest: "abc" }, media_type: "application/zstd", size_bytes: 2048 },
       metadata: { name: "FastAPI", description: "FastAPI skill", tags: ["python"], inputs_schema: null, outputs_schema: null, token_estimate: 900, maturity_score: 0.9, security_score: 0.85 },
@@ -200,6 +205,7 @@ describe("fetchSkillGraph", () => {
           version: "1.0.0",
           name: "FastAPI",
           install_count: 1284,
+          star_count: 31,
           trust_tier: "verified",
           lifecycle_status: "published",
         },
@@ -226,7 +232,7 @@ describe("fetchSkillGraph", () => {
 describe("searchSkillCards", () => {
   it("posts { name: query } to catalog search and returns skill cards", async () => {
     const meta: SkillVersionMetadataDto = {
-      slug: "fastapi", version: "1.0.0", install_count: 3,
+      slug: "fastapi", version: "1.0.0", install_count: 3, star_count: 0,
       version_checksum: { algorithm: "sha256", digest: "abc" },
       content: { checksum: { algorithm: "sha256", digest: "abc" }, media_type: "application/zstd", size_bytes: 2048 },
       metadata: { name: "FastAPI", description: "FastAPI skill", tags: ["python"], inputs_schema: null, outputs_schema: null, token_estimate: 900, maturity_score: 0.9, security_score: 0.85 },
@@ -256,5 +262,69 @@ describe("searchSkillCards", () => {
   it("rejects malformed catalog search responses", async () => {
     fetchMock.mockResponseOnce(JSON.stringify({ skills: ["fastapi"] }))
     await expect(searchSkillCards("fastapi")).rejects.toThrow("Invalid registry metadata response")
+  })
+})
+
+describe("submitStarEvents", () => {
+  it("posts the batch with the telemetry token", async () => {
+    fetchMock.mockResponseOnce(
+      JSON.stringify({
+        accepted: 2,
+        counts: [
+          { slug: "fastapi", star_count: 5 },
+          { slug: "python.test", star_count: 3 },
+        ],
+      }),
+    )
+
+    const result = await submitStarEvents([
+      { slug: "fastapi", action: "star" },
+      { slug: "python.test", action: "unstar" },
+    ])
+
+    expect(result.accepted).toBe(2)
+    expect(result.counts[0]).toEqual({ slug: "fastapi", star_count: 5 })
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://registry.example.com/catalog/star-events",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          events: [
+            { slug: "fastapi", action: "star" },
+            { slug: "python.test", action: "unstar" },
+          ],
+        }),
+        headers: expect.objectContaining({
+          Authorization: "Bearer telemetry-id.telemetry-secret",
+        }),
+      }),
+    )
+  })
+
+  it("returns an empty response when no events are queued", async () => {
+    const result = await submitStarEvents([])
+    expect(result).toEqual({ accepted: 0, counts: [] })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it("throws StarEventSubmissionError when the registry returns a non-200", async () => {
+    fetchMock.mockResponseOnce("Not Found", { status: 404 })
+
+    let caught: unknown
+    try {
+      await submitStarEvents([{ slug: "fastapi", action: "star" }])
+    } catch (error) {
+      caught = error
+    }
+
+    expect(caught).toBeInstanceOf(StarEventSubmissionError)
+    expect((caught as StarEventSubmissionError).status).toBe(404)
+  })
+
+  it("throws when the registry telemetry token is missing", async () => {
+    delete process.env.REGISTRY_TELEMETRY_TOKEN
+    await expect(
+      submitStarEvents([{ slug: "fastapi", action: "star" }]),
+    ).rejects.toThrow("REGISTRY_TELEMETRY_TOKEN")
   })
 })

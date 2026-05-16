@@ -7,6 +7,7 @@ function makeMeta(repo_url: string | null): SkillVersionMetadataDto {
     slug: "fastapi",
     version: "1.0.0",
     install_count: 10,
+    star_count: 4,
     version_checksum: { algorithm: "sha256", digest: "abc" },
     content: { checksum: { algorithm: "sha256", digest: "abc" }, media_type: "application/zstd", size_bytes: 2048 },
     metadata: {
@@ -49,8 +50,10 @@ describe("SkillMetadata", () => {
     expect(screen.getByText("VERIFIED")).toBeInTheDocument()
     expect(screen.getByText("Published")).toBeInTheDocument()
     expect(screen.getByText("Jan 1, 2024")).toBeInTheDocument()
-    expect(screen.getByText("Stars")).toBeInTheDocument()
+    expect(screen.getByText("Installs")).toBeInTheDocument()
     expect(screen.getByText("10")).toBeInTheDocument()
+    expect(screen.getByText("Stars")).toBeInTheDocument()
+    expect(screen.getByText("4")).toBeInTheDocument()
     expect(screen.getByText("Maturity")).toBeInTheDocument()
     expect(screen.getByText("90/100")).toBeInTheDocument()
     expect(screen.getByText("Security")).toBeInTheDocument()

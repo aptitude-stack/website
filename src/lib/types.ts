@@ -43,6 +43,7 @@ export interface SkillVersionMetadataDto {
   slug: string
   version: string
   install_count: number
+  star_count: number
   version_checksum: ChecksumDto
   content: ContentSummaryDto
   metadata: SkillMetadataDto
@@ -93,6 +94,7 @@ export interface SkillGraphNodeDto {
   version: string
   name: string
   install_count: number
+  star_count: number
   trust_tier: TrustTier
   lifecycle_status: LifecycleStatus
 }
@@ -115,6 +117,7 @@ export interface SkillCardData {
   slug: string
   version: string
   install_count: number
+  star_count: number
   name: string
   description: string | null
   tags: string[]
@@ -123,4 +126,21 @@ export interface SkillCardData {
   token_estimate: number | null
   size_bytes: number
   published_at: string
+}
+
+export type StarEventAction = "star" | "unstar"
+
+export interface StarEventDto {
+  slug: string
+  action: StarEventAction
+}
+
+export interface StarCountDto {
+  slug: string
+  star_count: number
+}
+
+export interface StarEventBatchResponseDto {
+  accepted: number
+  counts: StarCountDto[]
 }

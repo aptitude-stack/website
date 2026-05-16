@@ -270,6 +270,7 @@ function toTopSkillGraph(topSkills: SkillCardData[]): SkillGraphData {
       version: skill.version,
       name: skill.name,
       install_count: skill.install_count,
+      star_count: skill.star_count,
       trust_tier: skill.trust_tier,
       lifecycle_status: skill.lifecycle_status,
     })),

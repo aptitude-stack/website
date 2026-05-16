@@ -11,6 +11,7 @@ describe("registry DTO types", () => {
       slug: "fastapi",
       version: "1.0.0",
       install_count: 0,
+      star_count: 0,
       version_checksum: { algorithm: "sha256", digest: "abc" },
       content: { checksum: { algorithm: "sha256", digest: "abc" }, media_type: "application/zstd", size_bytes: 2048 },
       metadata: { name: "FastAPI", description: "FastAPI skill", tags: ["python"], inputs_schema: null, outputs_schema: null, token_estimate: 900, maturity_score: 0.9, security_score: 0.85 },
@@ -56,7 +57,7 @@ describe("registry DTO types", () => {
     const fixture: SkillCardData = {
       slug: "fastapi", version: "1.0.0", name: "FastAPI", description: "FastAPI skill",
       tags: ["python"], lifecycle_status: "published", trust_tier: "verified",
-      install_count: 5, token_estimate: 900, size_bytes: 2048, published_at: "2024-01-01T00:00:00Z",
+      install_count: 5, star_count: 0, token_estimate: 900, size_bytes: 2048, published_at: "2024-01-01T00:00:00Z",
     }
     expect(fixture.name).toBe("FastAPI")
   })

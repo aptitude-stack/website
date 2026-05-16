@@ -19,7 +19,8 @@ export function isProtectedPath(pathname: string) {
     pathname.startsWith("/skills/") ||
     pathname === "/audit" ||
     pathname.startsWith("/audit/") ||
-    pathname === "/api/search"
+    pathname === "/api/search" ||
+    pathname === "/api/star-events"
   );
 }
 

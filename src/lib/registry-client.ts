@@ -8,6 +8,8 @@ import type {
   SkillVersionSummaryDto,
   SkillVersionListDto,
   SkillVersionMetadataDto,
+  StarEventBatchResponseDto,
+  StarEventDto,
   TopSkillsResponseDto,
   TrustTier,
 } from "@/lib/types"
@@ -15,7 +17,9 @@ import type {
 const HTTP_PROTOCOLS = new Set(["http:", "https:"])
 const LOCAL_DEV_REGISTRY_BASE_URL = "http://127.0.0.1:8000"
 const LOCAL_DEV_REGISTRY_READ_TOKEN = "reader-token.dev-reader-secret"
+const LOCAL_DEV_REGISTRY_TELEMETRY_TOKEN = "telemetry-token.dev-telemetry-secret"
 export const REGISTRY_FETCH_TIMEOUT_MS = 5000
+export const MAX_STAR_EVENT_BATCH_SIZE = 100
 
 function getRegistryEnv(): { baseUrl: string; token: string } {
   const baseUrl = normalizeBaseUrl(getRegistryBaseUrl())
@@ -34,6 +38,26 @@ function getRegistryBaseUrl(): string | undefined {
 
 function getRegistryReadToken(): string | undefined {
   return process.env.REGISTRY_READ_TOKEN ?? getLocalDevRegistryDefault(LOCAL_DEV_REGISTRY_READ_TOKEN)
+}
+
+function getRegistryTelemetryToken(): string | undefined {
+  return (
+    process.env.REGISTRY_TELEMETRY_TOKEN ??
+    getLocalDevRegistryDefault(LOCAL_DEV_REGISTRY_TELEMETRY_TOKEN)
+  )
+}
+
+export function hasRegistryTelemetryEnv(): boolean {
+  return Boolean(normalizeBaseUrl(getRegistryBaseUrl()) && getRegistryTelemetryToken())
+}
+
+function getRegistryTelemetryEnv(): { baseUrl: string; token: string } {
+  const baseUrl = normalizeBaseUrl(getRegistryBaseUrl())
+  const token = getRegistryTelemetryToken()
+  if (!baseUrl || !token) {
+    throw new Error("REGISTRY_BASE_URL and REGISTRY_TELEMETRY_TOKEN must be set")
+  }
+  return { baseUrl, token }
 }
 
 function getLocalDevRegistryDefault(value: string): string | undefined {
@@ -85,6 +109,7 @@ function toSkillCardData(meta: SkillVersionMetadataDto): SkillCardData {
     slug: meta.slug,
     version: meta.version,
     install_count: meta.install_count,
+    star_count: meta.star_count,
     name: meta.metadata.name,
     description: meta.metadata.description,
     tags: meta.metadata.tags,
@@ -145,6 +170,72 @@ export async function fetchSkillCardData(slug: string): Promise<SkillCardData | 
   if (!current) return null
   const meta = await fetchSkillMetadata(slug, current.version)
   return toSkillCardData(meta)
+}
+
+export class StarEventSubmissionError extends Error {
+  constructor(public readonly status: number, public readonly bodyText: string) {
+    super(`Registry ${status}: /catalog/star-events`)
+    this.name = "StarEventSubmissionError"
+  }
+}
+
+export async function submitStarEvents(
+  events: StarEventDto[],
+): Promise<StarEventBatchResponseDto> {
+  if (events.length === 0) {
+    return { accepted: 0, counts: [] }
+  }
+  if (events.length > MAX_STAR_EVENT_BATCH_SIZE) {
+    throw new Error(
+      `Star event batch must contain at most ${MAX_STAR_EVENT_BATCH_SIZE} events`,
+    )
+  }
+  const { baseUrl, token } = getRegistryTelemetryEnv()
+  const res = await fetchWithRegistryTimeout(`${baseUrl}/catalog/star-events`, {
+    init: {
+      method: "POST",
+      body: JSON.stringify({ events }),
+    },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  })
+  if (!res.ok) {
+    const bodyText = await safeReadBody(res)
+    throw new StarEventSubmissionError(res.status, bodyText)
+  }
+  const parsed: unknown = await res.json()
+  return assertStarEventBatchResponse(parsed)
+}
+
+async function safeReadBody(res: Response): Promise<string> {
+  try {
+    return await res.text()
+  } catch {
+    return ""
+  }
+}
+
+function assertStarEventBatchResponse(value: unknown): StarEventBatchResponseDto {
+  if (
+    !isRecord(value) ||
+    !isNumber(value.accepted) ||
+    !Array.isArray(value.counts)
+  ) {
+    throw new Error("Invalid registry star event response")
+  }
+  return {
+    accepted: value.accepted,
+    counts: value.counts.map(assertStarCount),
+  }
+}
+
+function assertStarCount(value: unknown): { slug: string; star_count: number } {
+  if (!isRecord(value) || !isString(value.slug) || !isNumber(value.star_count)) {
+    throw new Error("Invalid registry star count entry")
+  }
+  return { slug: value.slug, star_count: value.star_count }
 }
 
 function normalizeBaseUrl(value: string | undefined): string | undefined {
@@ -233,6 +324,7 @@ function assertSkillGraphNode(value: unknown): SkillGraphResponseDto["nodes"][nu
     version: value.version,
     name: value.name,
     install_count: value.install_count,
+    star_count: isNumber(value.star_count) ? value.star_count : 0,
     trust_tier: value.trust_tier,
     lifecycle_status: value.lifecycle_status,
   }
@@ -322,6 +414,7 @@ function assertSkillVersionMetadata(value: unknown): SkillVersionMetadataDto {
     slug: value.slug,
     version: value.version,
     install_count: value.install_count,
+    star_count: isNumber(value.star_count) ? value.star_count : 0,
     version_checksum: checksum,
     content,
     metadata,

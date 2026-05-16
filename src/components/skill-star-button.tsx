@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { enqueueStarEvent } from "@/lib/star-event-queue"
 
 interface SkillStarButtonProps {
   slug: string
@@ -13,6 +14,11 @@ const numberFormatter = new Intl.NumberFormat("en-US")
 
 export function SkillStarButton({ slug, name, starCount }: SkillStarButtonProps) {
   const [isStarred, setIsStarred] = useState(false)
+  const [displayCount, setDisplayCount] = useState(starCount)
+
+  useEffect(() => {
+    setDisplayCount(starCount)
+  }, [starCount])
 
   useEffect(() => {
     setIsStarred(readStarredSkills().has(slug))
@@ -20,18 +26,20 @@ export function SkillStarButton({ slug, name, starCount }: SkillStarButtonProps)
 
   function toggleStar() {
     const starredSkills = readStarredSkills()
-    if (starredSkills.has(slug)) {
-      starredSkills.delete(slug)
-      setIsStarred(false)
-    } else {
+    const willStar = !starredSkills.has(slug)
+    if (willStar) {
       starredSkills.add(slug)
-      setIsStarred(true)
+    } else {
+      starredSkills.delete(slug)
     }
+    setIsStarred(willStar)
+    setDisplayCount((current) => Math.max(0, current + (willStar ? 1 : -1)))
     writeStarredSkills(starredSkills)
+    enqueueStarEvent({ slug, action: willStar ? "star" : "unstar" })
   }
 
   const label = isStarred ? `Unstar ${name}` : `Star ${name}`
-  const starCountLabel = `${numberFormatter.format(starCount)} ${starCount === 1 ? "star" : "stars"}`
+  const starCountLabel = `${numberFormatter.format(displayCount)} ${displayCount === 1 ? "star" : "stars"}`
 
   return (
     <button
@@ -57,6 +65,9 @@ export function SkillStarButton({ slug, name, starCount }: SkillStarButtonProps)
       >
         <path d="m12 3.75 2.44 4.95 5.46.79-3.95 3.85.93 5.43L12 16.2l-4.88 2.57.93-5.43L4.1 9.49l5.46-.79L12 3.75Z" />
       </svg>
+      <span className="skill-star-button__count" aria-hidden="true">
+        {numberFormatter.format(displayCount)}
+      </span>
     </button>
   )
 }

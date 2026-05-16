@@ -83,7 +83,7 @@ export function SkillHeader({ meta }: SkillHeaderProps) {
         <SkillStarButton
           slug={meta.slug}
           name={meta.metadata.name}
-          starCount={meta.install_count}
+          starCount={meta.star_count}
         />
       </div>
     </header>

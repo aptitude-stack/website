@@ -6,6 +6,7 @@ const meta: SkillVersionMetadataDto = {
   slug: "documentation-writing",
   version: "0.1.0-publish.20260515115306",
   install_count: 10,
+  star_count: 7,
   version_checksum: { algorithm: "sha256", digest: "abc" },
   content: { checksum: { algorithm: "sha256", digest: "abc" }, media_type: "application/zstd", size_bytes: 2048 },
   metadata: {
@@ -75,7 +76,7 @@ describe("SkillHeader", () => {
     const button = screen.getByRole("button", { name: "Star Documentation Writing" })
 
     expect(button).toBeInTheDocument()
-    expect(button).toHaveAttribute("title", "10 stars")
+    expect(button).toHaveAttribute("title", "7 stars")
   })
 
   it("keeps score numbers out of the hero donut labels", () => {

@@ -99,7 +99,7 @@ describe("POST /api/search", () => {
   it("returns candidates on success", async () => {
     fetchMock.mockResponseOnce(JSON.stringify({
       skills: [{
-        slug: "fastapi", version: "1.0.0", install_count: 0,
+        slug: "fastapi", version: "1.0.0", install_count: 0, star_count: 0,
         version_checksum: { algorithm: "sha256", digest: "abc" },
         content: { checksum: { algorithm: "sha256", digest: "abc" }, media_type: "application/zstd", size_bytes: 2048 },
         metadata: { name: "FastAPI", description: "FastAPI skill", tags: ["python"], inputs_schema: null, outputs_schema: null, token_estimate: 900, maturity_score: 0.9, security_score: 0.85 },
@@ -130,7 +130,7 @@ describe("POST /api/search", () => {
       if (url.pathname === "/catalog/search") {
         return JSON.stringify({
           skills: Array.from({ length: 20 }, (_, index) => ({
-            slug: `skill-${index}`, version: "1.0.0", install_count: 0,
+            slug: `skill-${index}`, version: "1.0.0", install_count: 0, star_count: 0,
             version_checksum: { algorithm: "sha256", digest: "abc" },
             content: { checksum: { algorithm: "sha256", digest: "abc" }, media_type: "application/zstd", size_bytes: 2048 },
             metadata: { name: `skill-${index}`, description: null, tags: ["test"], inputs_schema: null, outputs_schema: null, token_estimate: null, maturity_score: null, security_score: null },

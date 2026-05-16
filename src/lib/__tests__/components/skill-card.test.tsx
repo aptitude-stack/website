@@ -11,6 +11,7 @@ const fixture: SkillCardData = {
   lifecycle_status: "published",
   trust_tier: "verified",
   install_count: 1284,
+  star_count: 42,
   token_estimate: 900,
   size_bytes: 2048,
   published_at: "2024-06-01T00:00:00Z",
@@ -40,6 +41,16 @@ describe("SkillCard", () => {
   it("renders formatted install count", () => {
     render(<SkillCard card={fixture} />)
     expect(screen.getByText("1,284 installs")).toBeInTheDocument()
+  })
+
+  it("renders formatted star count", () => {
+    render(<SkillCard card={fixture} />)
+    expect(screen.getByText("42 stars")).toBeInTheDocument()
+  })
+
+  it("uses singular star copy when count is 1", () => {
+    render(<SkillCard card={{ ...fixture, star_count: 1 }} />)
+    expect(screen.getByText("1 star")).toBeInTheDocument()
   })
 
   it("links to the skill detail page", () => {
