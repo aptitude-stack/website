@@ -1,5 +1,8 @@
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
+import fetchMock from "jest-fetch-mock"
 import { SkillCard } from "@/components/skill-card"
+import { __resetStarCountStoreForTests } from "@/lib/star-count-store"
+import { __resetStarEventQueueForTests, flushStarEvents } from "@/lib/star-event-queue"
 import { __resetStarredSkillsStoreForTests } from "@/lib/starred-skills-store"
 import type { SkillCardData } from "@/lib/types"
 
@@ -19,8 +22,17 @@ const fixture: SkillCardData = {
 }
 
 describe("SkillCard", () => {
+  beforeEach(() => {
+    fetchMock.resetMocks()
+    fetchMock.mockResponse(JSON.stringify({ accepted: 1, counts: [{ slug: "fastapi", star_count: 43 }] }))
+    __resetStarEventQueueForTests({ flushIntervalMs: 0 })
+    __resetStarCountStoreForTests()
+    __resetStarredSkillsStoreForTests()
+  })
+
   afterEach(() => {
     window.localStorage.clear()
+    __resetStarCountStoreForTests()
     __resetStarredSkillsStoreForTests()
   })
 
@@ -52,6 +64,20 @@ describe("SkillCard", () => {
   it("renders formatted star count", () => {
     render(<SkillCard card={fixture} />)
     expect(screen.getByText("42 stars")).toBeInTheDocument()
+  })
+
+  it("fires a star event from the catalog card star action", async () => {
+    render(<SkillCard card={fixture} />)
+
+    fireEvent.click(screen.getByRole("button", { name: "Star FastAPI" }))
+    await flushStarEvents()
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(url).toBe("/api/star-events")
+    expect(JSON.parse(String(init?.body))).toEqual({
+      events: [{ slug: "fastapi", action: "star" }],
+    })
   })
 
   it("shows an icon-only indicator when the user has saved the skill", () => {

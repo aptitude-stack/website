@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { SkillStarButton } from "@/components/skill-star-button"
 import { SkillStarCount } from "@/components/skill-star-count"
 import { SkillStarredBadge } from "@/components/skill-starred-badge"
 import type { LifecycleStatus, SkillCardData, TrustTier } from "@/lib/types"
@@ -44,49 +45,53 @@ export function SkillCard({ card }: { card: SkillCardData }) {
   const visibleTags = tags.filter((tag) => tag !== slug).slice(0, 5)
   const displayName = name && name.trim().length > 0 ? name : slug
 
+  const href = `/skills/${encodeURIComponent(slug)}`
+
   return (
-    <Link
-      href={`/skills/${encodeURIComponent(slug)}`}
-      className={`skill-card ${lifecycleClass(lifecycle_status)}`}
-    >
-      <div className="skill-card__top">
-        <div className="skill-card__identity">
-          <span className="skill-card__name">{displayName}</span>
-          <span className="skill-card__sub">
-            <span className="skill-card__slug" translate="no">{slug}</span>
-            <span className="skill-card__version" translate="no">v{version}</span>
-          </span>
-        </div>
-        <div className="skill-card__meta">
-          <SkillStarredBadge slug={slug} name={displayName} />
-          <span className={`badge ${badgeClass(lifecycle_status)}`}>{lifecycle_status}</span>
-          <span className={`badge ${trustClass(trust_tier)}`}>{trust_tier}</span>
-        </div>
-      </div>
-
-      {description && (
-        <p className="skill-card__description">{description}</p>
-      )}
-
-      <div className="skill-card__footer">
-        {visibleTags.length > 0 && (
-          <div className="tag-list" aria-label="Skill tags">
-            {visibleTags.map((tag) => (
-              <span key={tag} className="tag">{tag}</span>
-            ))}
+    <article className={`skill-card ${lifecycleClass(lifecycle_status)}`}>
+      <Link href={href} className="skill-card__link">
+        <div className="skill-card__top">
+          <div className="skill-card__identity">
+            <span className="skill-card__name">{displayName}</span>
+            <span className="skill-card__sub">
+              <span className="skill-card__slug" translate="no">{slug}</span>
+              <span className="skill-card__version" translate="no">v{version}</span>
+            </span>
           </div>
-        )}
-        <div className="skill-card__stats">
-          <span>{numberFormatter.format(install_count)} installs</span>
-          <span>
-            <SkillStarCount slug={slug} initial={star_count} variant="label" />
-          </span>
-          {token_estimate !== null && (
-            <span>~{numberFormatter.format(token_estimate)} tok</span>
-          )}
-          <span>{sizeFormatter.format(size_bytes / 1024)} KB</span>
+          <div className="skill-card__meta">
+            <SkillStarredBadge slug={slug} name={displayName} />
+            <span className={`badge ${badgeClass(lifecycle_status)}`}>{lifecycle_status}</span>
+            <span className={`badge ${trustClass(trust_tier)}`}>{trust_tier}</span>
+          </div>
         </div>
+
+        {description && (
+          <p className="skill-card__description">{description}</p>
+        )}
+
+        <div className="skill-card__footer">
+          {visibleTags.length > 0 && (
+            <div className="tag-list" aria-label="Skill tags">
+              {visibleTags.map((tag) => (
+                <span key={tag} className="tag">{tag}</span>
+              ))}
+            </div>
+          )}
+          <div className="skill-card__stats">
+            <span>{numberFormatter.format(install_count)} installs</span>
+            <span>
+              <SkillStarCount slug={slug} initial={star_count} variant="label" />
+            </span>
+            {token_estimate !== null && (
+              <span>~{numberFormatter.format(token_estimate)} tok</span>
+            )}
+            <span>{sizeFormatter.format(size_bytes / 1024)} KB</span>
+          </div>
+        </div>
+      </Link>
+      <div className="skill-card__action">
+        <SkillStarButton slug={slug} name={displayName} starCount={star_count} />
       </div>
-    </Link>
+    </article>
   )
 }
