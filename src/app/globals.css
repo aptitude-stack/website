@@ -94,6 +94,7 @@
   --accent-button-hover: #9515ad;
   --accent-glow: rgb(var(--accent-rgb) / 0.22);
   --accent-dim: rgb(var(--accent-rgb) / 0.1);
+  --score-track-stroke: rgb(var(--border-rgb) / 0.58);
   --login-status-base: #c34bd6;
   --login-status-highlight: #e079f0;
   --login-status-ring: rgb(195 75 214 / 0.06);
@@ -147,6 +148,7 @@
     --accent-button-hover: #87039a;
     --accent-glow: rgb(var(--accent-rgb) / 0.12);
     --accent-dim: rgb(var(--accent-rgb) / 0.07);
+    --score-track-stroke: rgb(var(--text-primary-rgb) / 0.22);
     --login-status-base: #a406bc;
     --login-status-highlight: #c34bd6;
     --login-status-ring: rgb(164 6 188 / 0.04);
@@ -188,6 +190,7 @@
   --accent-button-hover: #87039a;
   --accent-glow: rgb(var(--accent-rgb) / 0.12);
   --accent-dim: rgb(var(--accent-rgb) / 0.07);
+  --score-track-stroke: rgb(var(--text-primary-rgb) / 0.22);
   --login-status-base: #a406bc;
   --login-status-highlight: #c34bd6;
   --login-status-ring: rgb(164 6 188 / 0.04);
@@ -228,6 +231,7 @@
   --accent-button-hover: #9515ad;
   --accent-glow: rgb(var(--accent-rgb) / 0.22);
   --accent-dim: rgb(var(--accent-rgb) / 0.1);
+  --score-track-stroke: rgb(var(--border-rgb) / 0.58);
   --login-status-base: #c34bd6;
   --login-status-highlight: #e079f0;
   --login-status-ring: rgb(195 75 214 / 0.06);
@@ -836,7 +840,7 @@ input {
 }
 
 .score-donut__track {
-  stroke: rgb(var(--border-rgb) / 0.58);
+  stroke: var(--score-track-stroke);
 }
 
 .score-donut__progress {
