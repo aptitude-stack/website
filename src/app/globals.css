@@ -1457,13 +1457,9 @@ input {
 .skill-card__starred {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
   min-height: 22px;
   color: var(--accent-hover);
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
 }
 
 .skill-card__starred-icon {

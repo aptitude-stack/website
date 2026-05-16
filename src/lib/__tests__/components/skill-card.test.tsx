@@ -54,12 +54,13 @@ describe("SkillCard", () => {
     expect(screen.getByText("42 stars")).toBeInTheDocument()
   })
 
-  it("shows when the user has starred the skill", () => {
+  it("shows an icon-only indicator when the user has saved the skill", () => {
     window.localStorage.setItem("aptitude.starredSkills", JSON.stringify(["fastapi"]))
 
     render(<SkillCard card={fixture} />)
 
-    expect(screen.getByText("Starred")).toBeInTheDocument()
+    expect(screen.getByLabelText("FastAPI saved by you")).toBeInTheDocument()
+    expect(screen.queryByText("Starred")).not.toBeInTheDocument()
   })
 
   it("uses singular star copy when count is 1", () => {

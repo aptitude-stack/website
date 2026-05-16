@@ -14,8 +14,7 @@ export function SkillStarredBadge({ slug, name }: SkillStarredBadgeProps) {
   return (
     <span
       className="skill-card__starred"
-      aria-label={`${name} is starred by you`}
-      title="Starred by you"
+      aria-label={`${name} saved by you`}
     >
       <svg
         aria-hidden="true"
@@ -26,7 +25,6 @@ export function SkillStarredBadge({ slug, name }: SkillStarredBadgeProps) {
       >
         <path d="m12 3.75 2.44 4.95 5.46.79-3.95 3.85.93 5.43L12 16.2l-4.88 2.57.93-5.43L4.1 9.49l5.46-.79L12 3.75Z" />
       </svg>
-      <span>Starred</span>
     </span>
   )
 }
