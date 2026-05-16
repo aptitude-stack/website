@@ -1,6 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import {
+  getOptimisticStarCount,
+  setOptimisticStarCount,
+  useStarCount,
+} from "@/lib/star-count-store"
 import { enqueueStarEvent } from "@/lib/star-event-queue"
 
 interface SkillStarButtonProps {
@@ -14,11 +19,7 @@ const numberFormatter = new Intl.NumberFormat("en-US")
 
 export function SkillStarButton({ slug, name, starCount }: SkillStarButtonProps) {
   const [isStarred, setIsStarred] = useState(false)
-  const [displayCount, setDisplayCount] = useState(starCount)
-
-  useEffect(() => {
-    setDisplayCount(starCount)
-  }, [starCount])
+  const displayCount = useStarCount(slug, starCount)
 
   useEffect(() => {
     setIsStarred(readStarredSkills().has(slug))
@@ -33,7 +34,9 @@ export function SkillStarButton({ slug, name, starCount }: SkillStarButtonProps)
       starredSkills.delete(slug)
     }
     setIsStarred(willStar)
-    setDisplayCount((current) => Math.max(0, current + (willStar ? 1 : -1)))
+    const baseline = getOptimisticStarCount(slug) ?? starCount
+    const next = Math.max(0, baseline + (willStar ? 1 : -1))
+    setOptimisticStarCount(slug, next)
     writeStarredSkills(starredSkills)
     enqueueStarEvent({ slug, action: willStar ? "star" : "unstar" })
   }
@@ -65,9 +68,6 @@ export function SkillStarButton({ slug, name, starCount }: SkillStarButtonProps)
       >
         <path d="m12 3.75 2.44 4.95 5.46.79-3.95 3.85.93 5.43L12 16.2l-4.88 2.57.93-5.43L4.1 9.49l5.46-.79L12 3.75Z" />
       </svg>
-      <span className="skill-star-button__count" aria-hidden="true">
-        {numberFormatter.format(displayCount)}
-      </span>
     </button>
   )
 }

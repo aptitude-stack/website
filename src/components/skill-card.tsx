@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { SkillStarCount } from "@/components/skill-star-count"
 import type { LifecycleStatus, SkillCardData, TrustTier } from "@/lib/types"
 
 const numberFormatter = new Intl.NumberFormat("en-US")
@@ -75,7 +76,9 @@ export function SkillCard({ card }: { card: SkillCardData }) {
         )}
         <div className="skill-card__stats">
           <span>{numberFormatter.format(install_count)} installs</span>
-          <span>{numberFormatter.format(star_count)} {star_count === 1 ? "star" : "stars"}</span>
+          <span>
+            <SkillStarCount slug={slug} initial={star_count} variant="label" />
+          </span>
           {token_estimate !== null && (
             <span>~{numberFormatter.format(token_estimate)} tok</span>
           )}
