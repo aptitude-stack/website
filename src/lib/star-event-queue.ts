@@ -2,6 +2,7 @@ import type { StarEventAction, StarEventDto } from "@/lib/types"
 
 const DEFAULT_FLUSH_INTERVAL_MS = 0
 const DEFAULT_MAX_BATCH_SIZE = 50
+const MAX_DIAGNOSTIC_BODY_LENGTH = 2000
 
 export interface StarEventQueueOptions {
   flushIntervalMs?: number
@@ -52,9 +53,14 @@ class StarEventQueue {
 
     const events = this.pending.splice(0, this.maxBatchSize)
 
-    this.inFlight = this.send(events).finally(() => {
-      this.inFlight = null
-    })
+    this.inFlight = this.send(events)
+      .catch((error: unknown) => {
+        logStarEventFailure(error, this.endpoint, events)
+        throw error
+      })
+      .finally(() => {
+        this.inFlight = null
+      })
     return this.inFlight
   }
 
@@ -67,22 +73,68 @@ class StarEventQueue {
   }
 
   private async send(events: StarEventDto[]): Promise<void> {
-    try {
-      const response = await this.fetchImpl(this.endpoint, {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ events }),
-      })
-      if (!response.ok) {
-        // Drop the batch silently; the client UI keeps its optimistic state
-        // and the local-storage starred set without retrying network errors.
-        return
-      }
-    } catch {
-      // Network failures are also silently swallowed; star UI never blocks on telemetry.
+    const response = await this.fetchImpl(this.endpoint, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ events }),
+    })
+    if (!response.ok) {
+      throw new StarEventQueueSubmissionError(
+        response.status,
+        await safeReadBody(response),
+      )
     }
   }
+}
+
+class StarEventQueueSubmissionError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly bodyText: string,
+  ) {
+    super(
+      `Star event submission failed with ${status}${bodyText ? `: ${bodyText}` : ""}`,
+    )
+    this.name = "StarEventQueueSubmissionError"
+  }
+}
+
+function logStarEventFailure(
+  error: unknown,
+  endpoint: string,
+  events: StarEventDto[],
+): void {
+  const details: Record<string, unknown> = {
+    endpoint,
+    eventCount: events.length,
+    slugs: [...new Set(events.map((event) => event.slug))],
+  }
+
+  if (error instanceof StarEventQueueSubmissionError) {
+    details.responseStatus = error.status
+    details.responseBody = truncateDiagnosticBody(error.bodyText)
+  } else if (error instanceof Error) {
+    details.errorName = error.name
+    details.errorMessage = error.message
+  } else {
+    details.error = String(error)
+  }
+
+  console.error("Star event submission failed", details)
+}
+
+async function safeReadBody(response: Response): Promise<string> {
+  try {
+    return truncateDiagnosticBody(await response.text())
+  } catch {
+    return ""
+  }
+}
+
+function truncateDiagnosticBody(body: string): string {
+  if (body.length <= MAX_DIAGNOSTIC_BODY_LENGTH) return body
+  return `${body.slice(0, MAX_DIAGNOSTIC_BODY_LENGTH)}...`
 }
 
 let sharedQueue: StarEventQueue | null = null

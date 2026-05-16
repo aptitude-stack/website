@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { BrandMarkIcon } from "@/components/icons/brand-mark-icon";
 import { ThemeModeControl } from "@/components/theme-mode-control";
 import { getSession, signOut } from "@/lib/auth";
 import { LOGIN_PATH } from "@/lib/auth-session";
@@ -16,13 +16,17 @@ try {
 } catch (_) {}
 `;
 
+const aptitudeIconDataUrl = `data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 403 451"><path fill="#a406bc" d="M154.2 48h186.2C361.8 48 379 65.2 379 86.6v189.1c0 10.5-4.2 20.6-11.6 28L268.1 403c-6.4 6.4-15.1 10-24.2 10H68.4C47.2 413 30 395.8 30 374.6V211.4c0-7.1 2-14 5.7-20.1L124.9 66c6.7-11.2 17.3-18 29.3-18Z"/><path fill="#fff7ed" d="M202.5 92h91l25 134h-60.8l-3.7-20.4h-12l-3.6 20.4h-60.9L202.5 92Z"/><path fill="#a406bc" d="M244.8 157h6.8l2.7 30h-12.2l2.7-30Z"/></svg>',
+)}`;
+
 export const metadata: Metadata = {
   title: "Aptitude",
   description: "Governed skill infrastructure for AI systems.",
   icons: {
     icon: [
       {
-        url: "/logo.svg",
+        url: aptitudeIconDataUrl,
         type: "image/svg+xml",
         sizes: "any",
       },
@@ -61,13 +65,10 @@ export default async function RootLayout({
               className="brand-link"
               aria-label="Aptitude Registry catalog"
             >
-              <Image
+              <BrandMarkIcon
                 className="brand-mark"
-                src="/logo.svg"
-                alt=""
-                width={30}
-                height={34}
-                priority
+                aria-hidden="true"
+                focusable="false"
               />
               <span className="brand-text" translate="no">
                 <strong>Aptitude</strong>

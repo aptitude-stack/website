@@ -63,6 +63,11 @@ describe("POST /api/star-events", () => {
       makeUnauthenticatedRequest({ events: [{ slug: "fastapi", action: "star" }] }),
     )
     expect(res.status).toBe(401)
+    await expect(res.json()).resolves.toMatchObject({
+      error: "Unauthorized",
+      code: "STAR_EVENTS_UNAUTHENTICATED",
+      detail: "Missing or invalid aptitude_session cookie.",
+    })
   })
 
   it("returns 400 when JSON is malformed", async () => {
@@ -103,12 +108,23 @@ describe("POST /api/star-events", () => {
     fetchMock.mockRejectOnce(new Error("Network error"))
     const res = await POST(await makeRequest({ events: [{ slug: "fastapi", action: "star" }] }))
     expect(res.status).toBe(502)
+    await expect(res.json()).resolves.toMatchObject({
+      error: "Star events unavailable",
+      code: "STAR_EVENTS_REGISTRY_UNAVAILABLE",
+      detail: "Network error",
+    })
   })
 
   it("returns 404 when registry rejects an unknown slug", async () => {
     fetchMock.mockResponseOnce("Unknown skill", { status: 404 })
     const res = await POST(await makeRequest({ events: [{ slug: "fastapi", action: "star" }] }))
     expect(res.status).toBe(404)
+    await expect(res.json()).resolves.toMatchObject({
+      error: "Unknown skill slug",
+      code: "STAR_EVENTS_UNKNOWN_SKILL",
+      registryStatus: 404,
+      registryBody: "Unknown skill",
+    })
   })
 
   it("forwards the batch with the telemetry token on success", async () => {

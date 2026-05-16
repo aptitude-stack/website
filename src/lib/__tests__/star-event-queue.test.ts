@@ -2,11 +2,17 @@ import { __resetStarEventQueueForTests } from "@/lib/star-event-queue"
 
 describe("star-event-queue", () => {
   let fetchSpy: jest.Mock
+  let consoleErrorSpy: jest.SpyInstance
 
   beforeEach(() => {
     fetchSpy = jest.fn(async () =>
       new Response(JSON.stringify({ accepted: 1, counts: [] }), { status: 200 }),
     )
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore()
   })
 
   it("preserves repeated toggles for one slug in order", async () => {
@@ -42,15 +48,42 @@ describe("star-event-queue", () => {
     expect(fetchSpy).toHaveBeenCalledTimes(1)
   })
 
-  it("swallows network failures so the UI keeps responding", async () => {
+  it("rejects and logs network failures", async () => {
     fetchSpy = jest.fn(async () => {
       throw new Error("offline")
     })
     const queue = __resetStarEventQueueForTests({ flushIntervalMs: 0, fetchImpl: fetchSpy })
 
     queue.enqueue({ slug: "fastapi", action: "star" })
-    await expect(queue.flush()).resolves.toBeUndefined()
+    await expect(queue.flush()).rejects.toThrow("offline")
     expect(fetchSpy).toHaveBeenCalledTimes(1)
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Star event submission failed",
+      expect.objectContaining({
+        endpoint: "/api/star-events",
+        eventCount: 1,
+        slugs: ["fastapi"],
+      }),
+    )
+  })
+
+  it("rejects and logs non-OK responses with response text", async () => {
+    fetchSpy = jest.fn(async () => new Response("Unauthorized", { status: 401 }))
+    const queue = __resetStarEventQueueForTests({ flushIntervalMs: 0, fetchImpl: fetchSpy })
+
+    queue.enqueue({ slug: "fastapi", action: "star" })
+
+    await expect(queue.flush()).rejects.toThrow("Star event submission failed with 401: Unauthorized")
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Star event submission failed",
+      expect.objectContaining({
+        endpoint: "/api/star-events",
+        eventCount: 1,
+        responseStatus: 401,
+        responseBody: "Unauthorized",
+        slugs: ["fastapi"],
+      }),
+    )
   })
 
   it("uses POST with credentials and JSON content type", async () => {
