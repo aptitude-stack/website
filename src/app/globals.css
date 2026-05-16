@@ -551,6 +551,11 @@ body:has(.loading-page) .site-footer .theme-mode {
   visibility: hidden;
 }
 
+body:has(.loading-page) .site-main {
+  display: grid;
+  place-items: center;
+}
+
 .footer-meta {
   display: flex;
   align-items: center;
@@ -1187,8 +1192,9 @@ body:has(.loading-page) .site-footer .theme-mode {
 }
 
 .loading-page {
-  min-height: min(52vh, 420px);
   display: grid;
+  width: 100%;
+  min-height: min(64vh, 560px);
   place-items: center;
 }
 
@@ -1196,13 +1202,13 @@ body:has(.loading-page) .site-footer .theme-mode {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 72px;
+  min-height: 104px;
 }
 
 .loading-indicator__spinner {
-  width: 36px;
-  height: 36px;
-  border: 4px solid rgb(var(--text-primary-rgb) / 0.16);
+  width: 56px;
+  height: 56px;
+  border: 5px solid rgb(var(--text-primary-rgb) / 0.16);
   border-left-color: transparent;
   border-radius: 50%;
   animation: loadingSpinnerSpin 1s linear infinite;
