@@ -45,6 +45,8 @@ class MockObject3D {
 
 const mockMeshStandardMaterials: Array<{ color: MockColor; emissive: MockColor }> = []
 const mockLineBasicMaterials: Array<{ color: MockColor }> = []
+const mockGroups: MockObject3D[] = []
+let animationCallbacks: FrameRequestCallback[] = []
 
 jest.mock("three", () => {
   class Vector2 {
@@ -123,7 +125,12 @@ jest.mock("three", () => {
         super()
       }
     },
-    Group: class extends MockObject3D {},
+    Group: class extends MockObject3D {
+      constructor() {
+        super()
+        mockGroups.push(this)
+      }
+    },
     Line,
     LineBasicMaterial,
     Mesh,
@@ -183,6 +190,8 @@ describe("SkillGraphHero", () => {
   beforeEach(() => {
     mockMeshStandardMaterials.length = 0
     mockLineBasicMaterials.length = 0
+    mockGroups.length = 0
+    animationCallbacks = []
     document.documentElement.dataset.theme = "dark"
     window.matchMedia = jest.fn().mockImplementation((query: string) => ({
       matches: false,
@@ -223,7 +232,11 @@ describe("SkillGraphHero", () => {
           getPropertyValue: () => "",
         }) as unknown as CSSStyleDeclaration
     )
-    jest.spyOn(window, "requestAnimationFrame").mockReturnValue(1)
+    jest.spyOn(window.performance, "now").mockReturnValue(0)
+    jest.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      animationCallbacks.push(callback)
+      return animationCallbacks.length
+    })
     jest.spyOn(window, "cancelAnimationFrame").mockImplementation(() => {})
   })
 
@@ -254,5 +267,25 @@ describe("SkillGraphHero", () => {
         true
       )
     })
+  })
+
+  it("keeps the hero graph in noticeable ambient motion", async () => {
+    await act(async () => {
+      render(<SkillGraphHero graph={graphData} />)
+      await Promise.resolve()
+    })
+
+    await waitFor(() => {
+      expect(animationCallbacks).toHaveLength(1)
+      expect(mockGroups).toHaveLength(1)
+    })
+
+    ;(window.performance.now as jest.Mock).mockReturnValue(10_000)
+    act(() => {
+      animationCallbacks[0]?.(10_000)
+    })
+
+    expect(Math.abs(mockGroups[0]?.rotation.z ?? 0)).toBeGreaterThan(0.03)
+    expect(Math.abs(mockGroups[0]?.position.x ?? 0)).toBeGreaterThan(0.04)
   })
 })

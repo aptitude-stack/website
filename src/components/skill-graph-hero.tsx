@@ -251,20 +251,20 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
           const seed = hashSlug(String(mesh.userData.slug ?? index))
           return {
             pulsePhase: seededRange(seed, 1, 0, Math.PI * 2),
-            pulseSpeed: seededRange(seed, 2, 0.11, 0.29),
-            pulseAmount: seededRange(seed, 3, 0.009, 0.026),
+            pulseSpeed: seededRange(seed, 2, 0.18, 0.42),
+            pulseAmount: seededRange(seed, 3, 0.014, 0.038),
             primaryAngle: seededRange(seed, 4, 0, Math.PI * 2),
             secondaryAngle: seededRange(seed, 5, 0, Math.PI * 2),
             tertiaryAngle: seededRange(seed, 6, 0, Math.PI * 2),
             primaryPhase: seededRange(seed, 7, 0, Math.PI * 2),
             secondaryPhase: seededRange(seed, 8, 0, Math.PI * 2),
             tertiaryPhase: seededRange(seed, 9, 0, Math.PI * 2),
-            primarySpeed: seededRange(seed, 10, 0.045, 0.18),
-            secondarySpeed: seededRange(seed, 11, 0.025, 0.12),
-            tertiarySpeed: seededRange(seed, 12, 0.012, 0.07),
-            primaryAmount: seededRange(seed, 13, 0.032, 0.075),
-            secondaryAmount: seededRange(seed, 14, 0.014, 0.048),
-            tertiaryAmount: seededRange(seed, 15, 0.006, 0.026),
+            primarySpeed: seededRange(seed, 10, 0.075, 0.26),
+            secondarySpeed: seededRange(seed, 11, 0.04, 0.17),
+            tertiarySpeed: seededRange(seed, 12, 0.025, 0.1),
+            primaryAmount: seededRange(seed, 13, 0.05, 0.115),
+            secondaryAmount: seededRange(seed, 14, 0.025, 0.072),
+            tertiaryAmount: seededRange(seed, 15, 0.012, 0.04),
           }
         })
 
@@ -358,13 +358,13 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
           group.rotation.y = 0
           group.rotation.x = 0
           group.rotation.z =
-            Math.sin(elapsed * 0.18) * 0.018 + Math.sin(elapsed * 0.07 + 1.8) * 0.012
+            Math.sin(elapsed * 0.2) * 0.032 + Math.sin(elapsed * 0.09 + 1.8) * 0.02
           const breath =
-            1 + Math.sin(elapsed * 0.22 + 0.6) * 0.008 + Math.sin(elapsed * 0.11 + 2.4) * 0.004
+            1 + Math.sin(elapsed * 0.24 + 0.6) * 0.013 + Math.sin(elapsed * 0.13 + 2.4) * 0.007
           group.scale.setScalar(fitScale * breath)
           group.position.set(
-            Math.sin(elapsed * 0.19 + 0.4) * 0.038 + Math.sin(elapsed * 0.05 + 2.1) * 0.018,
-            Math.cos(elapsed * 0.15 + 1.1) * 0.026 + Math.sin(elapsed * 0.09 + 0.7) * 0.014,
+            Math.sin(elapsed * 0.21 + 0.4) * 0.058 + Math.sin(elapsed * 0.07 + 2.1) * 0.028,
+            Math.cos(elapsed * 0.17 + 1.1) * 0.04 + Math.sin(elapsed * 0.11 + 0.7) * 0.022,
             0
           )
           nodeObjects.forEach((mesh, index) => {

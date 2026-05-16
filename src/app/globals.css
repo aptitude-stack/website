@@ -1146,6 +1146,21 @@ input {
   }
 }
 
+@keyframes graphBreath {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+
+  45% {
+    transform: translate3d(8px, -6px, 0) rotate(1.4deg) scale(1.035);
+  }
+
+  72% {
+    transform: translate3d(-5px, 5px, 0) rotate(-0.9deg) scale(0.99);
+  }
+}
+
 @keyframes loadingCubeSpin {
   0% {
     transform: rotate(45deg) rotateX(-25deg) rotateY(25deg);
