@@ -32,21 +32,25 @@ fixture credentials when registry env vars are omitted:
 ```bash
 REGISTRY_BASE_URL=http://127.0.0.1:8000
 REGISTRY_READ_TOKEN=reader-token.dev-reader-secret
+REGISTRY_TELEMETRY_TOKEN=telemetry-token.dev-telemetry-secret
 ```
 
 Copy `.env.local.example` to `.env.local` only when you want to override those
 local defaults.
 
-`REGISTRY_READ_TOKEN` is server-side only. Do not expose it through `NEXT_PUBLIC_*`.
+`REGISTRY_READ_TOKEN` and `REGISTRY_TELEMETRY_TOKEN` are server-side only. Do not expose
+them through `NEXT_PUBLIC_*`. `TELEMETRY_TOKEN`, as emitted by
+`registry/scripts/generate_service_token.py`, is also accepted for star telemetry.
 `APTITUDE_OPERATOR_PASSWORD` and `APTITUDE_SESSION_SECRET` are also server-side
 only. Local development falls back to the password `aptitude-dev` and a local
 session secret if those auth variables are omitted; production requires both.
 
-`/login` is public. `/catalog`, `/skills/*`, `/audit/*`, and `/api/search` require
-the operator session cookie. The catalog reads `GET /catalog/top-skills` and the
-browser search API reads `POST /catalog/search`. If the registry URL, token,
-response, or network is unavailable, the catalog renders an empty result set
-instead of failing the whole page.
+`/login` is public. `/catalog`, `/skills/*`, `/audit/*`, `/api/search`, and
+`/api/star-events` require the operator session cookie. The catalog reads
+`GET /catalog/top-skills`, the browser search API reads `POST /catalog/search`,
+and star toggles are forwarded server-side to `POST /catalog/star-events`. If
+the registry URL, token, response, or network is unavailable, the catalog renders
+an empty result set instead of failing the whole page.
 
 ## Local Development
 
@@ -82,6 +86,7 @@ Set the same server-side registry variables in Vercel production:
 ```text
 REGISTRY_BASE_URL=https://api.aptitude-registry.dev
 REGISTRY_READ_TOKEN=<read token>
+REGISTRY_TELEMETRY_TOKEN=<telemetry token>
 APTITUDE_OPERATOR_PASSWORD=<operator password>
 APTITUDE_SESSION_SECRET=<long random session signing secret>
 ```

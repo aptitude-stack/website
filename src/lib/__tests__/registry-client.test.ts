@@ -23,6 +23,7 @@ beforeEach(() => {
   process.env.REGISTRY_BASE_URL = "https://registry.example.com"
   process.env.REGISTRY_READ_TOKEN = "tid.secret"
   process.env.REGISTRY_TELEMETRY_TOKEN = "telemetry-id.telemetry-secret"
+  delete process.env.TELEMETRY_TOKEN
 })
 
 function setNodeEnv(value: string | undefined): void {
@@ -305,6 +306,23 @@ describe("submitStarEvents", () => {
     const result = await submitStarEvents([])
     expect(result).toEqual({ accepted: 0, counts: [] })
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it("uses the generated TELEMETRY_TOKEN when the website-specific name is missing", async () => {
+    delete process.env.REGISTRY_TELEMETRY_TOKEN
+    process.env.TELEMETRY_TOKEN = "telemetry-prod.generated-secret"
+    fetchMock.mockResponseOnce(JSON.stringify({ accepted: 1, counts: [] }))
+
+    await submitStarEvents([{ slug: "fastapi", action: "star" }])
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://registry.example.com/catalog/star-events",
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: "Bearer telemetry-prod.generated-secret",
+        }),
+      }),
+    )
   })
 
   it("throws StarEventSubmissionError when the registry returns a non-200", async () => {

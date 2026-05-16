@@ -43,6 +43,7 @@ function getRegistryReadToken(): string | undefined {
 function getRegistryTelemetryToken(): string | undefined {
   return (
     process.env.REGISTRY_TELEMETRY_TOKEN ??
+    process.env.TELEMETRY_TOKEN ??
     getLocalDevRegistryDefault(LOCAL_DEV_REGISTRY_TELEMETRY_TOKEN)
   )
 }
@@ -55,7 +56,7 @@ function getRegistryTelemetryEnv(): { baseUrl: string; token: string } {
   const baseUrl = normalizeBaseUrl(getRegistryBaseUrl())
   const token = getRegistryTelemetryToken()
   if (!baseUrl || !token) {
-    throw new Error("REGISTRY_BASE_URL and REGISTRY_TELEMETRY_TOKEN must be set")
+    throw new Error("REGISTRY_BASE_URL and REGISTRY_TELEMETRY_TOKEN or TELEMETRY_TOKEN must be set")
   }
   return { baseUrl, token }
 }
