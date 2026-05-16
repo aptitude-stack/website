@@ -6,7 +6,7 @@ describe("LoadingIndicator", () => {
   beforeEach(() => jest.useFakeTimers())
   afterEach(() => jest.useRealTimers())
 
-  it("renders an accessible six-sided cube loader after the loading threshold", () => {
+  it("renders an accessible simple loader after the loading threshold", () => {
     render(<LoadingIndicator />)
 
     expect(screen.queryByRole("status", { name: "Loading…" })).not.toBeInTheDocument()
@@ -16,13 +16,13 @@ describe("LoadingIndicator", () => {
 
     act(() => jest.advanceTimersByTime(1))
     expect(screen.getByRole("status", { name: "Loading…" })).toBeInTheDocument()
-    expect(screen.getAllByTestId("loading-cube-face")).toHaveLength(6)
+    expect(screen.getByTestId("loading-spinner")).toBeInTheDocument()
   })
 
   it("shows the route loading fallback immediately", () => {
     render(<Loading />)
 
     expect(screen.getByRole("status", { name: "Loading…" })).toBeInTheDocument()
-    expect(screen.getAllByTestId("loading-cube-face")).toHaveLength(6)
+    expect(screen.getByTestId("loading-spinner")).toBeInTheDocument()
   })
 })

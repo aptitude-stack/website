@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense, type ReactNode } from "react";
 import { BrandMarkIcon } from "@/components/icons/brand-mark-icon";
 import { ThemeModeControl } from "@/components/theme-mode-control";
 import { getSession, signOut } from "@/lib/auth";
@@ -34,11 +35,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+async function AuthNavAction() {
   const session = await getSession();
 
   async function handleLogout() {
@@ -47,6 +44,77 @@ export default async function RootLayout({
     await signOut();
     redirect(LOGIN_PATH);
   }
+
+  return session ? (
+    <form className="nav-logout-form" action={handleLogout}>
+      <button
+        className="nav-cta nav-cta--quiet"
+        type="submit"
+        aria-label="Logout"
+        title="Logout"
+      >
+        <svg
+          aria-hidden="true"
+          className="nav-cta__icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M14.2 5.2H7.4c-1 0-1.8.8-1.8 1.8v10c0 1 .8 1.8 1.8 1.8h6.8"
+          />
+          <path
+            d="M10 12h8.8"
+          />
+          <path
+            d="m15.5 8.7 3.3 3.3-3.3 3.3"
+          />
+        </svg>
+        <span className="sr-only">Logout</span>
+      </button>
+    </form>
+  ) : (
+    <Link
+      href="/login"
+      className="nav-cta nav-cta--quiet"
+      aria-label="Login"
+      title="Login"
+    >
+      <svg
+        aria-hidden="true"
+        className="nav-cta__icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M9.8 5.2h6.8c1 0 1.8.8 1.8 1.8v10c0 1-.8 1.8-1.8 1.8H9.8"
+        />
+        <path
+          d="M5.2 12H14"
+        />
+        <path
+          d="m10.7 8.7 3.3 3.3-3.3 3.3"
+        />
+      </svg>
+      <span className="sr-only">Login</span>
+    </Link>
+  );
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
 
   return (
     <html
@@ -112,69 +180,9 @@ export default async function RootLayout({
                 </svg>
                 <span className="sr-only">Docs</span>
               </a>
-              {session ? (
-                <form className="nav-logout-form" action={handleLogout}>
-                  <button
-                    className="nav-cta nav-cta--quiet"
-                    type="submit"
-                    aria-label="Logout"
-                    title="Logout"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      className="nav-cta__icon"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M14.2 5.2H7.4c-1 0-1.8.8-1.8 1.8v10c0 1 .8 1.8 1.8 1.8h6.8"
-                      />
-                      <path
-                        d="M10 12h8.8"
-                      />
-                      <path
-                        d="m15.5 8.7 3.3 3.3-3.3 3.3"
-                      />
-                    </svg>
-                    <span className="sr-only">Logout</span>
-                  </button>
-                </form>
-              ) : (
-                <Link
-                  href="/login"
-                  className="nav-cta nav-cta--quiet"
-                  aria-label="Login"
-                  title="Login"
-                >
-                  <svg
-                    aria-hidden="true"
-                    className="nav-cta__icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M9.8 5.2h6.8c1 0 1.8.8 1.8 1.8v10c0 1-.8 1.8-1.8 1.8H9.8"
-                    />
-                    <path
-                      d="M5.2 12H14"
-                    />
-                    <path
-                      d="m10.7 8.7 3.3 3.3-3.3 3.3"
-                    />
-                  </svg>
-                  <span className="sr-only">Login</span>
-                </Link>
-              )}
+              <Suspense fallback={null}>
+                <AuthNavAction />
+              </Suspense>
             </div>
           </nav>
         </header>

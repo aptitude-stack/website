@@ -32,14 +32,7 @@ export function LoadingIndicator({
         role="status"
         aria-label="Loading…"
       >
-        <div className="loading-indicator__cube" aria-hidden="true">
-          <div data-testid="loading-cube-face" />
-          <div data-testid="loading-cube-face" />
-          <div data-testid="loading-cube-face" />
-          <div data-testid="loading-cube-face" />
-          <div data-testid="loading-cube-face" />
-          <div data-testid="loading-cube-face" />
-        </div>
+        <div className="loading-indicator__spinner" data-testid="loading-spinner" aria-hidden="true" />
       </div>
     </div>
   )
