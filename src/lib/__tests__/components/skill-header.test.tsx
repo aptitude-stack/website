@@ -4,7 +4,10 @@ import { SkillHeader } from "@/components/skill-header"
 import { SkillMetadata } from "@/components/skill-metadata"
 import { __resetStarCountStoreForTests } from "@/lib/star-count-store"
 import { __resetStarEventQueueForTests, flushStarEvents } from "@/lib/star-event-queue"
-import { __resetStarredSkillsStoreForTests } from "@/lib/starred-skills-store"
+import {
+  __resetStarredSkillsStoreForTests,
+  __setStarredSkillsStoreForTests,
+} from "@/lib/starred-skills-store"
 import type { SkillVersionMetadataDto } from "@/lib/types"
 
 const meta: SkillVersionMetadataDto = {
@@ -42,6 +45,7 @@ describe("SkillHeader", () => {
     __resetStarEventQueueForTests({ flushIntervalMs: 0 })
     __resetStarCountStoreForTests()
     __resetStarredSkillsStoreForTests()
+    __setStarredSkillsStoreForTests([])
   })
 
   afterEach(() => {

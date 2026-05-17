@@ -66,7 +66,7 @@ async function signSessionPayload(encodedPayload: string): Promise<string> {
 
   const key = await globalThis.crypto.subtle.importKey(
     "raw",
-    encodeUtf8(secret),
+    toArrayBuffer(encodeUtf8(secret)),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"],
@@ -74,7 +74,7 @@ async function signSessionPayload(encodedPayload: string): Promise<string> {
   const signature = await globalThis.crypto.subtle.sign(
     "HMAC",
     key,
-    encodeUtf8(encodedPayload),
+    toArrayBuffer(encodeUtf8(encodedPayload)),
   );
   return encodeBytesBase64Url(new Uint8Array(signature));
 }
@@ -135,6 +135,10 @@ function encodeUtf8(value: string): Uint8Array {
 function decodeUtf8(bytes: Uint8Array): string {
   if (typeof TextDecoder !== "undefined") return new TextDecoder().decode(bytes);
   return Buffer.from(bytes).toString("utf8");
+}
+
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
 }
 
 function timingSafeEqual(left: string, right: string): boolean {
