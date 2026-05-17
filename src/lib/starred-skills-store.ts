@@ -2,12 +2,12 @@
 
 import { useSyncExternalStore } from "react"
 
-const STARRED_SKILLS_KEY = "aptitude.starredSkills"
 const EMPTY_STARRED_SKILLS = new Set<string>()
 const listeners = new Set<() => void>()
 
 let starredSkills = EMPTY_STARRED_SKILLS
 let hasLoadedStarredSkills = false
+let hasRequestedServerStarredSkills = false
 
 function notify() {
   for (const listener of listeners) {
@@ -15,24 +15,10 @@ function notify() {
   }
 }
 
-function readStarredSkillsFromStorage(): Set<string> {
-  if (typeof window === "undefined") return new Set<string>()
-
-  try {
-    const stored = window.localStorage.getItem(STARRED_SKILLS_KEY)
-    const parsed: unknown = stored ? JSON.parse(stored) : []
-    if (!Array.isArray(parsed)) return new Set<string>()
-
-    return new Set(parsed.filter((value): value is string => typeof value === "string"))
-  } catch {
-    return new Set<string>()
-  }
-}
-
 function ensureStarredSkillsLoaded() {
   if (hasLoadedStarredSkills) return
 
-  starredSkills = readStarredSkillsFromStorage()
+  starredSkills = new Set<string>()
   hasLoadedStarredSkills = true
 }
 
@@ -45,25 +31,12 @@ function getServerSnapshot(): ReadonlySet<string> {
   return EMPTY_STARRED_SKILLS
 }
 
-function handleStorage(event: StorageEvent) {
-  if (event.key !== null && event.key !== STARRED_SKILLS_KEY) return
-
-  starredSkills = readStarredSkillsFromStorage()
-  hasLoadedStarredSkills = true
-  notify()
-}
-
 function subscribe(listener: () => void): () => void {
   listeners.add(listener)
-  if (typeof window !== "undefined" && listeners.size === 1) {
-    window.addEventListener("storage", handleStorage)
-  }
+  void hydrateStarredSkillsFromServer()
 
   return () => {
     listeners.delete(listener)
-    if (typeof window !== "undefined" && listeners.size === 0) {
-      window.removeEventListener("storage", handleStorage)
-    }
   }
 }
 
@@ -85,17 +58,45 @@ export function setSkillStarred(slug: string, isStarred: boolean): void {
   starredSkills = next
   hasLoadedStarredSkills = true
 
-  try {
-    window.localStorage.setItem(STARRED_SKILLS_KEY, JSON.stringify([...next]))
-  } catch {
-    // Keep the UI responsive even if browser storage is unavailable.
-  }
-
   notify()
+}
+
+async function hydrateStarredSkillsFromServer(): Promise<void> {
+  if (typeof window === "undefined" || hasRequestedServerStarredSkills) return
+  hasRequestedServerStarredSkills = true
+
+  try {
+    const response = await fetch("/api/me/stars", { credentials: "same-origin" })
+    if (!response.ok) return
+    const parsed: unknown = await response.json()
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      !Array.isArray((parsed as { starred_slugs?: unknown }).starred_slugs)
+    ) {
+      return
+    }
+    starredSkills = new Set(
+      (parsed as { starred_slugs: unknown[] }).starred_slugs.filter(
+        (value): value is string => typeof value === "string",
+      ),
+    )
+    hasLoadedStarredSkills = true
+    notify()
+  } catch {
+    // Keep the UI responsive if the session or registry is temporarily unavailable.
+  }
 }
 
 export function __resetStarredSkillsStoreForTests(): void {
   starredSkills = EMPTY_STARRED_SKILLS
   hasLoadedStarredSkills = false
+  hasRequestedServerStarredSkills = false
   listeners.clear()
+}
+
+export function __setStarredSkillsStoreForTests(slugs: string[]): void {
+  starredSkills = new Set(slugs)
+  hasLoadedStarredSkills = true
+  hasRequestedServerStarredSkills = true
 }

@@ -3,7 +3,10 @@ import fetchMock from "jest-fetch-mock"
 import { SkillCard } from "@/components/skill-card"
 import { __resetStarCountStoreForTests } from "@/lib/star-count-store"
 import { __resetStarEventQueueForTests } from "@/lib/star-event-queue"
-import { __resetStarredSkillsStoreForTests } from "@/lib/starred-skills-store"
+import {
+  __resetStarredSkillsStoreForTests,
+  __setStarredSkillsStoreForTests,
+} from "@/lib/starred-skills-store"
 import type { SkillCardData } from "@/lib/types"
 
 const fixture: SkillCardData = {
@@ -28,6 +31,7 @@ describe("SkillCard", () => {
     __resetStarEventQueueForTests({ flushIntervalMs: 0 })
     __resetStarCountStoreForTests()
     __resetStarredSkillsStoreForTests()
+    __setStarredSkillsStoreForTests([])
   })
 
   afterEach(() => {
@@ -73,7 +77,7 @@ describe("SkillCard", () => {
   })
 
   it("shows an icon-only indicator when the user has saved the skill", () => {
-    window.localStorage.setItem("aptitude.starredSkills", JSON.stringify(["fastapi"]))
+    __setStarredSkillsStoreForTests(["fastapi"])
 
     render(<SkillCard card={fixture} />)
 

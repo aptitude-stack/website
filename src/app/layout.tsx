@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
+import { HeaderNavLinks } from "@/components/header-nav-links";
 import { BrandMarkIcon } from "@/components/icons/brand-mark-icon";
 import { ThemeModeControl } from "@/components/theme-mode-control";
 import { getSession, signOut } from "@/lib/auth";
@@ -144,11 +145,9 @@ export default function RootLayout({
               </span>
             </Link>
             <div className="nav-actions">
-              <div className="header-nav-links" aria-label="Catalog sections">
-                <Link href="/catalog#catalog-search" className="nav-link">Search</Link>
-                <Link href="/catalog#catalog-features" className="nav-link">Features</Link>
-                <Link href="/catalog#catalog-metrics" className="nav-link">Metrics</Link>
-              </div>
+              <Suspense fallback={null}>
+                <HeaderNavLinks />
+              </Suspense>
               <a
                 href="https://github.com/aptitude-stack"
                 target="_blank"

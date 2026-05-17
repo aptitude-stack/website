@@ -12,6 +12,7 @@ import type {
   StarEventDto,
   TopSkillsResponseDto,
   TrustTier,
+  UserStarredSkillsResponseDto,
 } from "@/lib/types"
 
 const HTTP_PROTOCOLS = new Set(["http:", "https:"])
@@ -182,6 +183,7 @@ export class StarEventSubmissionError extends Error {
 
 export async function submitStarEvents(
   events: StarEventDto[],
+  options: { userSubject?: string } = {},
 ): Promise<StarEventBatchResponseDto> {
   if (events.length === 0) {
     return { accepted: 0, counts: [] }
@@ -195,7 +197,10 @@ export async function submitStarEvents(
   const res = await fetchWithRegistryTimeout(`${baseUrl}/catalog/star-events`, {
     init: {
       method: "POST",
-      body: JSON.stringify({ events }),
+      body: JSON.stringify({
+        ...(options.userSubject ? { user_subject: options.userSubject } : {}),
+        events,
+      }),
     },
     headers: {
       Authorization: `Bearer ${token}`,
@@ -208,6 +213,23 @@ export async function submitStarEvents(
   }
   const parsed: unknown = await res.json()
   return assertStarEventBatchResponse(parsed)
+}
+
+export async function fetchUserStarredSkillSlugs(userSubject: string): Promise<string[]> {
+  const { baseUrl, token } = getRegistryTelemetryEnv()
+  const params = new URLSearchParams({ user_subject: userSubject })
+  const res = await fetchWithRegistryTimeout(`${baseUrl}/catalog/user-stars?${params}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  })
+  if (!res.ok) {
+    const bodyText = await safeReadBody(res)
+    throw new StarEventSubmissionError(res.status, bodyText)
+  }
+  const parsed: unknown = await res.json()
+  return assertUserStarredSkillsResponse(parsed).starred_slugs
 }
 
 async function safeReadBody(res: Response): Promise<string> {
@@ -230,6 +252,13 @@ function assertStarEventBatchResponse(value: unknown): StarEventBatchResponseDto
     accepted: value.accepted,
     counts: value.counts.map(assertStarCount),
   }
+}
+
+function assertUserStarredSkillsResponse(value: unknown): UserStarredSkillsResponseDto {
+  if (!isRecord(value) || !isStringArray(value.starred_slugs)) {
+    throw new Error("Invalid registry user starred skills response")
+  }
+  return { starred_slugs: value.starred_slugs }
 }
 
 function assertStarCount(value: unknown): { slug: string; star_count: number } {

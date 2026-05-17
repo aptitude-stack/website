@@ -1,10 +1,13 @@
-import { fireEvent, render, screen } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import fetchMock from "jest-fetch-mock"
 import { SkillStarButton } from "@/components/skill-star-button"
 import { SkillStarCount } from "@/components/skill-star-count"
 import { __resetStarCountStoreForTests } from "@/lib/star-count-store"
 import { __resetStarEventQueueForTests, flushStarEvents } from "@/lib/star-event-queue"
-import { __resetStarredSkillsStoreForTests } from "@/lib/starred-skills-store"
+import {
+  __resetStarredSkillsStoreForTests,
+  __setStarredSkillsStoreForTests,
+} from "@/lib/starred-skills-store"
 
 describe("SkillStarButton", () => {
   beforeEach(() => {
@@ -15,6 +18,7 @@ describe("SkillStarButton", () => {
     __resetStarEventQueueForTests({ flushIntervalMs: 0 })
     __resetStarCountStoreForTests()
     __resetStarredSkillsStoreForTests()
+    __setStarredSkillsStoreForTests([])
   })
 
   afterEach(() => {
@@ -37,16 +41,11 @@ describe("SkillStarButton", () => {
     expect(button).toHaveAttribute("aria-pressed", "true")
     expect(button).toHaveAccessibleName("Unstar Documentation Writing")
     expect(button).toHaveAttribute("title", "11 stars")
-    expect(window.localStorage.getItem("aptitude.starredSkills")).toBe(
-      JSON.stringify(["documentation-writing"]),
-    )
+    expect(button).toHaveAccessibleName("Unstar Documentation Writing")
   })
 
   it("clamps the optimistic count at zero on unstar", () => {
-    window.localStorage.setItem(
-      "aptitude.starredSkills",
-      JSON.stringify(["documentation-writing"]),
-    )
+    __setStarredSkillsStoreForTests(["documentation-writing"])
     render(<SkillStarButton slug="documentation-writing" name="Documentation Writing" starCount={0} />)
 
     const button = screen.getByRole("button", { name: "Unstar Documentation Writing" })
@@ -56,14 +55,32 @@ describe("SkillStarButton", () => {
     expect(button).toHaveAttribute("title", "0 stars")
   })
 
-  it("restores starred state from local storage", () => {
-    window.localStorage.setItem("aptitude.starredSkills", JSON.stringify(["documentation-writing"]))
+  it("restores starred state from the in-memory store", () => {
+    __setStarredSkillsStoreForTests(["documentation-writing"])
 
     render(<SkillStarButton slug="documentation-writing" name="Documentation Writing" starCount={1} />)
 
     const button = screen.getByRole("button", { name: "Unstar Documentation Writing" })
     expect(button).toHaveAttribute("aria-pressed", "true")
     expect(button).toHaveAttribute("title", "1 star")
+  })
+
+  it("hydrates starred state from the authenticated user's server state", async () => {
+    __resetStarredSkillsStoreForTests()
+    fetchMock.mockResponseOnce(JSON.stringify({ starred_slugs: ["documentation-writing"] }))
+
+    render(<SkillStarButton slug="documentation-writing" name="Documentation Writing" starCount={1} />)
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Unstar Documentation Writing" })).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      )
+    })
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/me/stars",
+      expect.objectContaining({ credentials: "same-origin" }),
+    )
   })
 
   it("enqueues a network event for the star toggle", async () => {

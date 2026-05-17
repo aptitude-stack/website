@@ -556,6 +556,10 @@ body:has(.loading-page) .site-main {
   place-items: center;
 }
 
+body:has(.login-page) .header-nav-links {
+  display: none;
+}
+
 .footer-meta {
   display: flex;
   align-items: center;

@@ -4,6 +4,7 @@ import {
   StarEventSubmissionError,
   fetchCatalogSkillCards,
   fetchCatalogSkillCardsSafe,
+  fetchUserStarredSkillSlugs,
   fetchSkillGraph,
   fetchSkillCardData,
   fetchTopSkillCards,
@@ -278,10 +279,13 @@ describe("submitStarEvents", () => {
       }),
     )
 
-    const result = await submitStarEvents([
-      { slug: "fastapi", action: "star" },
-      { slug: "python.test", action: "unstar" },
-    ])
+    const result = await submitStarEvents(
+      [
+        { slug: "fastapi", action: "star" },
+        { slug: "python.test", action: "unstar" },
+      ],
+      { userSubject: "test1@example.com" },
+    )
 
     expect(result.accepted).toBe(2)
     expect(result.counts[0]).toEqual({ slug: "fastapi", star_count: 5 })
@@ -290,11 +294,28 @@ describe("submitStarEvents", () => {
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({
+          user_subject: "test1@example.com",
           events: [
             { slug: "fastapi", action: "star" },
             { slug: "python.test", action: "unstar" },
           ],
         }),
+        headers: expect.objectContaining({
+          Authorization: "Bearer telemetry-id.telemetry-secret",
+        }),
+      }),
+    )
+  })
+
+  it("fetches user-specific starred skill slugs", async () => {
+    fetchMock.mockResponseOnce(JSON.stringify({ starred_slugs: ["fastapi", "python.test"] }))
+
+    const result = await fetchUserStarredSkillSlugs("test1@example.com")
+
+    expect(result).toEqual(["fastapi", "python.test"])
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://registry.example.com/catalog/user-stars?user_subject=test1%40example.com",
+      expect.objectContaining({
         headers: expect.objectContaining({
           Authorization: "Bearer telemetry-id.telemetry-secret",
         }),

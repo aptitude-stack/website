@@ -23,10 +23,10 @@ export default async function LoginPage({ searchParams }: Props) {
       ? next
       : DEFAULT_AUTHENTICATED_PATH;
 
-  async function handleLogin(_formData: FormData) {
+  async function handleLogin(formData: FormData) {
     "use server";
 
-    await signInWithStubSession();
+    await signInWithStubSession(String(formData.get("email") ?? ""));
     redirect(nextPath);
   }
 

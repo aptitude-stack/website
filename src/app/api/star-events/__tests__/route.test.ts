@@ -25,8 +25,8 @@ beforeEach(() => {
   process.env.APTITUDE_SESSION_SECRET = "test-session-secret"
 })
 
-async function makeRequest(body: unknown) {
-  const token = await createSessionToken("operator")
+async function makeRequest(body: unknown, subject = "operator@example.com") {
+  const token = await createSessionToken(subject)
   return new NextRequest("http://localhost/api/star-events", {
     method: "POST",
     headers: {
@@ -38,7 +38,7 @@ async function makeRequest(body: unknown) {
 }
 
 async function makeRawRequest(body: string) {
-  const token = await createSessionToken("operator")
+  const token = await createSessionToken("operator@example.com")
   return new NextRequest("http://localhost/api/star-events", {
     method: "POST",
     headers: {
@@ -127,7 +127,7 @@ describe("POST /api/star-events", () => {
     })
   })
 
-  it("forwards the batch with the telemetry token on success", async () => {
+  it("forwards the batch with the telemetry token and session subject on success", async () => {
     fetchMock.mockResponseOnce(
       JSON.stringify({
         accepted: 1,
@@ -146,7 +146,10 @@ describe("POST /api/star-events", () => {
       "https://registry.example.com/catalog/star-events",
       expect.objectContaining({
         method: "POST",
-        body: JSON.stringify({ events: [{ slug: "fastapi", action: "star" }] }),
+        body: JSON.stringify({
+          user_subject: "operator@example.com",
+          events: [{ slug: "fastapi", action: "star" }],
+        }),
         headers: expect.objectContaining({
           Authorization: "Bearer telemetry-id.telemetry-secret",
         }),

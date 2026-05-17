@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await submitStarEvents(events)
+    const result = await submitStarEvents(events, { userSubject: session.sub })
     console.info("Star events submitted", {
       accepted: result.accepted,
       eventCount: events.length,

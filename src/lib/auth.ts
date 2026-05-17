@@ -19,11 +19,11 @@ export async function requireSession() {
   return session;
 }
 
-export async function signInWithStubSession() {
+export async function signInWithStubSession(subject: string) {
   const cookieStore = await cookies();
   cookieStore.set({
     name: SESSION_COOKIE_NAME,
-    value: await createSessionToken(),
+    value: await createSessionToken(subject),
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

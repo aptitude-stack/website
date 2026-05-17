@@ -144,3 +144,7 @@ export interface StarEventBatchResponseDto {
   accepted: number
   counts: StarCountDto[]
 }
+
+export interface UserStarredSkillsResponseDto {
+  starred_slugs: string[]
+}
