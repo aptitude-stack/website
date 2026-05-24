@@ -12,8 +12,8 @@ const COPY_FEEDBACK_RESET_MS = 900
 
 export function InstallButton({ slug, version }: InstallButtonProps) {
   const command = version
-    ? `uvx aptitude install ${slug} --version ${version}`
-    : `uvx aptitude install ${slug}`
+    ? `uvx aptitude-resolver install ${slug} --version ${version}`
+    : `uvx aptitude-resolver install ${slug}`
   const [copyState, setCopyState] = useState<CopyState>("idle")
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 

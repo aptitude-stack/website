@@ -18,8 +18,8 @@ export default async function proxy(req: NextRequest) {
   const loggedIn = Boolean(session)
 
   if (!loggedIn) {
-    if (isLogin) return
-    if (isRoot || isCatalog) {
+    if (isLogin || isRoot) return
+    if (isCatalog) {
       return NextResponse.redirect(new URL("/login", req.url))
     }
     return

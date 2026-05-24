@@ -13,7 +13,7 @@ describe("InstallButton", () => {
 
   it("renders the install command", () => {
     render(<InstallButton slug="fastapi" />)
-    expect(screen.getByText(/uvx aptitude install fastapi/)).toBeInTheDocument()
+    expect(screen.getByText(/uvx aptitude-resolver install fastapi/)).toBeInTheDocument()
   })
 
   it("includes version when provided", () => {
@@ -25,7 +25,7 @@ describe("InstallButton", () => {
     jest.mocked(navigator.clipboard.writeText).mockImplementationOnce(() => new Promise<void>(() => {}))
     render(<InstallButton slug="fastapi" />)
     fireEvent.click(screen.getByRole("button", { name: /copy/i }))
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith("uvx aptitude install fastapi")
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith("uvx aptitude-resolver install fastapi")
   })
 
   it("uses an icon-only copy control with status feedback", async () => {

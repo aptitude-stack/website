@@ -7,6 +7,7 @@ import { BrandMarkIcon } from "@/components/icons/brand-mark-icon";
 import { ThemeModeControl } from "@/components/theme-mode-control";
 import { getSession, signOut } from "@/lib/auth";
 import { LOGIN_PATH } from "@/lib/auth-session";
+import "@xyflow/react/dist/base.css";
 import "./globals.css";
 
 const themeBootstrapScript = `
@@ -130,9 +131,9 @@ export default function RootLayout({
         <header className="site-header">
           <nav className="site-nav" aria-label="Primary">
             <Link
-              href="/catalog"
+              href="/"
               className="brand-link"
-              aria-label="Aptitude Registry catalog"
+              aria-label="Aptitude home"
             >
               <BrandMarkIcon
                 className="brand-mark"
