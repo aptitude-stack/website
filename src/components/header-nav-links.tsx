@@ -23,6 +23,9 @@ export function HeaderNavLinks() {
         <Link href="/#solution" className="nav-link">
           Solution
         </Link>
+        <Link href="/#evidence" className="nav-link">
+          Evidence
+        </Link>
         <Link href="/#workflow" className="nav-link">
           Workflow
         </Link>

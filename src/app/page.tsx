@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LandingCardEffects } from "@/components/landing-card-effects";
 import { LandingWorkflowFlow } from "@/components/landing-workflow-flow";
 import { BrandMarkIcon } from "@/components/icons/brand-mark-icon";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
   title: "Aptitude | Governed Skill Infrastructure",
@@ -54,27 +56,54 @@ const issues = [
 ];
 
 const solutionControls = [
-  "Policy controls at publication, discovery, resolution, and execution",
-  "Immutable versions with exact fetch, checksums, and lock replay",
-  "Security, quality, benchmark, provenance, and lifecycle signals",
-  "Managed capabilities that replace arbitrary markdown and silent source changes",
+  {
+    step: "01",
+    label: "Policy",
+    title: "Controls at every gate",
+    text: "Publication, discovery, resolution, and execution all stay policy-aware.",
+  },
+  {
+    step: "02",
+    label: "Versions",
+    title: "Exact fetch and replay",
+    text: "Immutable versions, checksums, and lockfiles make capability use reproducible.",
+  },
+  {
+    step: "03",
+    label: "Signals",
+    title: "Trust before usage",
+    text: "Security, quality, benchmark, provenance, and lifecycle data travel with the skill.",
+  },
+  {
+    step: "04",
+    label: "Capability",
+    title: "Managed instead of arbitrary",
+    text: "Teams replace silent markdown/source changes with governed capability assets.",
+  },
+];
+
+const controlPlaneRail = [
+  "Publication",
+  "Discovery",
+  "Resolution",
+  "Execution",
 ];
 
 const audiences = [
   {
-    label: "Website",
-    title: "Teams and knowledge workers",
-    text: "Browse, inspect, install, and improve governed capabilities from a readable catalog.",
+    label: "Systems / DevOps",
+    title: "Platform and operations teams",
+    text: "Govern publication, access, policy, versions, provenance, and runtime installation paths.",
   },
   {
-    label: "CLI",
-    title: "Developers and platform teams",
-    text: "Publish, resolve, pin, and replay skills inside CI and local workflows.",
+    label: "Users",
+    title: "Product, design, and development teams",
+    text: "Find trusted capabilities, understand what they do, and reuse team knowledge without hunting through repos.",
   },
   {
-    label: "MCP",
-    title: "AI agents and hosts",
-    text: "Discover and select capabilities through the same policy-aware interface humans use.",
+    label: "Agents",
+    title: "AI agents and agent hosts",
+    text: "Discover, resolve, and install approved skills through the same governed capability layer.",
   },
 ];
 
@@ -96,9 +125,31 @@ const composition = [
   },
 ];
 
+const contextQualityBars = [
+  { label: "Forced load", value: 55.4, width: 100 },
+  { label: "Curated", value: 51.2, width: 92 },
+  { label: "Distractors added", value: 43.5, width: 78 },
+  { label: "Curated retrieval", value: 40.1, width: 72 },
+  { label: "Noisy retrieval", value: 38.4, width: 69 },
+  { label: "No skills", value: 35.4, width: 64 },
+];
+
+const noisyRetrievalBars = [
+  { label: "No-skill baseline", value: 21.2, width: 100 },
+  { label: "Noisy retrieval", value: 19.8, width: 93 },
+];
+
+const refinementSteps = [
+  { label: "No skills", value: 57.7, lift: 0 },
+  { label: "Raw retrieval", value: 61.4, lift: 40 },
+  { label: "Query-agnostic", value: 63.3, lift: 60 },
+  { label: "Query-specific", value: 65.5, lift: 84 },
+];
+
 export default function HomePage() {
   return (
     <div className="landing-page">
+      <LandingCardEffects />
       <section className="landing-hero" aria-labelledby="landing-title">
         <div className="landing-hero__copy">
           <p className="eyebrow">Governed Skill Infrastructure</p>
@@ -123,41 +174,32 @@ export default function HomePage() {
           </div>
         </div>
 
-        <Card size="sm" className="landing-system landing-system--hero" aria-hidden="true">
-          <CardHeader className="landing-system__header">
-            <Badge variant="outline" className="landing-system__badge">
-              Registry flow
-            </Badge>
-            <CardTitle className="landing-system__title">Publish. Govern. Resolve.</CardTitle>
-            <CardDescription className="landing-system__description">
-              A controlled path from skill artifact to reproducible agent use.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="landing-system__content">
-            <div className="landing-system__mark">
-              <BrandMarkIcon />
-            </div>
-            <div className="landing-system__workflow">
-              <div className="landing-system__card landing-system__card--catalog">
-                <span>Publish</span>
-                <strong>Validated artifacts</strong>
-              </div>
-              <div className="landing-system__card landing-system__card--trust">
-                <span>Govern</span>
-                <strong>Policy + lifecycle</strong>
-              </div>
-              <div className="landing-system__card landing-system__card--agent">
-                <span>Resolve</span>
-                <strong>Lockfile + plan</strong>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="landing-system__footer">
-            <Badge variant="secondary">Versioned</Badge>
-            <Badge variant="secondary">Audited</Badge>
-            <Badge variant="secondary">Composable</Badge>
-          </CardFooter>
-        </Card>
+        <div className="landing-system landing-system--hero" aria-hidden="true">
+          <svg
+            className="landing-system__edges"
+            viewBox="0 0 600 460"
+            preserveAspectRatio="none"
+          >
+            <path className="landing-system__edge" d="M 252 164 C 210 150 184 124 154 102" />
+            <path className="landing-system__edge" d="M 360 220 C 414 196 458 194 506 214" />
+            <path className="landing-system__edge" d="M 294 306 C 270 350 230 372 176 360" />
+          </svg>
+          <div className="landing-system__mark">
+            <BrandMarkIcon />
+          </div>
+          <div className="landing-system__node landing-system__node--publish">
+            <span>Publish</span>
+            <strong>Validated artifacts</strong>
+          </div>
+          <div className="landing-system__node landing-system__node--govern">
+            <span>Govern</span>
+            <strong>Policy + lifecycle</strong>
+          </div>
+          <div className="landing-system__node landing-system__node--resolve">
+            <span>Resolve</span>
+            <strong>Lockfile + plan</strong>
+          </div>
+        </div>
       </section>
 
       <section
@@ -175,17 +217,17 @@ export default function HomePage() {
           </p>
         </div>
         <div className="landing-proof-grid" aria-label="Aptitude asset model">
-          <article>
+          <article data-skew-card>
             <span>Published</span>
             <strong>Validated artifacts</strong>
             <p>Skills enter through a controlled pipeline instead of ad hoc source installs.</p>
           </article>
-          <article>
+          <article data-skew-card>
             <span>Discovered</span>
             <strong>Structured metadata</strong>
             <p>Humans and agents search a catalog without crawling GitHub or guessing identifiers.</p>
           </article>
-          <article>
+          <article data-skew-card>
             <span>Resolved</span>
             <strong>Safe bundles</strong>
             <p>Dependencies, policies, and versions produce a deterministic execution plan.</p>
@@ -209,7 +251,7 @@ export default function HomePage() {
         </div>
         <div className="landing-pillars landing-pillars--four">
           {issues.map((issue) => (
-            <article className="landing-pillar" key={issue.label}>
+            <article className="landing-pillar" data-skew-card key={issue.label}>
               <span>{issue.label}</span>
               <h3>{issue.title}</h3>
               <p>{issue.text}</p>
@@ -233,13 +275,118 @@ export default function HomePage() {
             capabilities.
           </p>
         </div>
-        <div className="landing-control-panel">
-          <span>Control Plane</span>
-          <ul>
-            {solutionControls.map((control) => (
-              <li key={control}>{control}</li>
-            ))}
-          </ul>
+        <Card className="landing-control-panel" data-skew-card>
+          <CardHeader className="landing-control-panel__header">
+            <Badge variant="outline" className="landing-control-panel__badge">
+              Control Plane
+            </Badge>
+            <CardTitle className="landing-control-panel__title">
+              Governed from publish to runtime.
+            </CardTitle>
+            <CardDescription className="landing-control-panel__description">
+              Policy, versions, trust signals, and managed capability boundaries
+              stay attached through the entire skill lifecycle.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="landing-control-panel__content">
+            <div className="landing-control-panel__grid">
+              {solutionControls.map((control) => (
+                <article className="landing-control-panel__item" key={control.step}>
+                  <Badge variant="secondary" className="landing-control-panel__step">
+                    {control.step}
+                  </Badge>
+                  <span>{control.label}</span>
+                  <strong>{control.title}</strong>
+                  <p>{control.text}</p>
+                </article>
+              ))}
+            </div>
+          </CardContent>
+          <CardFooter className="landing-control-panel__footer">
+            <Separator className="landing-control-panel__separator" />
+            <div className="landing-control-panel__rail">
+              {controlPlaneRail.map((item) => (
+                <Badge variant="secondary" key={item}>
+                  {item}
+                </Badge>
+              ))}
+            </div>
+          </CardFooter>
+        </Card>
+      </section>
+
+      <section
+        id="evidence"
+        className="landing-section landing-settle"
+        aria-labelledby="evidence-title"
+      >
+        <div className="landing-section__intro">
+          <p className="eyebrow">Evidence</p>
+          <h2 id="evidence-title">Skill quality matters more than simply adding more context.</h2>
+          <p>
+            The benchmark pattern is straightforward: curated context helps,
+            noisy retrieval hurts, and refinement turns retrieval into a
+            stronger operating loop.
+          </p>
+        </div>
+        <div className="landing-evidence-grid">
+          <article className="landing-evidence-card" data-skew-card>
+            <div className="landing-evidence-card__header">
+              <Badge variant="outline">Context quality</Badge>
+              <strong>Curated skill context keeps pass rates higher.</strong>
+            </div>
+            <div className="landing-evidence-bars" aria-label="Pass rate by context quality">
+              {contextQualityBars.map((bar) => (
+                <div className="landing-evidence-row" key={bar.label}>
+                  <span>{bar.label}</span>
+                  <div className="landing-evidence-track">
+                    <i style={{ inlineSize: `${bar.width}%` }} />
+                  </div>
+                  <strong>{bar.value.toFixed(1)}%</strong>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="landing-evidence-card" data-skew-card>
+            <div className="landing-evidence-card__header">
+              <Badge variant="outline">Noise cost</Badge>
+              <strong>Uncurated retrieval can trail a no-skill baseline.</strong>
+            </div>
+            <div className="landing-evidence-bars landing-evidence-bars--compact" aria-label="Average pass rate baseline versus noisy retrieval">
+              {noisyRetrievalBars.map((bar) => (
+                <div className="landing-evidence-row" key={bar.label}>
+                  <span>{bar.label}</span>
+                  <div className="landing-evidence-track">
+                    <i style={{ inlineSize: `${bar.width}%` }} />
+                  </div>
+                  <strong>{bar.value.toFixed(1)}%</strong>
+                </div>
+              ))}
+            </div>
+            <p className="landing-evidence-note">
+              Retrieval alone is not the win. Selection and curation are the
+              difference between signal and extra surface area.
+            </p>
+          </article>
+
+          <article className="landing-evidence-card" data-skew-card>
+            <div className="landing-evidence-card__header">
+              <Badge variant="outline">Refinement</Badge>
+              <strong>Better selection compounds into higher pass rates.</strong>
+            </div>
+            <div className="landing-evidence-steps" aria-label="Pass rate gains from retrieval refinement">
+              {refinementSteps.map((step) => (
+                <div className="landing-evidence-step" key={step.label}>
+                  <span>{step.label}</span>
+                  <div className="landing-evidence-step__rail">
+                    <i style={{ insetInlineStart: `${step.lift}%` }} />
+                  </div>
+                  <strong>{step.value.toFixed(1)}%</strong>
+                </div>
+              ))}
+            </div>
+          </article>
         </div>
       </section>
 
@@ -266,16 +413,16 @@ export default function HomePage() {
       >
         <div className="landing-section__intro">
           <p className="eyebrow">Built For</p>
-          <h2 id="audience-title">One capability layer for website, CLI, and MCP use.</h2>
+          <h2 id="audience-title">One capability layer for systems, teams, and agents.</h2>
           <p>
-            Aptitude is for organizations where people and agents both perform
-            work, and where that work must remain controlled, reproducible, and
-            compliant.
+            Aptitude connects the operators who govern skills, the teams who use
+            them, and the agents that need dependable capability discovery at
+            runtime.
           </p>
         </div>
         <div className="landing-audience-grid">
           {audiences.map((audience) => (
-            <article key={audience.label}>
+            <article data-skew-card key={audience.label}>
               <span>{audience.label}</span>
               <h3>{audience.title}</h3>
               <p>{audience.text}</p>
@@ -299,7 +446,7 @@ export default function HomePage() {
         </div>
         <div className="landing-composition">
           {composition.map((component) => (
-            <article key={component.label}>
+            <article data-skew-card key={component.label}>
               <span>{component.label}</span>
               <strong>{component.title}</strong>
               <p>{component.text}</p>
