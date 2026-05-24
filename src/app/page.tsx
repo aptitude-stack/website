@@ -2,6 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LandingWorkflowFlow } from "@/components/landing-workflow-flow";
 import { BrandMarkIcon } from "@/components/icons/brand-mark-icon";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "Aptitude | Governed Skill Infrastructure",
@@ -114,23 +123,41 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="landing-system landing-system--hero" aria-hidden="true">
-          <div className="landing-system__mark">
-            <BrandMarkIcon />
-          </div>
-          <div className="landing-system__card landing-system__card--catalog">
-            <span>Publish</span>
-            <strong>Validated artifacts</strong>
-          </div>
-          <div className="landing-system__card landing-system__card--trust">
-            <span>Govern</span>
-            <strong>Policy + lifecycle</strong>
-          </div>
-          <div className="landing-system__card landing-system__card--agent">
-            <span>Resolve</span>
-            <strong>Lockfile + plan</strong>
-          </div>
-        </div>
+        <Card size="sm" className="landing-system landing-system--hero" aria-hidden="true">
+          <CardHeader className="landing-system__header">
+            <Badge variant="outline" className="landing-system__badge">
+              Registry flow
+            </Badge>
+            <CardTitle className="landing-system__title">Publish. Govern. Resolve.</CardTitle>
+            <CardDescription className="landing-system__description">
+              A controlled path from skill artifact to reproducible agent use.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="landing-system__content">
+            <div className="landing-system__mark">
+              <BrandMarkIcon />
+            </div>
+            <div className="landing-system__workflow">
+              <div className="landing-system__card landing-system__card--catalog">
+                <span>Publish</span>
+                <strong>Validated artifacts</strong>
+              </div>
+              <div className="landing-system__card landing-system__card--trust">
+                <span>Govern</span>
+                <strong>Policy + lifecycle</strong>
+              </div>
+              <div className="landing-system__card landing-system__card--agent">
+                <span>Resolve</span>
+                <strong>Lockfile + plan</strong>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="landing-system__footer">
+            <Badge variant="secondary">Versioned</Badge>
+            <Badge variant="secondary">Audited</Badge>
+            <Badge variant="secondary">Composable</Badge>
+          </CardFooter>
+        </Card>
       </section>
 
       <section
