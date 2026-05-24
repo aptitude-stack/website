@@ -17,11 +17,11 @@ export function HeaderNavLinks() {
   if (pathname === "/") {
     return (
       <div className="header-nav-links" aria-label="Landing sections">
-        <Link href="/#platform" className="nav-link">
-          Platform
+        <Link href="/#overview" className="nav-link">
+          Overview
         </Link>
-        <Link href="/#governance" className="nav-link">
-          Governance
+        <Link href="/#solution" className="nav-link">
+          Solution
         </Link>
         <Link href="/#workflow" className="nav-link">
           Workflow
