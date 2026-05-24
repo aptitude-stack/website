@@ -1,6 +1,15 @@
 "use client"
 
+import { LoaderCircle, Search, X } from "lucide-react"
 import { useEffect, useId, useRef, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface SearchBarProps {
   onSearch: (query: string) => void
@@ -31,6 +40,15 @@ export function SearchBar({
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSearchedValueRef = useRef("")
 
+  function clearValue() {
+    if (timerRef.current !== null) clearTimeout(timerRef.current)
+    setValue("")
+    if (lastSearchedValueRef.current !== "") {
+      lastSearchedValueRef.current = ""
+      onClear?.()
+    }
+  }
+
   useEffect(() => {
     if (placeholder !== undefined) return
     setPlaceholderIndex(getPageLoadDefaultPlaceholderIndex())
@@ -54,29 +72,51 @@ export function SearchBar({
   }, [value, onSearch, onClear])
 
   return (
-    <div className="search-shell">
-      <label htmlFor={inputId} className="sr-only">Search skills</label>
-      <input
-        id={inputId}
-        type="text"
-        name="skill-search"
-        role="textbox"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder ?? DEFAULT_PLACEHOLDERS[placeholderIndex]}
-        autoComplete="off"
-        inputMode="search"
-        spellCheck={false}
-        className="search-input"
-      />
-      {loading && (
-        <span
-          data-testid="search-loading"
-          className="search-spinner"
-          aria-hidden="true"
+    <TooltipProvider>
+      <div className="search-shell">
+        <label htmlFor={inputId} className="sr-only">Search skills</label>
+        <Search className="search-icon" aria-hidden="true" />
+        <Input
+          id={inputId}
+          type="text"
+          name="skill-search"
+          role="textbox"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={placeholder ?? DEFAULT_PLACEHOLDERS[placeholderIndex]}
+          autoComplete="off"
+          inputMode="search"
+          spellCheck={false}
+          className="search-input"
         />
-      )}
-    </div>
+        {loading && (
+          <span
+            data-testid="search-loading"
+            className="search-spinner"
+            aria-hidden="true"
+          >
+            <LoaderCircle data-icon="inline-start" />
+          </span>
+        )}
+        {!loading && value.length > 0 && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className="search-clear"
+                aria-label="Clear search"
+                onClick={clearValue}
+              >
+                <X data-icon="inline-start" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Clear search</TooltipContent>
+          </Tooltip>
+        )}
+      </div>
+    </TooltipProvider>
   )
 }
 

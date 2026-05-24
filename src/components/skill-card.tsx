@@ -1,6 +1,15 @@
 import Link from "next/link"
 import { SkillStarCount } from "@/components/skill-star-count"
 import { SkillStarredBadge } from "@/components/skill-starred-badge"
+import { Badge } from "@/components/ui/badge"
+import {
+  Card,
+  CardAction,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import type { LifecycleStatus, SkillCardData, TrustTier } from "@/lib/types"
 
 const numberFormatter = new Intl.NumberFormat("en-US")
@@ -47,28 +56,28 @@ export function SkillCard({ card }: { card: SkillCardData }) {
   const href = `/skills/${encodeURIComponent(slug)}`
 
   return (
-    <article className={`skill-card ${lifecycleClass(lifecycle_status)}`}>
+    <Card className={`skill-card ${lifecycleClass(lifecycle_status)}`}>
       <Link href={href} className="skill-card__link">
-        <div className="skill-card__top">
+        <CardHeader className="skill-card__top">
           <div className="skill-card__identity">
-            <span className="skill-card__name">{displayName}</span>
+            <CardTitle className="skill-card__name">{displayName}</CardTitle>
             <span className="skill-card__sub">
               <span className="skill-card__slug" translate="no">{slug}</span>
               <span className="skill-card__version" translate="no">v{version}</span>
             </span>
           </div>
-          <div className="skill-card__meta">
+          <CardAction className="skill-card__meta">
             <SkillStarredBadge slug={slug} name={displayName} />
-            <span className={`badge ${badgeClass(lifecycle_status)}`}>{lifecycle_status}</span>
-            <span className={`badge ${trustClass(trust_tier)}`}>{trust_tier}</span>
-          </div>
-        </div>
+            <Badge variant="outline" className={`badge ${badgeClass(lifecycle_status)}`}>{lifecycle_status}</Badge>
+            <Badge variant="outline" className={`badge ${trustClass(trust_tier)}`}>{trust_tier}</Badge>
+          </CardAction>
+        </CardHeader>
 
         {description && (
-          <p className="skill-card__description">{description}</p>
+          <CardDescription className="skill-card__description">{description}</CardDescription>
         )}
 
-        <div className="skill-card__footer">
+        <CardFooter className="skill-card__footer">
           {visibleTags.length > 0 && (
             <div className="tag-list" aria-label="Skill tags">
               {visibleTags.map((tag) => (
@@ -86,8 +95,8 @@ export function SkillCard({ card }: { card: SkillCardData }) {
             )}
             <span>{sizeFormatter.format(size_bytes / 1024)} KB</span>
           </div>
-        </div>
+        </CardFooter>
       </Link>
-    </article>
+    </Card>
   )
 }

@@ -1,9 +1,19 @@
 "use client"
 
+import { AlertCircle, ChevronLeft, ChevronRight, SearchX } from "lucide-react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { SearchBar } from "@/components/search-bar"
 import { SkillCard } from "@/components/skill-card"
 import { SkillGraphHero } from "@/components/skill-graph-hero"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import type { SkillCardData, SkillGraphData } from "@/lib/types"
 
 interface CatalogViewProps {
@@ -164,6 +174,7 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH, selecte
             : `${topSkillCount} catalog ${displaySkills.length === 1 ? "skill" : "skills"} shown.`
 
   return (
+    <TooltipProvider>
     <div className="catalog-page">
       <section className="catalog-hero" aria-labelledby="catalog-title">
         <div className="hero-copy">
@@ -192,61 +203,87 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH, selecte
         <div className="sr-only" role="status" aria-live="polite">{liveStatus}</div>
 
         {error && (
-          <p className="state-message state-message--error">
-            {error}
-          </p>
+          <Alert variant="destructive" className="state-message state-message--error">
+            <AlertCircle data-icon="inline-start" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
         {searched && !loading && results.length === 0 && !error && (
-          <p className="state-message">
-            No skills found. Try a different query.
-          </p>
+          <Alert role="status" className="state-message">
+            <SearchX data-icon="inline-start" />
+            <AlertDescription>No skills found. Try a different query.</AlertDescription>
+          </Alert>
         )}
         {!searched && normalizedSelectedTag && tagFilteredSkills.length === 0 && (
-          <p className="state-message">
-            No skills found with the &quot;{normalizedSelectedTag}&quot; tag.
-          </p>
+          <Alert role="status" className="state-message">
+            <SearchX data-icon="inline-start" />
+            <AlertDescription>No skills found with the &quot;{normalizedSelectedTag}&quot; tag.</AlertDescription>
+          </Alert>
         )}
         {!searched && !normalizedSelectedTag && visibleTopSkills.length === 0 && (
-          <p className="state-message">
-            No catalog skills available.
-          </p>
+          <Alert role="status" className="state-message">
+            <SearchX data-icon="inline-start" />
+            <AlertDescription>No catalog skills available.</AlertDescription>
+          </Alert>
         )}
 
         <div className="result-list">
-          {displaySkills.map((card, i) => (
-            <div
-              key={card.slug}
-              className="result-item"
-              style={{ animationDelay: `${i * 40}ms` }}
-            >
-              <SkillCard card={card} />
-            </div>
-          ))}
+          {loading
+            ? Array.from({ length: 3 }, (_, i) => (
+                <Skeleton
+                  key={`catalog-skeleton-${i}`}
+                  className="catalog-skeleton"
+                  aria-hidden="true"
+                />
+              ))
+            : displaySkills.map((card, i) => (
+                <div
+                  key={card.slug}
+                  className="result-item"
+                  style={{ animationDelay: `${i * 40}ms` }}
+                >
+                  <SkillCard card={card} />
+                </div>
+              ))}
         </div>
 
         {!searched && !normalizedSelectedTag && topSkillPageCount > 1 && (
           <nav className="catalog-pagination" aria-label="All skills pages">
-            <button
-              type="button"
-              className="pagination-button"
-              aria-label="Previous all skills page"
-              disabled={topSkillPage === 0}
-              onClick={() => setTopSkillPage((page) => Math.max(0, page - 1))}
-            >
-              {"<"}
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-lg"
+                  className="pagination-button"
+                  aria-label="Previous all skills page"
+                  disabled={topSkillPage === 0}
+                  onClick={() => setTopSkillPage((page) => Math.max(0, page - 1))}
+                >
+                  <ChevronLeft data-icon="inline-start" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Previous page</TooltipContent>
+            </Tooltip>
             <span className="pagination-status">
               Page {topSkillPage + 1} of {topSkillPageCount}
             </span>
-            <button
-              type="button"
-              className="pagination-button"
-              aria-label="Next all skills page"
-              disabled={topSkillPage >= topSkillPageCount - 1}
-              onClick={() => setTopSkillPage((page) => Math.min(topSkillPageCount - 1, page + 1))}
-            >
-              {">"}
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-lg"
+                  className="pagination-button"
+                  aria-label="Next all skills page"
+                  disabled={topSkillPage >= topSkillPageCount - 1}
+                  onClick={() => setTopSkillPage((page) => Math.min(topSkillPageCount - 1, page + 1))}
+                >
+                  <ChevronRight data-icon="inline-start" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Next page</TooltipContent>
+            </Tooltip>
           </nav>
         )}
       </section>
@@ -260,6 +297,7 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH, selecte
         ))}
       </section>
     </div>
+    </TooltipProvider>
   )
 }
 

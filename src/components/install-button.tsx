@@ -1,6 +1,14 @@
 "use client"
 
+import { Check, Clipboard } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface InstallButtonProps {
   slug: string
@@ -53,66 +61,42 @@ export function InstallButton({ slug, version }: InstallButtonProps) {
       : "Copy"
 
   return (
-    <div className="install-command">
-      <code translate="no">{command}</code>
-      <button
-        type="button"
-        onClick={handleCopy}
-        aria-label="Copy install command"
-        title={label}
-        className="copy-button"
-        data-state={copyState}
-      >
-        <span
-          key={copyState === "copied" ? "copied" : "copy"}
-          className="copy-button__icon-frame"
-        >
-          {copyState === "copied" ? <CopiedIcon /> : <CopyIcon />}
+    <TooltipProvider>
+      <div className="install-command">
+        <code translate="no">{command}</code>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={handleCopy}
+              aria-label="Copy install command"
+              title={label}
+              className="copy-button"
+              data-state={copyState}
+            >
+              <span
+                key={copyState === "copied" ? "copied" : "copy"}
+                className="copy-button__icon-frame"
+              >
+                {copyState === "copied" ? (
+                  <Check className="copy-button__icon" data-icon="check" />
+                ) : (
+                  <Clipboard className="copy-button__icon" data-icon="copy" />
+                )}
+              </span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {label}
+          </TooltipContent>
+        </Tooltip>
+        <span className="sr-only" role="status" aria-live="polite">
+          {copyState === "copied" ? "Install command is on your clipboard." : ""}
+          {copyState === "error" ? "Install command could not be copied." : ""}
         </span>
-      </button>
-      <span className="sr-only" role="status" aria-live="polite">
-        {copyState === "copied" ? "Install command is on your clipboard." : ""}
-        {copyState === "error" ? "Install command could not be copied." : ""}
-      </span>
-    </div>
-  )
-}
-
-function CopyIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="copy-button__icon"
-      data-icon="copy"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M14.75 14.75v1.5a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h2.5" />
-      <rect x="9.25" y="4.75" width="10" height="10" rx="2" />
-    </svg>
-  )
-}
-
-function CopiedIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="copy-button__icon"
-      data-icon="check"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="m5.5 12.5 4.25 4.25L18.5 7.25" />
-    </svg>
+      </div>
+    </TooltipProvider>
   )
 }

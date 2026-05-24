@@ -1,11 +1,18 @@
 "use client"
 
+import { Star } from "lucide-react"
 import {
   getOptimisticStarCount,
   setOptimisticStarCount,
   useStarCount,
 } from "@/lib/star-count-store"
-import { StarIcon } from "@/components/icons/star-icon"
+import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { enqueueStarEvent } from "@/lib/star-event-queue"
 import { setSkillStarred, useIsSkillStarred } from "@/lib/starred-skills-store"
 
@@ -34,17 +41,30 @@ export function SkillStarButton({ slug, name, starCount }: SkillStarButtonProps)
   const starCountLabel = `${numberFormatter.format(displayCount)} ${displayCount === 1 ? "star" : "stars"}`
 
   return (
-    <button
-      type="button"
-      className="skill-star-button"
-      aria-label={label}
-      aria-pressed={isStarred}
-      title={starCountLabel}
-      data-tooltip={starCountLabel}
-      data-state={isStarred ? "starred" : "idle"}
-      onClick={toggleStar}
-    >
-      <StarIcon className="skill-star-button__icon" filled={isStarred} />
-    </button>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-lg"
+            className="skill-star-button"
+            aria-label={label}
+            aria-pressed={isStarred}
+            title={starCountLabel}
+            data-tooltip={starCountLabel}
+            data-state={isStarred ? "starred" : "idle"}
+            onClick={toggleStar}
+          >
+            <Star
+              className="skill-star-button__icon"
+              data-icon="inline-start"
+              fill={isStarred ? "currentColor" : "none"}
+            />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{starCountLabel}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }

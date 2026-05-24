@@ -5,6 +5,7 @@ import { Suspense, type ReactNode } from "react";
 import { HeaderNavLinks } from "@/components/header-nav-links";
 import { BrandMarkIcon } from "@/components/icons/brand-mark-icon";
 import { ThemeModeControl } from "@/components/theme-mode-control";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { getSession, signOut } from "@/lib/auth";
 import { LOGIN_PATH } from "@/lib/auth-session";
 import "@xyflow/react/dist/base.css";
@@ -125,79 +126,81 @@ export default function RootLayout({
     >
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
-        <a className="skip-link" href="#main-content">
-          Skip to main content
-        </a>
-        <header className="site-header">
-          <nav className="site-nav" aria-label="Primary">
-            <Link
-              href="/"
-              className="brand-link"
-              aria-label="Aptitude home"
-            >
-              <BrandMarkIcon
-                className="brand-mark"
-                aria-hidden="true"
-                focusable="false"
-              />
-              <span className="brand-text" translate="no">
-                <strong>Aptitude</strong>
-                <span>Registry</span>
-              </span>
-            </Link>
-            <div className="nav-actions">
-              <Suspense fallback={null}>
-                <HeaderNavLinks />
-              </Suspense>
-              <a
-                href="https://github.com/aptitude-stack"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="nav-cta"
-                aria-label="Open Aptitude docs"
-                title="Docs"
+        <TooltipProvider>
+          <a className="skip-link" href="#main-content">
+            Skip to main content
+          </a>
+          <header className="site-header">
+            <nav className="site-nav" aria-label="Primary">
+              <Link
+                href="/"
+                className="brand-link"
+                aria-label="Aptitude home"
               >
-                <svg
+                <BrandMarkIcon
+                  className="brand-mark"
                   aria-hidden="true"
-                  className="nav-cta__icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  xmlns="http://www.w3.org/2000/svg"
+                  focusable="false"
+                />
+                <span className="brand-text" translate="no">
+                  <strong>Aptitude</strong>
+                  <span>Registry</span>
+                </span>
+              </Link>
+              <div className="nav-actions">
+                <Suspense fallback={null}>
+                  <HeaderNavLinks />
+                </Suspense>
+                <a
+                  href="https://github.com/aptitude-stack"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="nav-cta"
+                  aria-label="Open Aptitude docs"
+                  title="Docs"
                 >
-                  <path
-                    d="M5 5.8h4.5c1.4 0 2.5 1.1 2.5 2.5v10.4c0-1.4-1.1-2.5-2.5-2.5H5V5.8Z"
-                  />
-                  <path
-                    d="M19 5.8h-4.5c-1.4 0-2.5 1.1-2.5 2.5v10.4c0-1.4 1.1-2.5 2.5-2.5H19V5.8Z"
-                  />
-                  <path
-                    d="M12 8.3v10.4"
-                  />
-                </svg>
-                <span className="sr-only">Docs</span>
-              </a>
-              <Suspense fallback={null}>
-                <AuthNavAction />
-              </Suspense>
+                  <svg
+                    aria-hidden="true"
+                    className="nav-cta__icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M5 5.8h4.5c1.4 0 2.5 1.1 2.5 2.5v10.4c0-1.4-1.1-2.5-2.5-2.5H5V5.8Z"
+                    />
+                    <path
+                      d="M19 5.8h-4.5c-1.4 0-2.5 1.1-2.5 2.5v10.4c0-1.4 1.1-2.5 2.5-2.5H19V5.8Z"
+                    />
+                    <path
+                      d="M12 8.3v10.4"
+                    />
+                  </svg>
+                  <span className="sr-only">Docs</span>
+                </a>
+                <Suspense fallback={null}>
+                  <AuthNavAction />
+                </Suspense>
+              </div>
+            </nav>
+          </header>
+          <main id="main-content" className="site-main">
+            {children}
+          </main>
+          <footer className="site-footer">
+            <div className="site-footer__inner">
+              <div className="footer-meta">
+                <span className="footer-pip" aria-hidden="true" />
+                <span>Governed skill infrastructure</span>
+              </div>
+              <ThemeModeControl />
             </div>
-          </nav>
-        </header>
-        <main id="main-content" className="site-main">
-          {children}
-        </main>
-        <footer className="site-footer">
-          <div className="site-footer__inner">
-            <div className="footer-meta">
-              <span className="footer-pip" aria-hidden="true" />
-              <span>Governed skill infrastructure</span>
-            </div>
-            <ThemeModeControl />
-          </div>
-        </footer>
+          </footer>
+        </TooltipProvider>
       </body>
     </html>
   );

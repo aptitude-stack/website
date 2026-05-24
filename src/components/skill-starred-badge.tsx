@@ -1,5 +1,6 @@
 "use client"
 
+import { Star } from "lucide-react"
 import { useIsSkillStarred } from "@/lib/starred-skills-store"
 
 interface SkillStarredBadgeProps {
@@ -16,15 +17,11 @@ export function SkillStarredBadge({ slug, name }: SkillStarredBadgeProps) {
       className="skill-card__starred"
       aria-label={`${name} saved by you`}
     >
-      <svg
+      <Star
         aria-hidden="true"
         className="skill-card__starred-icon"
-        viewBox="0 0 24 24"
         fill="currentColor"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path d="m12 3.75 2.44 4.95 5.46.79-3.95 3.85.93 5.43L12 16.2l-4.88 2.57.93-5.43L4.1 9.49l5.46-.79L12 3.75Z" />
-      </svg>
+      />
     </span>
   )
 }
