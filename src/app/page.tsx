@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LandingCardEffects } from "@/components/landing-card-effects";
 import { LandingWorkflowFlow } from "@/components/landing-workflow-flow";
-import { BrandMarkIcon } from "@/components/icons/brand-mark-icon";
+import { TextType } from "@/components/text-type";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -58,35 +58,36 @@ const issues = [
 const solutionControls = [
   {
     step: "01",
-    label: "Policy",
-    title: "Controls at every gate",
-    text: "Publication, discovery, resolution, and execution all stay policy-aware.",
+    label: "Audit",
+    title: "Validate every capability before reuse.",
+    text: "Package checks, security review, quality benchmarks, and provenance capture turn raw skills into trusted artifacts.",
   },
   {
     step: "02",
-    label: "Versions",
-    title: "Exact fetch and replay",
-    text: "Immutable versions, checksums, and lockfiles make capability use reproducible.",
+    label: "Govern",
+    title: "Attach policy, lifecycle, and access rules.",
+    text: "Lifecycle state, trust tier, ownership, and installation policy travel with each skill version.",
   },
   {
     step: "03",
-    label: "Signals",
-    title: "Trust before usage",
-    text: "Security, quality, benchmark, provenance, and lifecycle data travel with the skill.",
-  },
-  {
-    step: "04",
-    label: "Capability",
-    title: "Managed instead of arbitrary",
-    text: "Teams replace silent markdown/source changes with governed capability assets.",
+    label: "Compose",
+    title: "Resolve approved skills into locked bundles.",
+    text: "Approved skills are selected, dependency-checked, locked to exact versions, and installed as repeatable plans.",
   },
 ];
 
 const controlPlaneRail = [
-  "Publication",
-  "Discovery",
-  "Resolution",
-  "Execution",
+  "Security audit",
+  "Quality benchmark",
+  "Lifecycle state",
+  "Policy lock",
+];
+
+const heroPhrases = [
+  "Governed agent skills.",
+  "Validated artifacts.",
+  "Policy-aware plans.",
+  "Composable skills.",
 ];
 
 const audiences = [
@@ -97,8 +98,8 @@ const audiences = [
   },
   {
     label: "Users",
-    title: "Product, design, and development teams",
-    text: "Find trusted capabilities, understand what they do, and reuse team knowledge without hunting through repos.",
+    title: "Product, dev, design, and more",
+    text: "Anyone using agents can find trusted capabilities, understand what they do, and reuse shared knowledge without hunting through repos.",
   },
   {
     label: "Agents",
@@ -152,52 +153,42 @@ export default function HomePage() {
       <LandingCardEffects />
       <section className="landing-hero" aria-labelledby="landing-title">
         <div className="landing-hero__copy">
-          <p className="eyebrow">Governed Skill Infrastructure</p>
-          <h1 id="landing-title" className="landing-title">
-            Skills should behave like infrastructure.
-          </h1>
-          <p className="landing-description">
-            Aptitude turns scattered prompts, scripts, and tools into structured,
-            versioned, composable assets that can be published, discovered,
-            resolved, and consumed by humans and AI agents.
-          </p>
-          <div className="landing-actions" aria-label="Primary actions">
-            <Link className="landing-button landing-button--primary" href="/login">
-              Login
-            </Link>
-            <a
-              className="landing-button landing-button--secondary"
-              href="mailto:hello@aptitude.dev?subject=Aptitude%20demo"
-            >
-              Book a Demo
-            </a>
-          </div>
-        </div>
-
-        <div className="landing-system landing-system--hero" aria-hidden="true">
-          <svg
-            className="landing-system__edges"
-            viewBox="0 0 600 460"
-            preserveAspectRatio="none"
+          <h1
+            id="landing-title"
+            className="landing-title"
+            aria-label="Aptitude is governed skill infrastructure for reusable agent capabilities."
           >
-            <path className="landing-system__edge" d="M 252 164 C 210 150 184 124 154 102" />
-            <path className="landing-system__edge" d="M 360 220 C 414 196 458 194 506 214" />
-            <path className="landing-system__edge" d="M 294 306 C 270 350 230 372 176 360" />
-          </svg>
-          <div className="landing-system__mark">
-            <BrandMarkIcon />
-          </div>
-          <div className="landing-system__node landing-system__node--publish">
-            <span>Publish</span>
-            <strong>Validated artifacts</strong>
-          </div>
-          <div className="landing-system__node landing-system__node--govern">
-            <span>Govern</span>
-            <strong>Policy + lifecycle</strong>
-          </div>
-          <div className="landing-system__node landing-system__node--resolve">
-            <span>Resolve</span>
-            <strong>Lockfile + plan</strong>
+            <TextType
+              as="span"
+              text={heroPhrases}
+              typingSpeed={46}
+              deletingSpeed={24}
+              initialDelay={280}
+              pauseDuration={2600}
+              showCursor
+              cursorCharacter="▎"
+              cursorClassName="landing-title__cursor"
+              variableSpeed={{ min: 34, max: 76 }}
+            />
+          </h1>
+
+          <div className="landing-hero__body">
+            <p className="landing-description">
+              Aptitude turns scattered prompts, scripts, and tools into structured,
+              versioned, composable assets that can be published, discovered,
+              resolved, and consumed by humans and AI agents.
+            </p>
+            <div className="landing-actions" aria-label="Primary actions">
+              <Link className="landing-button landing-button--primary" href="/login">
+                Login
+              </Link>
+              <a
+                className="landing-button landing-button--secondary"
+                href="mailto:hello@aptitude.dev?subject=Aptitude%20demo"
+              >
+                Book a Demo
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -217,17 +208,17 @@ export default function HomePage() {
           </p>
         </div>
         <div className="landing-proof-grid" aria-label="Aptitude asset model">
-          <article data-skew-card>
+          <article>
             <span>Published</span>
             <strong>Validated artifacts</strong>
             <p>Skills enter through a controlled pipeline instead of ad hoc source installs.</p>
           </article>
-          <article data-skew-card>
+          <article>
             <span>Discovered</span>
             <strong>Structured metadata</strong>
             <p>Humans and agents search a catalog without crawling GitHub or guessing identifiers.</p>
           </article>
-          <article data-skew-card>
+          <article>
             <span>Resolved</span>
             <strong>Safe bundles</strong>
             <p>Dependencies, policies, and versions produce a deterministic execution plan.</p>
@@ -251,7 +242,7 @@ export default function HomePage() {
         </div>
         <div className="landing-pillars landing-pillars--four">
           {issues.map((issue) => (
-            <article className="landing-pillar" data-skew-card key={issue.label}>
+            <article className="landing-pillar" key={issue.label}>
               <span>{issue.label}</span>
               <h3>{issue.title}</h3>
               <p>{issue.text}</p>
@@ -267,36 +258,37 @@ export default function HomePage() {
       >
         <div className="landing-section__intro">
           <p className="eyebrow">The Solution</p>
-          <h2 id="solution-title">Control every layer, then compose smaller capabilities.</h2>
+          <h2 id="solution-title">Audit, govern, and compose approved skills.</h2>
           <p>
-            Aptitude moves teams from monolithic prompt bundles to modular skill
-            assets. The result is better performance, sharper accuracy, and a
-            managed path from arbitrary markdown to governed tools and
-            capabilities.
+            Aptitude turns team knowledge into audited, benchmarked, immutable
+            skill versions that can be discovered, composed, locked, and
+            installed under policy.
           </p>
         </div>
-        <Card className="landing-control-panel" data-skew-card>
+        <Card className="landing-control-panel">
           <CardHeader className="landing-control-panel__header">
             <Badge variant="outline" className="landing-control-panel__badge">
-              Control Plane
+              Connected Pipeline
             </Badge>
             <CardTitle className="landing-control-panel__title">
-              Governed from publish to runtime.
+              One path from raw capability to policy-safe installation.
             </CardTitle>
             <CardDescription className="landing-control-panel__description">
-              Policy, versions, trust signals, and managed capability boundaries
-              stay attached through the entire skill lifecycle.
+              Each stage adds a required control so the final bundle is trusted,
+              allowed, and reproducible.
             </CardDescription>
           </CardHeader>
           <CardContent className="landing-control-panel__content">
-            <div className="landing-control-panel__grid">
+            <div className="landing-solution-flow" aria-label="Audit Govern Compose solution pipeline">
               {solutionControls.map((control) => (
-                <article className="landing-control-panel__item" key={control.step}>
-                  <Badge variant="secondary" className="landing-control-panel__step">
-                    {control.step}
-                  </Badge>
+                <article className="landing-solution-node" key={control.step}>
+                  <div className="landing-solution-node__marker">
+                    <Badge variant="secondary" className="landing-control-panel__step">
+                      {control.step}
+                    </Badge>
+                  </div>
                   <span>{control.label}</span>
-                  <strong>{control.title}</strong>
+                  <h3>{control.title}</h3>
                   <p>{control.text}</p>
                 </article>
               ))}
@@ -413,16 +405,16 @@ export default function HomePage() {
       >
         <div className="landing-section__intro">
           <p className="eyebrow">Built For</p>
-          <h2 id="audience-title">One capability layer for systems, teams, and agents.</h2>
+          <h2 id="audience-title">One capability layer for systems, users, and agents.</h2>
           <p>
-            Aptitude connects the operators who govern skills, the teams who use
-            them, and the agents that need dependable capability discovery at
+            Aptitude connects the operators who govern skills, the people using
+            agents, and the agents that need dependable capability discovery at
             runtime.
           </p>
         </div>
         <div className="landing-audience-grid">
           {audiences.map((audience) => (
-            <article data-skew-card key={audience.label}>
+            <article key={audience.label}>
               <span>{audience.label}</span>
               <h3>{audience.title}</h3>
               <p>{audience.text}</p>
@@ -446,7 +438,7 @@ export default function HomePage() {
         </div>
         <div className="landing-composition">
           {composition.map((component) => (
-            <article data-skew-card key={component.label}>
+            <article key={component.label}>
               <span>{component.label}</span>
               <strong>{component.title}</strong>
               <p>{component.text}</p>
