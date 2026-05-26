@@ -2,17 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LandingCardEffects } from "@/components/landing-card-effects";
 import { LandingWorkflowFlow } from "@/components/landing-workflow-flow";
+import { SystemCompositionDiagram } from "@/components/system-composition-diagram";
 import { TextType } from "@/components/text-type";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
   title: "Aptitude | Governed Skill Infrastructure",
@@ -76,13 +68,6 @@ const solutionControls = [
   },
 ];
 
-const controlPlaneRail = [
-  "Security audit",
-  "Quality benchmark",
-  "Lifecycle state",
-  "Policy lock",
-];
-
 const heroPhrases = [
   "Governed agent skills.",
   "Validated artifacts.",
@@ -105,24 +90,6 @@ const audiences = [
     label: "Agents",
     title: "AI agents and agent hosts",
     text: "Discover, resolve, and install approved skills through the same governed capability layer.",
-  },
-];
-
-const composition = [
-  {
-    label: "Publisher",
-    title: "Enforces",
-    text: "Packages, validates, benchmarks, audits, captures provenance, and submits compliant artifacts.",
-  },
-  {
-    label: "Registry",
-    title: "Stores and governs",
-    text: "Persists immutable versions, metadata, lifecycle state, access control, audit logs, discovery, and exact fetch APIs.",
-  },
-  {
-    label: "Resolver",
-    title: "Decides",
-    text: "Selects candidates, applies policy filters, resolves dependencies, generates lockfiles, and materializes skills locally.",
   },
 ];
 
@@ -187,6 +154,14 @@ export default function HomePage() {
                 href="mailto:hello@aptitude.dev?subject=Aptitude%20demo"
               >
                 Book a Demo
+              </a>
+              <a
+                className="landing-button landing-button--secondary"
+                href="https://github.com/aptitude-stack"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Docs
               </a>
             </div>
           </div>
@@ -253,7 +228,7 @@ export default function HomePage() {
 
       <section
         id="solution"
-        className="landing-section landing-section--split landing-settle"
+        className="landing-section landing-section--stack landing-settle"
         aria-labelledby="solution-title"
       >
         <div className="landing-section__intro">
@@ -265,46 +240,20 @@ export default function HomePage() {
             installed under policy.
           </p>
         </div>
-        <Card className="landing-control-panel">
-          <CardHeader className="landing-control-panel__header">
-            <Badge variant="outline" className="landing-control-panel__badge">
-              Connected Pipeline
-            </Badge>
-            <CardTitle className="landing-control-panel__title">
-              One path from raw capability to policy-safe installation.
-            </CardTitle>
-            <CardDescription className="landing-control-panel__description">
-              Each stage adds a required control so the final bundle is trusted,
-              allowed, and reproducible.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="landing-control-panel__content">
-            <div className="landing-solution-flow" aria-label="Audit Govern Compose solution pipeline">
-              {solutionControls.map((control) => (
-                <article className="landing-solution-node" key={control.step}>
-                  <div className="landing-solution-node__marker">
-                    <Badge variant="secondary" className="landing-control-panel__step">
-                      {control.step}
-                    </Badge>
-                  </div>
-                  <span>{control.label}</span>
-                  <h3>{control.title}</h3>
-                  <p>{control.text}</p>
-                </article>
-              ))}
-            </div>
-          </CardContent>
-          <CardFooter className="landing-control-panel__footer">
-            <Separator className="landing-control-panel__separator" />
-            <div className="landing-control-panel__rail">
-              {controlPlaneRail.map((item) => (
-                <Badge variant="secondary" key={item}>
-                  {item}
+        <div className="landing-solution-flow" aria-label="Audit Govern Compose solution pipeline">
+          {solutionControls.map((control) => (
+            <article className="landing-solution-node" key={control.step}>
+              <div className="landing-solution-node__marker">
+                <Badge variant="secondary" className="landing-solution-node__step">
+                  {control.step}
                 </Badge>
-              ))}
-            </div>
-          </CardFooter>
-        </Card>
+              </div>
+              <span>{control.label}</span>
+              <h3>{control.title}</h3>
+              <p>{control.text}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section
@@ -436,15 +385,7 @@ export default function HomePage() {
             component owns one responsibility and the system remains deterministic.
           </p>
         </div>
-        <div className="landing-composition">
-          {composition.map((component) => (
-            <article key={component.label}>
-              <span>{component.label}</span>
-              <strong>{component.title}</strong>
-              <p>{component.text}</p>
-            </article>
-          ))}
-        </div>
+        <SystemCompositionDiagram />
       </section>
 
       <section className="landing-final landing-settle" aria-labelledby="landing-final-title">
@@ -461,6 +402,14 @@ export default function HomePage() {
             href="mailto:hello@aptitude.dev?subject=Aptitude%20demo"
           >
             Book a Demo
+          </a>
+          <a
+            className="landing-button landing-button--secondary"
+            href="https://github.com/aptitude-stack"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Docs
           </a>
         </div>
       </section>

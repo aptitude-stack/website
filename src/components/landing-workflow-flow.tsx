@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Handle,
+  MarkerType,
   Position,
   ReactFlow,
   type Edge,
@@ -103,6 +104,16 @@ const edges: Edge[] = [
   targetHandle: "in",
   animated: false,
   type: "smoothstep",
+  pathOptions: {
+    borderRadius: 0,
+    offset: 26,
+  },
+  markerEnd: {
+    type: MarkerType.ArrowClosed,
+    color: "rgba(164, 6, 188, 0.42)",
+    width: 16,
+    height: 16,
+  },
   className: `landing-workflow-edge landing-workflow-edge--${index + 1}`,
 }));
 
@@ -268,8 +279,8 @@ export function LandingWorkflowFlow() {
         <svg aria-hidden="true" className="landing-workflow-defs">
           <defs>
             <linearGradient id="landing-workflow-edge-gradient" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0%" stopColor="#a406bc" />
-              <stop offset="100%" stopColor="currentColor" />
+              <stop offset="0%" stopColor="rgba(164, 6, 188, 0.22)" />
+              <stop offset="100%" stopColor="rgba(164, 6, 188, 0.48)" />
             </linearGradient>
           </defs>
         </svg>
