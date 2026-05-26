@@ -25,7 +25,7 @@ export default async function proxy(req: NextRequest) {
     return
   }
 
-  if (isLogin || isRoot) {
+  if (isLogin) {
     return NextResponse.redirect(new URL("/catalog", req.url))
   }
 
