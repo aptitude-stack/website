@@ -102,7 +102,7 @@ export function SystemCompositionDiagram() {
                 refY="5"
                 markerWidth="8"
                 markerHeight="8"
-                orient="auto-start-reverse"
+                orient="auto"
               >
                 <path d="M 10 0 L 0 5 L 10 10 z" />
               </marker>
