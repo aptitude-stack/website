@@ -1778,7 +1778,11 @@ body:has(.landing-page) .site-main {
 }
 
 .state-message svg {
+  grid-row: auto;
+  align-self: center;
   color: currentColor;
+  translate: 0 0 !important;
+  transform: none;
 }
 
 .state-message--error {
