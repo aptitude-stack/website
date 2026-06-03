@@ -1,6 +1,10 @@
-import { render, screen, act } from "@testing-library/react"
+import { render, screen, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { SearchBar } from "@/components/search-bar"
+
+function getCompletionSuffix(container: HTMLElement) {
+  return container.querySelector(".search-completion-suffix")
+}
 
 describe("SearchBar", () => {
   beforeEach(() => {
@@ -52,6 +56,61 @@ describe("SearchBar", () => {
     expect(onSearch).not.toHaveBeenCalled()
     act(() => jest.advanceTimersByTime(350))
     expect(onSearch).toHaveBeenCalledWith("fastapi")
+    expect(onSearch).toHaveBeenCalledTimes(1)
+  })
+
+  it("shows an inline completion suffix for a matching partial query", async () => {
+    const { container } = render(<SearchBar onSearch={jest.fn()} loading={false} />)
+    await userEvent.type(screen.getByRole("textbox"), "doc")
+
+    expect(getCompletionSuffix(container)).toHaveTextContent("s writing")
+  })
+
+  it("does not show completion suffixes for blank, exact, or nonmatching queries", async () => {
+    const { container } = render(<SearchBar onSearch={jest.fn()} loading={false} />)
+    const input = screen.getByRole("textbox")
+
+    expect(getCompletionSuffix(container)).not.toBeInTheDocument()
+
+    await userEvent.type(input, "docs writing")
+    expect(getCompletionSuffix(container)).not.toBeInTheDocument()
+
+    await userEvent.clear(input)
+    await userEvent.type(input, "unknown")
+    expect(getCompletionSuffix(container)).not.toBeInTheDocument()
+  })
+
+  it("accepts the inline completion with ArrowRight at the end of the input", async () => {
+    render(<SearchBar onSearch={jest.fn()} loading={false} />)
+    const input = screen.getByRole("textbox")
+
+    await userEvent.type(input, "doc")
+    await userEvent.keyboard("{ArrowRight}")
+
+    expect(input).toHaveValue("docs writing")
+  })
+
+  it("does not accept the inline completion with ArrowRight before the end of the input", async () => {
+    render(<SearchBar onSearch={jest.fn()} loading={false} />)
+    const input = screen.getByRole("textbox") as HTMLInputElement
+
+    await userEvent.type(input, "doc")
+    input.setSelectionRange(1, 1)
+    fireEvent.keyDown(input, { key: "ArrowRight" })
+
+    expect(input).toHaveValue("doc")
+  })
+
+  it("searches the completed value after the debounce", async () => {
+    const onSearch = jest.fn()
+    render(<SearchBar onSearch={onSearch} loading={false} />)
+    const input = screen.getByRole("textbox")
+
+    await userEvent.type(input, "doc")
+    await userEvent.keyboard("{ArrowRight}")
+    act(() => jest.advanceTimersByTime(350))
+
+    expect(onSearch).toHaveBeenCalledWith("docs writing")
     expect(onSearch).toHaveBeenCalledTimes(1)
   })
 

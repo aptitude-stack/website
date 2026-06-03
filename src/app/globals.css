@@ -1399,7 +1399,7 @@ body:has(.landing-page) .site-main {
 
 .search-completion-suffix {
   flex: 0 0 auto;
-  color: rgb(var(--text-rgb) / 0.34);
+  color: rgb(var(--text-primary-rgb) / 0.34);
 }
 
 .search-spinner {
