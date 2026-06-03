@@ -24,7 +24,6 @@ interface CatalogViewProps {
 
 const countFormatter = new Intl.NumberFormat("en-US")
 const DEFAULT_TOP_SKILL_LIMIT = 8
-const VERIFIED_TRUST_TIER = "verified"
 const EMPTY_SKILL_GRAPH: SkillGraphData = { nodes: [], edges: [] }
 
 export function getTopSkillLimitForWidth(width: number): number {
@@ -135,13 +134,8 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH, selecte
   const topSkillTotalCount = countFormatter.format(topSkills.length)
   const topSkillPageStart = topSkills.length === 0 ? 0 : topSkillStartIndex + 1
   const topSkillPageEnd = Math.min(topSkills.length, topSkillStartIndex + visibleTopSkills.length)
-  const verifiedTopSkillCount = topSkills.filter((skill) => skill.trust_tier === VERIFIED_TRUST_TIER).length
-  const verifiedTopSkillShare = topSkills.length
-    ? Math.round((verifiedTopSkillCount / topSkills.length) * 100)
-    : 0
-  const verifiedTopSkillNote = `${countFormatter.format(verifiedTopSkillCount)} of ${countFormatter.format(
-    topSkills.length
-  )} ${topSkills.length === 1 ? "skill" : "skills"}`
+  const securityMetric = getScoreMetric("Security", topSkills, "security_score")
+  const maturityMetric = getScoreMetric("Maturity", topSkills, "maturity_score")
   const topSkillInstallCount = topSkills.reduce((total, skill) => total + skill.install_count, 0)
   const graphSummary =
     heroGraph.nodes.length > 0
@@ -149,8 +143,9 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH, selecte
       : null
   const metrics = [
     { label: "Skills", value: countFormatter.format(topSkills.length) },
-    { label: "Verified", value: `${verifiedTopSkillShare}%`, note: verifiedTopSkillNote },
     { label: "Installs", value: countFormatter.format(topSkillInstallCount) },
+    securityMetric,
+    maturityMetric,
   ]
   const sectionLabel = searched
     ? "Search Results"
@@ -304,7 +299,7 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH, selecte
           <div className="metric-card" key={metric.label}>
             <div className="metric-label">{metric.label}</div>
             <div className="metric-value" translate="no">{metric.value}</div>
-            {"note" in metric && <div className="metric-note">{metric.note}</div>}
+            {metric.note && <div className="metric-note">{metric.note}</div>}
           </div>
         ))}
       </section>
@@ -344,6 +339,24 @@ export function getCatalogPlaceholderExamples(topSkills: SkillCardData[]): strin
     examples.push(slug)
     return examples
   }, [])
+}
+
+function getScoreMetric(
+  label: string,
+  topSkills: SkillCardData[],
+  field: "maturity_score" | "security_score"
+): { label: string; value: string; note?: string } {
+  const scores = topSkills
+    .map((skill) => skill[field])
+    .filter((score): score is number => typeof score === "number" && Number.isFinite(score))
+  const value = scores.length
+    ? `${Math.round((scores.reduce((total, score) => total + score, 0) / scores.length) * 100)}%`
+    : "N/A"
+  return {
+    label,
+    value,
+    note: `${countFormatter.format(scores.length)} of ${countFormatter.format(topSkills.length)} scored`,
+  }
 }
 
 function toTopSkillGraph(topSkills: SkillCardData[]): SkillGraphData {

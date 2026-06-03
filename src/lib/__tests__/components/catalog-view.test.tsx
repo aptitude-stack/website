@@ -19,15 +19,10 @@ function makeSkill(slug: string, install_count: number): SkillCardData {
     lifecycle_status: "published",
     trust_tier: "verified",
     token_estimate: 900,
+    maturity_score: 0.8,
+    security_score: 0.9,
     size_bytes: 2048,
     published_at: "2024-06-01T00:00:00Z",
-  }
-}
-
-function makeUntrustedSkill(slug: string, install_count: number): SkillCardData {
-  return {
-    ...makeSkill(slug, install_count),
-    trust_tier: "untrusted",
   }
 }
 
@@ -113,17 +108,29 @@ describe("CatalogView", () => {
     expect(screen.queryByText("docs name")).not.toBeInTheDocument()
   })
 
-  it("renders the verified metric from catalog trust tiers with a count denominator", () => {
+  it("renders security and maturity metrics from catalog scores", () => {
     render(<CatalogView topSkills={[
-      makeSkill("verified-one", 8),
-      makeUntrustedSkill("untrusted-one", 4),
-      makeSkill("verified-two", 2),
-      makeUntrustedSkill("untrusted-two", 1),
+      { ...makeSkill("scored-one", 8), security_score: 0.9, maturity_score: 0.8 },
+      { ...makeSkill("scored-two", 4), security_score: 0.7, maturity_score: 0.6 },
+      { ...makeSkill("unscored", 1), security_score: null, maturity_score: null },
     ]} />)
 
-    expect(screen.getByText("Verified")).toBeInTheDocument()
-    expect(screen.getByText("50%")).toBeInTheDocument()
-    expect(screen.getByText("2 of 4 skills")).toBeInTheDocument()
+    expect(screen.getByText("Security")).toBeInTheDocument()
+    expect(screen.getByText("Maturity")).toBeInTheDocument()
+    expect(screen.getByText("80%")).toBeInTheDocument()
+    expect(screen.getByText("70%")).toBeInTheDocument()
+    expect(screen.getAllByText("2 of 3 scored")).toHaveLength(2)
+  })
+
+  it("places installs next to the skills metric", () => {
+    const { container } = render(<CatalogView topSkills={[
+      makeSkill("skill-one", 8),
+      makeSkill("skill-two", 4),
+    ]} />)
+
+    expect(
+      Array.from(container.querySelectorAll(".metric-label")).map((node) => node.textContent)
+    ).toEqual(["Skills", "Installs", "Security", "Maturity"])
   })
 
   it("builds autocomplete hints from real catalog fields", () => {

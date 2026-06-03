@@ -95,6 +95,8 @@ describe("fetchSkillCardData", () => {
     expect(result?.version).toBe("1.0.0")
     expect(result?.install_count).toBe(5)
     expect(result?.star_count).toBe(2)
+    expect(result?.maturity_score).toBe(0.9)
+    expect(result?.security_score).toBe(0.85)
   })
 
   it("returns null if no versions available", async () => {
@@ -127,6 +129,8 @@ describe("fetchTopSkillCards", () => {
     expect(result[0].slug).toBe("fastapi")
     expect(result[0].install_count).toBe(1284)
     expect(result[0].star_count).toBe(9)
+    expect(result[0].maturity_score).toBe(0.9)
+    expect(result[0].security_score).toBe(0.85)
   })
 
   it("returns empty top skills when registry env is missing", async () => {

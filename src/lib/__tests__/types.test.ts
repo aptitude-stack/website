@@ -57,8 +57,10 @@ describe("registry DTO types", () => {
     const fixture: SkillCardData = {
       slug: "fastapi", version: "1.0.0", name: "FastAPI", description: "FastAPI skill",
       tags: ["python"], lifecycle_status: "published", trust_tier: "verified",
-      install_count: 5, star_count: 0, token_estimate: 900, size_bytes: 2048, published_at: "2024-01-01T00:00:00Z",
+      install_count: 5, star_count: 0, token_estimate: 900, maturity_score: 0.9,
+      security_score: 0.85, size_bytes: 2048, published_at: "2024-01-01T00:00:00Z",
     }
     expect(fixture.name).toBe("FastAPI")
+    expect(fixture.security_score).toBe(0.85)
   })
 })

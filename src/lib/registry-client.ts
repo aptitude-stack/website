@@ -118,6 +118,8 @@ function toSkillCardData(meta: SkillVersionMetadataDto): SkillCardData {
     lifecycle_status: meta.lifecycle_status,
     trust_tier: meta.trust_tier,
     token_estimate: meta.metadata.token_estimate,
+    maturity_score: meta.metadata.maturity_score,
+    security_score: meta.metadata.security_score,
     size_bytes: meta.content.size_bytes,
     published_at: meta.published_at,
   }

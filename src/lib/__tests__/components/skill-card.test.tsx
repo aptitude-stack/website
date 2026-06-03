@@ -20,6 +20,8 @@ const fixture: SkillCardData = {
   install_count: 1284,
   star_count: 42,
   token_estimate: 900,
+  maturity_score: 0.9,
+  security_score: 0.85,
   size_bytes: 2048,
   published_at: "2024-06-01T00:00:00Z",
 }

@@ -1237,7 +1237,7 @@ body:has(.landing-page) .site-main {
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: repeat(3, minmax(156px, 1fr));
+  grid-template-columns: repeat(4, minmax(132px, 1fr));
   column-gap: 1px;
   overflow: hidden;
   border: 1px solid var(--border);
@@ -4578,7 +4578,7 @@ body:has(.landing-page) .site-main {
     border-bottom: 1px solid rgb(var(--border-rgb) / 0.72);
   }
 
-  .metric-card:nth-of-type(3) {
+  .metric-card:nth-of-type(4) {
     border-bottom: 0;
   }
 

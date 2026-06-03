@@ -124,6 +124,8 @@ export interface SkillCardData {
   lifecycle_status: LifecycleStatus
   trust_tier: TrustTier
   token_estimate: number | null
+  maturity_score: number | null
+  security_score: number | null
   size_bytes: number
   published_at: string
 }
