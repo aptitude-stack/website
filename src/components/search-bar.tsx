@@ -59,7 +59,7 @@ export function SearchBar({
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key !== "ArrowRight" || completionHint === null) return
+    if ((event.key !== "ArrowRight" && event.key !== "Tab") || completionHint === null) return
     const target = event.currentTarget
     if (
       target.selectionStart !== target.value.length ||

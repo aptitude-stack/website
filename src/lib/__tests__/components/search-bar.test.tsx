@@ -90,6 +90,17 @@ describe("SearchBar", () => {
     expect(input).toHaveValue("docs writing")
   })
 
+  it("accepts the inline completion with Tab at the end of the input", async () => {
+    render(<SearchBar onSearch={jest.fn()} loading={false} />)
+    const input = screen.getByRole("textbox")
+
+    await userEvent.type(input, "doc")
+    fireEvent.keyDown(input, { key: "Tab" })
+
+    expect(input).toHaveValue("docs writing")
+    expect(input).toHaveFocus()
+  })
+
   it("does not accept the inline completion with ArrowRight before the end of the input", async () => {
     render(<SearchBar onSearch={jest.fn()} loading={false} />)
     const input = screen.getByRole("textbox") as HTMLInputElement
