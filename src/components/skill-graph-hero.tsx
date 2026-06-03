@@ -69,9 +69,10 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
   const frameRef = useRef<number | null>(null)
   const [mode, setMode] = useState<"pending" | "canvas" | "static">("pending")
   const [hoverCard, setHoverCard] = useState<HoverCard | null>(null)
-  const positionedNodes = useMemo(() => positionNodes(graph), [graph])
-  const renderableEdges = useMemo(() => getRenderableGraphEdges(graph), [graph])
-  const hasGraph = graph.nodes.length > 0
+  const defaultGraph = useMemo(() => getDefaultSkillGraph(graph), [graph])
+  const positionedNodes = useMemo(() => positionNodes(defaultGraph), [defaultGraph])
+  const renderableEdges = useMemo(() => getRenderableGraphEdges(defaultGraph), [defaultGraph])
+  const hasGraph = defaultGraph.nodes.length > 0
 
   useEffect(() => {
     if (!hasGraph) return
@@ -302,7 +303,7 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
           if (activeMesh) {
             activeMesh.material = hoverMaterial
             const slug = String(activeMesh.userData.slug)
-            const details = getGraphNodeDetails(graph, renderableEdges, slug)
+            const details = getGraphNodeDetails(defaultGraph, renderableEdges, slug)
             if (!details) {
               setHoverCard(null)
               return
@@ -319,7 +320,7 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
 
           if (!activeLineSegment) return
           activeLineSegment.line.material = hoverLineMaterial
-          const edgeDetails = getGraphEdgeDetails(graph, activeLineSegment.edge)
+          const edgeDetails = getGraphEdgeDetails(defaultGraph, activeLineSegment.edge)
           if (!edgeDetails) {
             setHoverCard(null)
             return
@@ -486,7 +487,7 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
       cancelled = true
       cleanupScene?.()
     }
-  }, [graph, hasGraph, positionedNodes, renderableEdges])
+  }, [defaultGraph, hasGraph, positionedNodes, renderableEdges])
 
   if (!hasGraph) return null
 
@@ -525,6 +526,23 @@ export function SkillGraphHero({ graph }: SkillGraphHeroProps) {
       )}
     </div>
   )
+}
+
+export function getDefaultSkillGraph(graph: SkillGraphData): SkillGraphData {
+  const nodeBySlug = new Map<string, SkillGraphData["nodes"][number]>()
+
+  for (const node of graph.nodes) {
+    const existing = nodeBySlug.get(node.slug)
+    if (!existing || (!existing.is_current_default && node.is_current_default)) {
+      nodeBySlug.set(node.slug, node)
+    }
+  }
+
+  const defaultSlugs = new Set(nodeBySlug.keys())
+  return {
+    nodes: [...nodeBySlug.values()],
+    edges: graph.edges.filter((edge) => defaultSlugs.has(edge.source_slug) && defaultSlugs.has(edge.target_slug)),
+  }
 }
 
 function getThemeGraphColors() {

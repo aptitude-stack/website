@@ -97,6 +97,7 @@ export interface SkillGraphNodeDto {
   star_count: number
   trust_tier: TrustTier
   lifecycle_status: LifecycleStatus
+  is_current_default?: boolean
 }
 
 export interface SkillGraphEdgeDto {

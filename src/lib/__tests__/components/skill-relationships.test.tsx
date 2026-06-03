@@ -65,4 +65,24 @@ describe("SkillRelationships", () => {
 
     expect(container).toBeEmptyDOMElement()
   })
+
+  it("deduplicates repeated relationship rows for the same related skill", () => {
+    const duplicateGraph: SkillGraphData = {
+      ...graph,
+      edges: [
+        ...graph.edges,
+        { source_slug: "python-fastapi", target_slug: "python-testing", edge_type: "depends_on" },
+        { source_slug: "python-fastapi", target_slug: "python-patterns", edge_type: "overlaps_with" },
+        { source_slug: "python-patterns", target_slug: "python-fastapi", edge_type: "overlaps_with" },
+      ],
+    }
+
+    render(<SkillRelationships graph={duplicateGraph} slug="python-fastapi" />)
+
+    expect(screen.getAllByRole("link", { name: "Python Testing" })).toHaveLength(1)
+    expect(screen.getAllByText("Depends On")).toHaveLength(1)
+    expect(screen.getAllByRole("link", { name: "Python Patterns" })).toHaveLength(2)
+    expect(screen.getByText("Extended By")).toBeInTheDocument()
+    expect(screen.getByText("Overlaps With")).toBeInTheDocument()
+  })
 })

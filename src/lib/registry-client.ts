@@ -359,6 +359,9 @@ function assertSkillGraphNode(value: unknown): SkillGraphResponseDto["nodes"][nu
     star_count: isNumber(value.star_count) ? value.star_count : 0,
     trust_tier: value.trust_tier,
     lifecycle_status: value.lifecycle_status,
+    ...(typeof value.is_current_default === "boolean"
+      ? { is_current_default: value.is_current_default }
+      : {}),
   }
 }
 

@@ -1,5 +1,5 @@
 import { act, render, waitFor } from "@testing-library/react"
-import { SkillGraphHero } from "@/components/skill-graph-hero"
+import { getDefaultSkillGraph, SkillGraphHero } from "@/components/skill-graph-hero"
 import type { SkillGraphData } from "@/lib/types"
 
 class MockVector3 {
@@ -287,5 +287,51 @@ describe("SkillGraphHero", () => {
 
     expect(Math.abs(mockGroups[0]?.rotation.z ?? 0)).toBeGreaterThan(0.03)
     expect(Math.abs(mockGroups[0]?.position.x ?? 0)).toBeGreaterThan(0.04)
+  })
+
+  it("keeps only the current default version for each skill slug", () => {
+    const graph: SkillGraphData = {
+      nodes: [
+        {
+          slug: "source",
+          version: "0.9.0",
+          name: "Source old",
+          install_count: 10,
+          star_count: 0,
+          trust_tier: "verified",
+          lifecycle_status: "published",
+          is_current_default: false,
+        },
+        {
+          slug: "source",
+          version: "1.0.0",
+          name: "Source",
+          install_count: 4,
+          star_count: 0,
+          trust_tier: "verified",
+          lifecycle_status: "published",
+          is_current_default: true,
+        },
+        {
+          slug: "target",
+          version: "1.0.0",
+          name: "Target",
+          install_count: 2,
+          star_count: 0,
+          trust_tier: "verified",
+          lifecycle_status: "published",
+          is_current_default: true,
+        },
+      ],
+      edges: [
+        { source_slug: "source", target_slug: "target", edge_type: "depends_on" },
+        { source_slug: "source", target_slug: "missing", edge_type: "extends" },
+      ],
+    }
+
+    expect(getDefaultSkillGraph(graph)).toEqual({
+      nodes: [graph.nodes[1], graph.nodes[2]],
+      edges: [graph.edges[0]],
+    })
   })
 })

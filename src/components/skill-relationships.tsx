@@ -36,9 +36,21 @@ export function SkillRelationships({ graph, slug }: SkillRelationshipsProps) {
 
 function getFirstTierRelationships(graph: SkillGraphData, slug: string): RelationshipItem[] {
   const nodeBySlug = new Map(graph.nodes.map((node) => [node.slug, node]))
-  return graph.edges
-    .map((edge) => describeRelationship(edge, slug, nodeBySlug))
-    .filter((relationship): relationship is RelationshipItem => relationship !== null)
+  const seen = new Set<string>()
+  const relationships: RelationshipItem[] = []
+
+  for (const edge of graph.edges) {
+    const relationship = describeRelationship(edge, slug, nodeBySlug)
+    if (!relationship) continue
+
+    const relationshipKey = `${relationship.label}:${relationship.node.slug}`
+    if (seen.has(relationshipKey)) continue
+
+    seen.add(relationshipKey)
+    relationships.push(relationship)
+  }
+
+  return relationships
 }
 
 function describeRelationship(
