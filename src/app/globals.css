@@ -1301,6 +1301,9 @@ body:has(.landing-page) .site-main {
 }
 
 .search-shell {
+  --search-control-inset: 1.15rem;
+  --search-icon-size: 17px;
+  --search-icon-gap: 0.8rem;
   position: relative;
   display: flex;
   align-items: center;
@@ -1314,9 +1317,9 @@ body:has(.landing-page) .site-main {
 
 .search-icon {
   position: absolute;
-  left: 1.1rem;
-  width: 17px;
-  height: 17px;
+  left: var(--search-control-inset);
+  width: var(--search-icon-size);
+  height: var(--search-icon-size);
   color: var(--text-dim);
   pointer-events: none;
 }
@@ -1334,7 +1337,14 @@ body:has(.landing-page) .site-main {
   font-size: clamp(0.88rem, 1vw, 0.98rem);
   font-weight: 400;
   letter-spacing: 0;
-  padding: 18px 3.7rem 18px 3rem;
+  padding:
+    18px
+    3.7rem
+    18px
+    calc(
+      var(--search-control-inset) + var(--search-icon-size) +
+      var(--search-icon-gap)
+    );
   box-shadow: var(--shadow-search);
   transition:
     outline-color 220ms ease,
@@ -2657,12 +2667,10 @@ body:has(.landing-page) .landing-page::after {
 }
 
 .landing-button--primary {
-  border: 1px solid rgb(var(--accent-rgb) / 0.68);
-  background: rgb(var(--accent-rgb) / 0.78);
-  color: rgb(255 250 243 / 0.94);
-  box-shadow:
-    0 10px 22px rgb(var(--shadow-rgb) / 0.16),
-    inset 0 1px 0 rgb(255 255 255 / 0.12);
+  border: 1px solid rgb(var(--accent-rgb) / 0.46);
+  background: color-mix(in srgb, var(--accent) 72%, #171015);
+  color: rgb(255 250 243 / 0.92);
+  box-shadow: 0 10px 22px rgb(var(--shadow-rgb) / 0.14);
 }
 
 .landing-button--secondary {
@@ -2676,11 +2684,9 @@ body:has(.landing-page) .landing-page::after {
 }
 
 .landing-button--primary:hover {
-  border-color: rgb(var(--accent-rgb) / 0.82);
-  background: rgb(var(--accent-rgb) / 0.88);
-  box-shadow:
-    0 14px 28px rgb(var(--shadow-rgb) / 0.2),
-    inset 0 1px 0 rgb(255 255 255 / 0.14);
+  border-color: rgb(var(--accent-rgb) / 0.58);
+  background: color-mix(in srgb, var(--accent) 80%, #171015);
+  box-shadow: 0 12px 24px rgb(var(--shadow-rgb) / 0.16);
 }
 
 .landing-button--secondary:hover {
@@ -4584,7 +4590,11 @@ body:has(.landing-page) .site-main {
 
   .search-input {
     min-height: 58px;
-    padding-left: 16px;
+    padding-left:
+      calc(
+        var(--search-control-inset) + var(--search-icon-size) +
+        var(--search-icon-gap)
+      );
   }
 
   .copy-button {
@@ -4874,12 +4884,10 @@ body:has(.landing-page) .landing-page::after {
 }
 
 .landing-button--primary {
-  border: 1px solid rgb(var(--accent-rgb) / 0.68);
-  background: rgb(var(--accent-rgb) / 0.78);
-  color: rgb(255 250 243 / 0.94);
-  box-shadow:
-    0 10px 22px rgb(var(--shadow-rgb) / 0.16),
-    inset 0 1px 0 rgb(255 255 255 / 0.12);
+  border: 1px solid rgb(var(--accent-rgb) / 0.46);
+  background: color-mix(in srgb, var(--accent) 72%, #171015);
+  color: rgb(255 250 243 / 0.92);
+  box-shadow: 0 10px 22px rgb(var(--shadow-rgb) / 0.14);
 }
 
 .landing-button--secondary {
@@ -4893,11 +4901,9 @@ body:has(.landing-page) .landing-page::after {
 }
 
 .landing-button--primary:hover {
-  border-color: rgb(var(--accent-rgb) / 0.82);
-  background: rgb(var(--accent-rgb) / 0.88);
-  box-shadow:
-    0 14px 28px rgb(var(--shadow-rgb) / 0.2),
-    inset 0 1px 0 rgb(255 255 255 / 0.14);
+  border-color: rgb(var(--accent-rgb) / 0.58);
+  background: color-mix(in srgb, var(--accent) 80%, #171015);
+  box-shadow: 0 12px 24px rgb(var(--shadow-rgb) / 0.16);
 }
 
 .landing-button--secondary:hover {
@@ -7139,6 +7145,12 @@ body:has(.landing-page) {
 	  .landing-pillar:hover {
 	    transform: none;
 	  }
+}
+
+@media (max-width: 860px) {
+  .site-nav .brand-text {
+    display: none;
+  }
 }
 
 @theme inline {

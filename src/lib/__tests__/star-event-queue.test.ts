@@ -44,7 +44,7 @@ describe("star-event-queue", () => {
     })
 
     queue.enqueue({ slug: "fastapi", action: "star" })
-    queue.enqueue({ slug: "python.test", action: "star" })
+    queue.enqueue({ slug: "python-test", action: "star" })
     await queue.flush()
 
     expect(fetchSpy).toHaveBeenCalledTimes(1)

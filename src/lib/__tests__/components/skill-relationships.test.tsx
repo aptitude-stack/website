@@ -5,7 +5,7 @@ import type { SkillGraphData } from "@/lib/types"
 const graph: SkillGraphData = {
   nodes: [
     {
-      slug: "python.fastapi",
+      slug: "python-fastapi",
       version: "1.0.0",
       name: "FastAPI",
       install_count: 128,
@@ -14,7 +14,7 @@ const graph: SkillGraphData = {
       lifecycle_status: "published",
     },
     {
-      slug: "python.testing",
+      slug: "python-testing",
       version: "1.0.0",
       name: "Python Testing",
       install_count: 84,
@@ -23,7 +23,7 @@ const graph: SkillGraphData = {
       lifecycle_status: "published",
     },
     {
-      slug: "python.patterns",
+      slug: "python-patterns",
       version: "1.0.0",
       name: "Python Patterns",
       install_count: 64,
@@ -32,7 +32,7 @@ const graph: SkillGraphData = {
       lifecycle_status: "published",
     },
     {
-      slug: "docs.writer",
+      slug: "docs-writer",
       version: "1.0.0",
       name: "Docs Writer",
       install_count: 32,
@@ -42,21 +42,21 @@ const graph: SkillGraphData = {
     },
   ],
   edges: [
-    { source_slug: "python.fastapi", target_slug: "python.testing", edge_type: "depends_on" },
-    { source_slug: "python.patterns", target_slug: "python.fastapi", edge_type: "extends" },
-    { source_slug: "python.testing", target_slug: "docs.writer", edge_type: "overlaps_with" },
+    { source_slug: "python-fastapi", target_slug: "python-testing", edge_type: "depends_on" },
+    { source_slug: "python-patterns", target_slug: "python-fastapi", edge_type: "extends" },
+    { source_slug: "python-testing", target_slug: "docs-writer", edge_type: "overlaps_with" },
   ],
 }
 
 describe("SkillRelationships", () => {
   it("renders first-tier relationships for the current skill", () => {
-    render(<SkillRelationships graph={graph} slug="python.fastapi" />)
+    render(<SkillRelationships graph={graph} slug="python-fastapi" />)
 
     expect(screen.getByRole("heading", { name: "Relationships" })).toBeInTheDocument()
     expect(screen.getByText("Depends On")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Python Testing" })).toHaveAttribute("href", "/skills/python.testing")
+    expect(screen.getByRole("link", { name: "Python Testing" })).toHaveAttribute("href", "/skills/python-testing")
     expect(screen.getByText("Extended By")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Python Patterns" })).toHaveAttribute("href", "/skills/python.patterns")
+    expect(screen.getByRole("link", { name: "Python Patterns" })).toHaveAttribute("href", "/skills/python-patterns")
     expect(screen.queryByText("Docs Writer")).not.toBeInTheDocument()
   })
 

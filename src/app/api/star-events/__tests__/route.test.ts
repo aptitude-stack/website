@@ -95,9 +95,14 @@ describe("POST /api/star-events", () => {
     expect(res.status).toBe(400)
   })
 
+  it("returns 400 when slug is dotted", async () => {
+    const res = await POST(await makeRequest({ events: [{ slug: "python.lint", action: "star" }] }))
+    expect(res.status).toBe(400)
+  })
+
   it("returns 400 when more than 100 events are submitted", async () => {
     const events = Array.from({ length: 101 }, (_, index) => ({
-      slug: `python.lint-${index}`,
+      slug: `python-lint-${index}`,
       action: "star" as const,
     }))
     const res = await POST(await makeRequest({ events }))

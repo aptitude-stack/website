@@ -274,7 +274,7 @@ describe("submitStarEvents", () => {
         accepted: 2,
         counts: [
           { slug: "fastapi", star_count: 5 },
-          { slug: "python.test", star_count: 3 },
+          { slug: "python-test", star_count: 3 },
         ],
       }),
     )
@@ -282,7 +282,7 @@ describe("submitStarEvents", () => {
     const result = await submitStarEvents(
       [
         { slug: "fastapi", action: "star" },
-        { slug: "python.test", action: "unstar" },
+        { slug: "python-test", action: "unstar" },
       ],
       { userSubject: "test1@example.com" },
     )
@@ -297,7 +297,7 @@ describe("submitStarEvents", () => {
           user_subject: "test1@example.com",
           events: [
             { slug: "fastapi", action: "star" },
-            { slug: "python.test", action: "unstar" },
+            { slug: "python-test", action: "unstar" },
           ],
         }),
         headers: expect.objectContaining({
@@ -308,11 +308,11 @@ describe("submitStarEvents", () => {
   })
 
   it("fetches user-specific starred skill slugs", async () => {
-    fetchMock.mockResponseOnce(JSON.stringify({ starred_slugs: ["fastapi", "python.test"] }))
+    fetchMock.mockResponseOnce(JSON.stringify({ starred_slugs: ["fastapi", "python-test"] }))
 
     const result = await fetchUserStarredSkillSlugs("test1@example.com")
 
-    expect(result).toEqual(["fastapi", "python.test"])
+    expect(result).toEqual(["fastapi", "python-test"])
     expect(fetchMock).toHaveBeenCalledWith(
       "https://registry.example.com/catalog/user-stars?user_subject=test1%40example.com",
       expect.objectContaining({

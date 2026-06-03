@@ -7,7 +7,7 @@ import {
 } from "@/lib/registry-client"
 import type { StarEventDto } from "@/lib/types"
 
-const SLUG_PATTERN = /^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,127})$/
+const SLUG_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,127})$/
 const MAX_DIAGNOSTIC_BODY_LENGTH = 2000
 
 export async function POST(req: NextRequest) {
