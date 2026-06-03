@@ -119,7 +119,7 @@ describe("CatalogView", () => {
     expect(screen.getByText("Maturity")).toBeInTheDocument()
     expect(screen.getByText("80%")).toBeInTheDocument()
     expect(screen.getByText("70%")).toBeInTheDocument()
-    expect(screen.getAllByText("2 of 3 scored")).toHaveLength(2)
+    expect(screen.queryByText("2 of 3 scored")).not.toBeInTheDocument()
   })
 
   it("places installs next to the skills metric", () => {

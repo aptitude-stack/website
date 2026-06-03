@@ -99,13 +99,9 @@ describe("SkillCard", () => {
     expect(link).toHaveAttribute("href", "/skills/fastapi")
   })
 
-  it.each([
-    ["verified", "trust-verified"],
-    ["internal", "trust-internal"],
-    ["untrusted", "trust-untrusted"],
-  ] as const)("renders %s trust tier with a distinct class", (trust_tier, expectedClass) => {
+  it.each(["verified", "internal", "untrusted"] as const)("does not render %s trust tier on catalog cards", (trust_tier) => {
     render(<SkillCard card={{ ...fixture, trust_tier }} />)
-    expect(screen.getByText(trust_tier)).toHaveClass(expectedClass)
+    expect(screen.queryByText(trust_tier)).not.toBeInTheDocument()
   })
 
   it("encodes slug in the detail link", () => {

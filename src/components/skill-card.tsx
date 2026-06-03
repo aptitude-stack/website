@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import type { LifecycleStatus, SkillCardData, TrustTier } from "@/lib/types"
+import type { LifecycleStatus, SkillCardData } from "@/lib/types"
 
 const numberFormatter = new Intl.NumberFormat("en-US")
 const sizeFormatter = new Intl.NumberFormat("en-US", {
@@ -30,12 +30,6 @@ function badgeClass(status: LifecycleStatus) {
   return "badge-archived"
 }
 
-function trustClass(tier: TrustTier) {
-  if (tier === "verified") return "trust-verified"
-  if (tier === "internal") return "trust-internal"
-  return "trust-untrusted"
-}
-
 export function SkillCard({ card }: { card: SkillCardData }) {
   const {
     slug,
@@ -45,7 +39,6 @@ export function SkillCard({ card }: { card: SkillCardData }) {
     description,
     tags,
     lifecycle_status,
-    trust_tier,
     token_estimate,
     size_bytes,
   } = card
@@ -64,7 +57,6 @@ export function SkillCard({ card }: { card: SkillCardData }) {
           <CardAction className="skill-card__meta">
             <SkillStarredBadge slug={slug} name={displayName} />
             <Badge variant="outline" className={`badge ${badgeClass(lifecycle_status)}`}>{lifecycle_status}</Badge>
-            <Badge variant="outline" className={`badge ${trustClass(trust_tier)}`}>{trust_tier}</Badge>
           </CardAction>
         </CardHeader>
 

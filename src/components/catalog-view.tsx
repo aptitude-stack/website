@@ -355,7 +355,6 @@ function getScoreMetric(
   return {
     label,
     value,
-    note: `${countFormatter.format(scores.length)} of ${countFormatter.format(topSkills.length)} scored`,
   }
 }
 
