@@ -22,23 +22,38 @@ describe("SearchBar", () => {
     render(<SearchBar onSearch={jest.fn()} loading={false} />)
     const input = screen.getByRole("textbox")
 
-    expect(input).toHaveAttribute("placeholder", "Search skills - e.g. review pull-request…")
+    expect(input).toHaveAttribute("placeholder", "Search skills by name, tag, or slug…")
 
     act(() => jest.advanceTimersByTime(2400))
-    expect(input).toHaveAttribute("placeholder", "Search skills - e.g. review pull-request…")
+    expect(input).toHaveAttribute("placeholder", "Search skills by name, tag, or slug…")
 
     act(() => jest.advanceTimersByTime(2400))
-    expect(input).toHaveAttribute("placeholder", "Search skills - e.g. review pull-request…")
+    expect(input).toHaveAttribute("placeholder", "Search skills by name, tag, or slug…")
+  })
+
+  it("uses supplied skill examples for the rotating placeholder", () => {
+    render(
+      <SearchBar
+        onSearch={jest.fn()}
+        loading={false}
+        placeholderExamples={["architect-review", "postgres-patterns"]}
+      />
+    )
+
+    expect(screen.getByRole("textbox")).toHaveAttribute(
+      "placeholder",
+      "Search skills - e.g. architect-review…"
+    )
   })
 
   it("does not advance the default placeholder on remounts in the same page session", () => {
     const firstRender = render(<SearchBar onSearch={jest.fn()} loading={false} />)
-    expect(screen.getByRole("textbox")).toHaveAttribute("placeholder", "Search skills - e.g. review pull-request…")
+    expect(screen.getByRole("textbox")).toHaveAttribute("placeholder", "Search skills by name, tag, or slug…")
 
     firstRender.unmount()
 
     render(<SearchBar onSearch={jest.fn()} loading={false} />)
-    expect(screen.getByRole("textbox")).toHaveAttribute("placeholder", "Search skills - e.g. review pull-request…")
+    expect(screen.getByRole("textbox")).toHaveAttribute("placeholder", "Search skills by name, tag, or slug…")
   })
 
   it("keeps custom placeholders fixed", () => {
@@ -60,14 +75,42 @@ describe("SearchBar", () => {
   })
 
   it("shows an inline completion suffix for a matching partial query", async () => {
-    const { container } = render(<SearchBar onSearch={jest.fn()} loading={false} />)
+    const { container } = render(
+      <SearchBar onSearch={jest.fn()} loading={false} completionHints={["docs writing"]} />
+    )
     await userEvent.type(screen.getByRole("textbox"), "doc")
 
     expect(getCompletionSuffix(container)).toHaveTextContent("s writing")
   })
 
-  it("does not show completion suffixes for blank, exact, or nonmatching queries", async () => {
+  it("does not show stale static completions without supplied hints", async () => {
     const { container } = render(<SearchBar onSearch={jest.fn()} loading={false} />)
+    await userEvent.type(screen.getByRole("textbox"), "doc")
+
+    expect(getCompletionSuffix(container)).not.toBeInTheDocument()
+  })
+
+  it("only ghosts completions from supplied real hints", () => {
+    const { container } = render(
+      <SearchBar
+        onSearch={jest.fn()}
+        loading={false}
+        completionHints={["architect-review", "review", "requesting-code-review", "postgres-patterns"]}
+      />
+    )
+    const input = screen.getByRole("textbox")
+
+    fireEvent.change(input, { target: { value: "review" } })
+    expect(getCompletionSuffix(container)).not.toBeInTheDocument()
+
+    fireEvent.change(input, { target: { value: "post" } })
+    expect(getCompletionSuffix(container)).toHaveTextContent("gres-patterns")
+  })
+
+  it("does not show completion suffixes for blank, exact, or nonmatching queries", async () => {
+    const { container } = render(
+      <SearchBar onSearch={jest.fn()} loading={false} completionHints={["docs writing"]} />
+    )
     const input = screen.getByRole("textbox")
 
     expect(getCompletionSuffix(container)).not.toBeInTheDocument()
@@ -81,7 +124,7 @@ describe("SearchBar", () => {
   })
 
   it("accepts the inline completion with ArrowRight at the end of the input", async () => {
-    render(<SearchBar onSearch={jest.fn()} loading={false} />)
+    render(<SearchBar onSearch={jest.fn()} loading={false} completionHints={["docs writing"]} />)
     const input = screen.getByRole("textbox")
 
     await userEvent.type(input, "doc")
@@ -91,7 +134,7 @@ describe("SearchBar", () => {
   })
 
   it("accepts the inline completion with Tab at the end of the input", async () => {
-    render(<SearchBar onSearch={jest.fn()} loading={false} />)
+    render(<SearchBar onSearch={jest.fn()} loading={false} completionHints={["docs writing"]} />)
     const input = screen.getByRole("textbox")
 
     await userEvent.type(input, "doc")
@@ -102,7 +145,7 @@ describe("SearchBar", () => {
   })
 
   it("does not accept the inline completion with ArrowRight before the end of the input", async () => {
-    render(<SearchBar onSearch={jest.fn()} loading={false} />)
+    render(<SearchBar onSearch={jest.fn()} loading={false} completionHints={["docs writing"]} />)
     const input = screen.getByRole("textbox") as HTMLInputElement
 
     await userEvent.type(input, "doc")
@@ -114,7 +157,7 @@ describe("SearchBar", () => {
 
   it("searches the completed value after the debounce", async () => {
     const onSearch = jest.fn()
-    render(<SearchBar onSearch={onSearch} loading={false} />)
+    render(<SearchBar onSearch={onSearch} loading={false} completionHints={["docs writing"]} />)
     const input = screen.getByRole("textbox")
 
     await userEvent.type(input, "doc")

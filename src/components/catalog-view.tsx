@@ -110,6 +110,8 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH, selecte
     () => (skillGraph.nodes.length > 0 ? skillGraph : toTopSkillGraph(topSkills)),
     [skillGraph, topSkills]
   )
+  const completionHints = useMemo(() => getCatalogCompletionHints(topSkills), [topSkills])
+  const placeholderExamples = useMemo(() => getCatalogPlaceholderExamples(topSkills), [topSkills])
   const normalizedSelectedTag = selectedTag?.trim() ?? ""
   const tagFilteredSkills = useMemo(() => {
     if (!normalizedSelectedTag) return []
@@ -187,7 +189,13 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH, selecte
             Discover governed, versioned skills for AI agents that need dependable coding workflows, review context, and installable operating knowledge.
           </p>
           <div id="catalog-search" className="hero-search">
-            <SearchBar onSearch={handleSearch} onClear={handleClearSearch} loading={loading} />
+            <SearchBar
+              onSearch={handleSearch}
+              onClear={handleClearSearch}
+              loading={loading}
+              completionHints={completionHints}
+              placeholderExamples={placeholderExamples}
+            />
           </div>
         </div>
         {graphSummary && <p className="sr-only">{graphSummary}</p>}
@@ -299,6 +307,39 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH, selecte
     </div>
     </TooltipProvider>
   )
+}
+
+export function getCatalogCompletionHints(topSkills: SkillCardData[]): string[] {
+  const seen = new Set<string>()
+  const hints: string[] = []
+  const addHint = (hint: string | null | undefined) => {
+    const trimmed = hint?.trim()
+    if (!trimmed) return
+    const key = trimmed.toLocaleLowerCase()
+    if (seen.has(key)) return
+    seen.add(key)
+    hints.push(trimmed)
+  }
+
+  topSkills.forEach((skill) => {
+    addHint(skill.slug)
+    addHint(skill.name)
+    skill.tags.forEach(addHint)
+  })
+
+  return hints
+}
+
+export function getCatalogPlaceholderExamples(topSkills: SkillCardData[]): string[] {
+  const seen = new Set<string>()
+  return topSkills.reduce<string[]>((examples, skill) => {
+    const slug = skill.slug.trim()
+    const key = slug.toLocaleLowerCase()
+    if (!slug || seen.has(key)) return examples
+    seen.add(key)
+    examples.push(slug)
+    return examples
+  }, [])
 }
 
 function toTopSkillGraph(topSkills: SkillCardData[]): SkillGraphData {

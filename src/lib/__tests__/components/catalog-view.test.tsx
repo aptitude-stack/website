@@ -1,5 +1,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { CatalogView, getTopSkillLimitForWidth } from "@/components/catalog-view"
+import {
+  CatalogView,
+  getCatalogCompletionHints,
+  getCatalogPlaceholderExamples,
+  getTopSkillLimitForWidth,
+} from "@/components/catalog-view"
 import type { SkillCardData, SkillGraphData } from "@/lib/types"
 
 function makeSkill(slug: string, install_count: number): SkillCardData {
@@ -75,18 +80,18 @@ describe("CatalogView", () => {
     render(<CatalogView topSkills={skills} />)
 
     await waitFor(() => {
-      expect(screen.queryByText("skill-9")).not.toBeInTheDocument()
+      expect(screen.queryByText("skill-9 name")).not.toBeInTheDocument()
     })
     expect(screen.getByText("All Skills")).toBeInTheDocument()
-    expect(screen.getByText("skill-1")).toBeInTheDocument()
-    expect(screen.getByText("skill-8")).toBeInTheDocument()
+    expect(screen.getByText("skill-1 name")).toBeInTheDocument()
+    expect(screen.getByText("skill-8 name")).toBeInTheDocument()
     expect(screen.getByText("Page 1 of 2")).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole("button", { name: "Next all skills page" }))
 
-    expect(screen.queryByText("skill-1")).not.toBeInTheDocument()
-    expect(screen.getByText("skill-9")).toBeInTheDocument()
-    expect(screen.getByText("skill-12")).toBeInTheDocument()
+    expect(screen.queryByText("skill-1 name")).not.toBeInTheDocument()
+    expect(screen.getByText("skill-9 name")).toBeInTheDocument()
+    expect(screen.getByText("skill-12 name")).toBeInTheDocument()
     expect(screen.getByText("Page 2 of 2")).toBeInTheDocument()
   })
 
@@ -97,8 +102,41 @@ describe("CatalogView", () => {
     render(<CatalogView topSkills={[taggedSkill, otherSkill]} selectedTag="quality" />)
 
     expect(screen.getByText("Tag: quality")).toBeInTheDocument()
-    expect(screen.getByText("python-lint")).toBeInTheDocument()
-    expect(screen.queryByText("docs")).not.toBeInTheDocument()
+    expect(screen.getByText("python-lint name")).toBeInTheDocument()
+    expect(screen.queryByText("docs name")).not.toBeInTheDocument()
+  })
+
+  it("builds autocomplete hints from real catalog fields", () => {
+    const skills = [
+      { ...makeSkill("architect-review", 12), name: "Architect Review", tags: ["architecture", "review"] },
+      { ...makeSkill("postgres-patterns", 8), name: "Postgres Patterns", tags: ["postgres", "database"] },
+      { ...makeSkill("duplicate-name", 4), name: "Architect Review", tags: ["database"] },
+    ]
+
+    expect(getCatalogCompletionHints(skills)).toEqual([
+      "architect-review",
+      "Architect Review",
+      "architecture",
+      "review",
+      "postgres-patterns",
+      "Postgres Patterns",
+      "postgres",
+      "database",
+      "duplicate-name",
+    ])
+  })
+
+  it("builds rotating placeholder examples from real skill slugs", () => {
+    const skills = [
+      makeSkill("architect-review", 12),
+      makeSkill("postgres-patterns", 8),
+      makeSkill("architect-review", 4),
+    ]
+
+    expect(getCatalogPlaceholderExamples(skills)).toEqual([
+      "architect-review",
+      "postgres-patterns",
+    ])
   })
 
   it("shows search results after a query", async () => {
@@ -111,9 +149,9 @@ describe("CatalogView", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Search Results")).toBeInTheDocument()
-      expect(screen.getByText("search-result")).toBeInTheDocument()
+      expect(screen.getByText("search-result name")).toBeInTheDocument()
     }, { timeout: 1000 })
-    expect(screen.queryByText("top-skill")).not.toBeInTheDocument()
+    expect(screen.queryByText("top-skill name")).not.toBeInTheDocument()
   })
 
   it("returns to all catalog skills when the search box is cleared", async () => {
@@ -127,7 +165,7 @@ describe("CatalogView", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Search Results")).toBeInTheDocument()
-      expect(screen.getByText("search-result")).toBeInTheDocument()
+      expect(screen.getByText("search-result name")).toBeInTheDocument()
     }, { timeout: 1000 })
 
     fireEvent.change(searchInput, {
@@ -136,9 +174,9 @@ describe("CatalogView", () => {
 
     await waitFor(() => {
       expect(screen.getByText("All Skills")).toBeInTheDocument()
-      expect(screen.getByText("top-skill")).toBeInTheDocument()
+      expect(screen.getByText("top-skill name")).toBeInTheDocument()
     }, { timeout: 1000 })
-    expect(screen.queryByText("search-result")).not.toBeInTheDocument()
+    expect(screen.queryByText("search-result name")).not.toBeInTheDocument()
   })
 
   it("announces graph counts when graph data is provided", () => {

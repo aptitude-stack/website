@@ -2,7 +2,7 @@
 
 import { LoaderCircle, Search, X } from "lucide-react"
 import type { KeyboardEvent } from "react"
-import { useEffect, useId, useRef, useState } from "react"
+import { useEffect, useId, useMemo, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -17,23 +17,12 @@ interface SearchBarProps {
   onClear?: () => void
   loading: boolean
   placeholder?: string
+  completionHints?: readonly string[]
+  placeholderExamples?: readonly string[]
 }
 
 const PLACEHOLDER_INDEX_STORAGE_KEY = "aptitude.search.placeholderIndex"
-const DEFAULT_PLACEHOLDERS = [
-  "Search skills - e.g. review pull-request…",
-  "Search skills - e.g. linter…",
-  "Search skills - e.g. python patterns…",
-  "Search skills - e.g. docs writing…",
-  "Search skills - e.g. git workflow…",
-]
-const COMPLETION_HINTS = [
-  "review pull-request",
-  "linter",
-  "python patterns",
-  "docs writing",
-  "git workflow",
-]
+const DEFAULT_PLACEHOLDER = "Search skills by name, tag, or slug…"
 let pageLoadPlaceholderIndex: number | null = null
 
 export function SearchBar({
@@ -41,13 +30,19 @@ export function SearchBar({
   onClear,
   loading,
   placeholder,
+  completionHints = [],
+  placeholderExamples = [],
 }: SearchBarProps) {
   const inputId = useId()
   const [value, setValue] = useState("")
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSearchedValueRef = useRef("")
-  const completionHint = getCompletionHint(value)
+  const placeholderOptions = useMemo(
+    () => getPlaceholderOptions(placeholderExamples),
+    [placeholderExamples]
+  )
+  const completionHint = getCompletionHint(value, completionHints)
 
   function clearValue() {
     if (timerRef.current !== null) clearTimeout(timerRef.current)
@@ -73,8 +68,8 @@ export function SearchBar({
 
   useEffect(() => {
     if (placeholder !== undefined) return
-    setPlaceholderIndex(getPageLoadDefaultPlaceholderIndex())
-  }, [placeholder])
+    setPlaceholderIndex(getPageLoadDefaultPlaceholderIndex(placeholderOptions.length))
+  }, [placeholder, placeholderOptions.length])
 
   useEffect(() => {
     if (timerRef.current !== null) clearTimeout(timerRef.current)
@@ -106,7 +101,7 @@ export function SearchBar({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={placeholder ?? DEFAULT_PLACEHOLDERS[placeholderIndex]}
+          placeholder={placeholder ?? placeholderOptions[placeholderIndex % placeholderOptions.length]}
           autoComplete="off"
           inputMode="search"
           spellCheck={false}
@@ -151,33 +146,47 @@ export function SearchBar({
   )
 }
 
-function getCompletionHint(value: string): string | null {
+function getCompletionHint(value: string, completionHints: readonly string[]): string | null {
   if (value.length === 0 || value.trimStart() !== value) return null
   const normalizedValue = value.toLocaleLowerCase()
-  return COMPLETION_HINTS.find((hint) => {
+  return completionHints.find((hint) => {
     const normalizedHint = hint.toLocaleLowerCase()
     return normalizedHint.startsWith(normalizedValue) && hint.length > value.length
   }) ?? null
 }
 
-function getNextDefaultPlaceholderIndex(): number {
-  const storedIndex = readStoredPlaceholderIndex()
-  const nextIndex = storedIndex === null ? 0 : (storedIndex + 1) % DEFAULT_PLACEHOLDERS.length
+function getPlaceholderOptions(examples: readonly string[]): string[] {
+  const seen = new Set<string>()
+  const placeholders = examples.reduce<string[]>((result, example) => {
+    const trimmed = example.trim()
+    const key = trimmed.toLocaleLowerCase()
+    if (!trimmed || seen.has(key)) return result
+    seen.add(key)
+    result.push(`Search skills - e.g. ${trimmed}…`)
+    return result
+  }, [])
+
+  return placeholders.length > 0 ? placeholders : [DEFAULT_PLACEHOLDER]
+}
+
+function getNextDefaultPlaceholderIndex(optionCount: number): number {
+  const storedIndex = readStoredPlaceholderIndex(optionCount)
+  const nextIndex = storedIndex === null ? 0 : (storedIndex + 1) % optionCount
   writeStoredPlaceholderIndex(nextIndex)
   return nextIndex
 }
 
-function getPageLoadDefaultPlaceholderIndex(): number {
-  pageLoadPlaceholderIndex ??= getNextDefaultPlaceholderIndex()
-  return pageLoadPlaceholderIndex
+function getPageLoadDefaultPlaceholderIndex(optionCount: number): number {
+  pageLoadPlaceholderIndex ??= getNextDefaultPlaceholderIndex(optionCount)
+  return pageLoadPlaceholderIndex % optionCount
 }
 
-function readStoredPlaceholderIndex(): number | null {
+function readStoredPlaceholderIndex(optionCount: number): number | null {
   try {
     const storedIndex = window.localStorage.getItem(PLACEHOLDER_INDEX_STORAGE_KEY)
     if (storedIndex === null) return null
     const parsedIndex = Number.parseInt(storedIndex, 10)
-    if (!Number.isInteger(parsedIndex) || parsedIndex < 0 || parsedIndex >= DEFAULT_PLACEHOLDERS.length) {
+    if (!Number.isInteger(parsedIndex) || parsedIndex < 0 || parsedIndex >= optionCount) {
       return null
     }
     return parsedIndex
