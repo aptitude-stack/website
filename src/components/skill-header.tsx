@@ -49,7 +49,7 @@ export function SkillHeader({ meta, installVersion }: SkillHeaderProps) {
   return (
     <header className="skill-hero">
       <nav className="breadcrumb" aria-label="Breadcrumb">
-        <Link href="/">Registry</Link>
+        <Link href="/catalog">Catalog</Link>
         <span className="breadcrumb-separator" aria-hidden="true">/</span>
         <span>{meta.slug}</span>
       </nav>

@@ -4387,14 +4387,11 @@ body:has(.landing-page) .site-main {
 
   .nav-actions {
     gap: 8px;
+    flex-wrap: nowrap;
   }
 
   .header-nav-links {
-    position: static;
-    transform: none;
-    width: 100%;
-    justify-content: center;
-    order: 3;
+    display: none;
   }
 
   .catalog-hero {

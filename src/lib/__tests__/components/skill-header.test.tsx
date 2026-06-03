@@ -86,6 +86,13 @@ describe("SkillHeader", () => {
     )
   })
 
+  it("links the breadcrumb back to the catalog", () => {
+    render(<SkillHeader meta={meta} />)
+
+    expect(screen.getByRole("link", { name: "Catalog" })).toHaveAttribute("href", "/catalog")
+    expect(screen.queryByRole("link", { name: "Registry" })).not.toBeInTheDocument()
+  })
+
   it("shows maturity and security scores in the hero", () => {
     render(<SkillHeader meta={meta} />)
 
