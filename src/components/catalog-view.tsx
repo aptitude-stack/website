@@ -139,6 +139,9 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH, selecte
   const verifiedTopSkillShare = topSkills.length
     ? Math.round((verifiedTopSkillCount / topSkills.length) * 100)
     : 0
+  const verifiedTopSkillNote = `${countFormatter.format(verifiedTopSkillCount)} of ${countFormatter.format(
+    topSkills.length
+  )} ${topSkills.length === 1 ? "skill" : "skills"}`
   const topSkillInstallCount = topSkills.reduce((total, skill) => total + skill.install_count, 0)
   const graphSummary =
     heroGraph.nodes.length > 0
@@ -146,7 +149,7 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH, selecte
       : null
   const metrics = [
     { label: "Skills", value: countFormatter.format(topSkills.length) },
-    { label: "Verified", value: `${verifiedTopSkillShare}%` },
+    { label: "Verified", value: `${verifiedTopSkillShare}%`, note: verifiedTopSkillNote },
     { label: "Installs", value: countFormatter.format(topSkillInstallCount) },
   ]
   const sectionLabel = searched
@@ -301,6 +304,7 @@ export function CatalogView({ topSkills, skillGraph = EMPTY_SKILL_GRAPH, selecte
           <div className="metric-card" key={metric.label}>
             <div className="metric-label">{metric.label}</div>
             <div className="metric-value" translate="no">{metric.value}</div>
+            {"note" in metric && <div className="metric-note">{metric.note}</div>}
           </div>
         ))}
       </section>

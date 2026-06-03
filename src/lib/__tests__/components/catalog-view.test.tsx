@@ -24,6 +24,13 @@ function makeSkill(slug: string, install_count: number): SkillCardData {
   }
 }
 
+function makeUntrustedSkill(slug: string, install_count: number): SkillCardData {
+  return {
+    ...makeSkill(slug, install_count),
+    trust_tier: "untrusted",
+  }
+}
+
 function mockViewport(width: number) {
   window.matchMedia = jest.fn().mockImplementation((query: string) => ({
     matches: query.includes("1024") ? width >= 1024 : width >= 768,
@@ -104,6 +111,19 @@ describe("CatalogView", () => {
     expect(screen.getByText("Tag: quality")).toBeInTheDocument()
     expect(screen.getByText("python-lint name")).toBeInTheDocument()
     expect(screen.queryByText("docs name")).not.toBeInTheDocument()
+  })
+
+  it("renders the verified metric from catalog trust tiers with a count denominator", () => {
+    render(<CatalogView topSkills={[
+      makeSkill("verified-one", 8),
+      makeUntrustedSkill("untrusted-one", 4),
+      makeSkill("verified-two", 2),
+      makeUntrustedSkill("untrusted-two", 1),
+    ]} />)
+
+    expect(screen.getByText("Verified")).toBeInTheDocument()
+    expect(screen.getByText("50%")).toBeInTheDocument()
+    expect(screen.getByText("2 of 4 skills")).toBeInTheDocument()
   })
 
   it("builds autocomplete hints from real catalog fields", () => {

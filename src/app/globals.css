@@ -1300,6 +1300,15 @@ body:has(.landing-page) .site-main {
   font-variant-numeric: tabular-nums;
 }
 
+.metric-note {
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
 .search-shell {
   --search-control-inset: 1.15rem;
   --search-icon-size: 17px;
