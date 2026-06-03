@@ -106,6 +106,21 @@ describe("SkillHeader", () => {
     expect(skillActions?.lastElementChild).toBe(button)
   })
 
+  it("omits a version flag from the default install command", () => {
+    render(<SkillHeader meta={meta} />)
+
+    expect(screen.getByText("uvx aptitude-resolver install documentation-writing")).toBeInTheDocument()
+    expect(screen.queryByText(/--version/)).not.toBeInTheDocument()
+  })
+
+  it("includes a version flag for explicit version installs", () => {
+    render(<SkillHeader meta={meta} installVersion={meta.version} />)
+
+    expect(screen.getByText(
+      "uvx aptitude-resolver install documentation-writing --version 0.1.0-publish.20260515115306",
+    )).toBeInTheDocument()
+  })
+
   it("updates metadata stars and sends star event deltas from the header action", async () => {
     render(
       <>

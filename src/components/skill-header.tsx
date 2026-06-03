@@ -6,6 +6,7 @@ import type { SkillVersionMetadataDto } from "@/lib/types"
 
 interface SkillHeaderProps {
   meta: SkillVersionMetadataDto
+  installVersion?: string
 }
 
 function scoreTone(value: number) {
@@ -44,7 +45,7 @@ function ScoreDonut({ label, value }: { label: string; value: number | null }) {
   )
 }
 
-export function SkillHeader({ meta }: SkillHeaderProps) {
+export function SkillHeader({ meta, installVersion }: SkillHeaderProps) {
   return (
     <header className="skill-hero">
       <nav className="breadcrumb" aria-label="Breadcrumb">
@@ -79,7 +80,7 @@ export function SkillHeader({ meta }: SkillHeaderProps) {
       )}
 
       <div className="skill-actions">
-        <InstallButton slug={meta.slug} version={meta.version} />
+        <InstallButton slug={meta.slug} version={installVersion} />
         <SkillStarButton
           slug={meta.slug}
           name={meta.metadata.name}

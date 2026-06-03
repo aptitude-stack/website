@@ -25,7 +25,12 @@ export function VersionList({ slug, versions }: { slug: string; versions: SkillV
             {versions.map((version) => (
               <tr key={version.version} data-current={version.is_current_default}>
                 <td>
-                  <Link href={`/skills/${encodeURIComponent(slug)}?version=${encodeURIComponent(version.version)}`} className="version-link">
+                  <Link
+                    href={version.is_current_default
+                      ? `/skills/${encodeURIComponent(slug)}`
+                      : `/skills/${encodeURIComponent(slug)}?version=${encodeURIComponent(version.version)}`}
+                    className="version-link"
+                  >
                     <span translate="no">{version.version}</span>
                   </Link>
                 </td>

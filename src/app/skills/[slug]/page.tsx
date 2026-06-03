@@ -37,10 +37,13 @@ export default async function SkillDetailPage({ params, searchParams }: Props) {
   const markdown = contentBuffer
     ? extractMarkdownFromTarZst(new Uint8Array(contentBuffer))
     : null
+  const installVersion = versionParam && !current.is_current_default
+    ? current.version
+    : undefined
 
   return (
     <div className="detail-page">
-      <SkillHeader meta={meta} />
+      <SkillHeader meta={meta} installVersion={installVersion} />
       <div className="detail-grid">
         <div className="detail-main">
           {markdown ? (
