@@ -40,7 +40,6 @@ export function SkillCard({ card }: { card: SkillCardData }) {
   const {
     slug,
     name,
-    version,
     install_count,
     star_count,
     description,
@@ -61,10 +60,6 @@ export function SkillCard({ card }: { card: SkillCardData }) {
         <CardHeader className="skill-card__top">
           <div className="skill-card__identity">
             <CardTitle className="skill-card__name">{displayName}</CardTitle>
-            <span className="skill-card__sub">
-              <span className="skill-card__slug" translate="no">{slug}</span>
-              <span className="skill-card__version" translate="no">v{version}</span>
-            </span>
           </div>
           <CardAction className="skill-card__meta">
             <SkillStarredBadge slug={slug} name={displayName} />

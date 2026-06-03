@@ -40,9 +40,10 @@ describe("SkillCard", () => {
     __resetStarredSkillsStoreForTests()
   })
 
-  it("renders the skill slug", () => {
+  it("does not render slug or version metadata", () => {
     render(<SkillCard card={fixture} />)
-    expect(screen.getByText("fastapi")).toBeInTheDocument()
+    expect(screen.queryByText("fastapi")).not.toBeInTheDocument()
+    expect(screen.queryByText("v1.2.0")).not.toBeInTheDocument()
   })
 
   it("renders the description", () => {

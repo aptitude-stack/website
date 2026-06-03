@@ -1,6 +1,7 @@
 "use client"
 
 import { LoaderCircle, Search, X } from "lucide-react"
+import type { KeyboardEvent } from "react"
 import { useEffect, useId, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -26,6 +27,13 @@ const DEFAULT_PLACEHOLDERS = [
   "Search skills - e.g. docs writing…",
   "Search skills - e.g. git workflow…",
 ]
+const COMPLETION_HINTS = [
+  "review pull-request",
+  "linter",
+  "python patterns",
+  "docs writing",
+  "git workflow",
+]
 let pageLoadPlaceholderIndex: number | null = null
 
 export function SearchBar({
@@ -39,6 +47,7 @@ export function SearchBar({
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSearchedValueRef = useRef("")
+  const completionHint = getCompletionHint(value)
 
   function clearValue() {
     if (timerRef.current !== null) clearTimeout(timerRef.current)
@@ -47,6 +56,19 @@ export function SearchBar({
       lastSearchedValueRef.current = ""
       onClear?.()
     }
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== "ArrowRight" || completionHint === null) return
+    const target = event.currentTarget
+    if (
+      target.selectionStart !== target.value.length ||
+      target.selectionEnd !== target.value.length
+    ) {
+      return
+    }
+    event.preventDefault()
+    setValue(completionHint)
   }
 
   useEffect(() => {
@@ -83,12 +105,21 @@ export function SearchBar({
           role="textbox"
           value={value}
           onChange={(e) => setValue(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder ?? DEFAULT_PLACEHOLDERS[placeholderIndex]}
           autoComplete="off"
           inputMode="search"
           spellCheck={false}
           className="search-input"
         />
+        {completionHint !== null && (
+          <span className="search-completion-hint" aria-hidden="true">
+            <span className="search-completion-prefix">{value}</span>
+            <span className="search-completion-suffix">
+              {completionHint.slice(value.length)}
+            </span>
+          </span>
+        )}
         {loading && (
           <span
             data-testid="search-loading"
@@ -118,6 +149,15 @@ export function SearchBar({
       </div>
     </TooltipProvider>
   )
+}
+
+function getCompletionHint(value: string): string | null {
+  if (value.length === 0 || value.trimStart() !== value) return null
+  const normalizedValue = value.toLocaleLowerCase()
+  return COMPLETION_HINTS.find((hint) => {
+    const normalizedHint = hint.toLocaleLowerCase()
+    return normalizedHint.startsWith(normalizedValue) && hint.length > value.length
+  }) ?? null
 }
 
 function getNextDefaultPlaceholderIndex(): number {
